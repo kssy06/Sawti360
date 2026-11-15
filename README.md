@@ -16,7 +16,6 @@ Hackathon IA Éthique 360, 5e édition (Junior Entreprise INSAT et OIF) .
 
 ## Sommaire
 
-- [Où trouver chaque critère du cahier des charges](#où-trouver-chaque-critère-du-cahier-des-charges)
 - [Le problème](#le-problème)
 - [La solution](#la-solution)
 - [Aperçu du prototype](#aperçu-du-prototype)
