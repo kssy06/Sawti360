@@ -14,6 +14,8 @@ Projet présenté au hackathon IA Éthique 360, 5e édition, organisé par la Ju
 - **Ce qui reste humain** : le cinéaste et l'adaptateur valident chaque réplique. L'IA propose, l'humain décide.
 - **Ce que le jury peut voir en 30 secondes** : une voix non consentie est refusée, une voix consentie est acceptée, et le film sort avec son passeport.
 
+> **En bref :** aucune voix sans consentement vérifié, aucune réplique exportée sans validation humaine, et un Passeport 360° pour retracer les décisions.
+
 ## Sommaire
 
 - [Où trouver chaque critère du cahier des charges](#où-trouver-chaque-critère-du-cahier-des-charges)
@@ -59,13 +61,11 @@ Un cinéaste tunisien indépendant rencontre une barrière de langue qui empêch
 
 **Comment nous l'avons détecté.** Observer, écouter, vérifier, formuler. Un seul entretien est fait à ce jour ; les autres (programmateur de festival, doubleur ou sous-titreur, traducteur ou adaptateur, producteur ou autre cinéaste) sont marqués `[à recueillir]`. Pour étayer le manque, nous mesurerons le taux d'erreur (WER) d'un modèle existant sur 2 minutes de derja transcrites à la main : `[à mesurer]`.
 
-| Nom et rôle | Date | Ce qu'il ou elle a dit |
+| Personne interrogée | Date | Enseignement retenu |
 |---|---|---|
-| Mohamed Karim Dahmouni, cinéaste | 14 nov. 2026 | Un film incompris reste invisible ; les sous-titres aident un peu ; le doublage fait voyager un film |
-| Programmateur de festival | `[date]` | `[à recueillir]` |
-| Doubleur ou sous-titreur | `[date]` | `[à recueillir]` |
-| Traducteur ou adaptateur | `[date]` | `[à recueillir]` |
-| Producteur ou autre cinéaste | `[date]` | `[à recueillir]` |
+| Mohamed Karim Dahmouni, cinéaste | 14 novembre 2026 | Un film incompris reste invisible ; les sous-titres aident, tandis que le doublage peut faire voyager un film. |
+
+Des échanges complémentaires avec des programmateurs, doubleurs, traducteurs et producteurs permettront d'enrichir ce premier retour. Ils ne sont pas présentés ici comme déjà réalisés.
 
 ## La solution
 
@@ -293,11 +293,11 @@ Les sources sont dans [design/](design/) : `python design/generer_maquettes.py` 
 
 | Rôle | Responsabilités | Membre |
 |---|---|---|
-| Chef d'équipe et référent éthique | Entretiens de terrain, planning, livrables, journal d'audit, décisions éthiques | `[prénom]` |
-| IA parole | Transcription derja, Sawti-Bench, mesure du WER | `[prénom]` |
-| IA langue | Traduction, glossaire, vérificateur de fidélité | `[prénom]` |
-| Back-end et sécurité | Passeport de voix, moteur de règles, journal, coffre local, manifeste | `[prénom]` |
-| Front-end, audio et communication | Console, panneau énergie, voix et mixage, slides, vidéo, README | `[prénom]` |
+| Chef d'équipe et référent éthique | Entretiens de terrain, planning, livrables, journal d'audit, décisions éthiques | Amine |
+| IA parole | Transcription derja, Sawti-Bench, mesure du WER | Youssef |
+| IA langue | Traduction, glossaire, vérificateur de fidélité | Koussay |
+| Back-end et sécurité | Passeport de voix, moteur de règles, journal, coffre local, manifeste | Ahmed |
+| Front-end, audio et communication | Console, panneau énergie, voix et mixage, slides, vidéo, README | Ghayth |
 
 Au moins deux membres seront présents aux ateliers du 18 novembre.
 
