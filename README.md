@@ -88,7 +88,7 @@ Vérification hors ligne d’un passeport exporté :
 python scripts/verify_passport.py exports/passeport_360.json
 ```
 
-Autres captures : [fidélité](docs/captures/02_fidelite.png) · [falsification du journal détectée](docs/captures/08_falsification.png) · [panneau énergie](docs/captures/09_energie.png). Présentation : voir [`docs/PITCH.md`](docs/PITCH.md).
+Autres captures : [fidélité](docs/captures/02_fidelite.png) · [falsification du journal détectée](docs/captures/08_falsification.png) · [panneau énergie](docs/captures/09_energie.png). Présentation (Canva) : https://canva.link/lu6nsgxbyjwdj6h — plan dans [`docs/PITCH.md`](docs/PITCH.md).
 
 ## 4. Architecture
 
