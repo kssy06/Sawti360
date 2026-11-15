@@ -109,36 +109,41 @@ def to_html(passport: dict) -> str:
     idt, resp, dur = passport["identite"], passport["responsabilite"], passport["durabilite"]
 
     def rows(d: dict) -> str:
-        return "".join(f"<tr><th>{e(k)}</th><td>{e(val)}</td></tr>" for k, val in d.items())
+        return "".join(f"<tr><th>{e(str(k).replace('_', ' ').capitalize())}</th><td>{e(val)}</td></tr>" for k, val in d.items())
 
     voix = "".join(f"<li>{e(l)}</li>" for l in passport["transparence"]["generique_des_voix"])
     labels = "".join(f"<li>{e(l)}</li>" for l in passport["transparence"]["labels"])
     modeles = "".join(f"<li>{e(m.get('name'))} {e(m.get('version', ''))} — {e(m.get('note', m.get('sha256', '')))}</li>"
                       for m in passport["securite"]["modeles"])
     demo = '<p class="demo">Données de démonstration</p>' if passport.get("donnees_de_demonstration") else ""
-    badge = ('<div class="ok">✔ VÉRIFIÉ</div>' if v["valide"] else '<div class="ko">✘ INVALIDE</div>')
+    ok_svg = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M7.5 12.5l3 3 6-6.5"/></svg>'
+    ko_svg = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8.5 8.5l7 7M15.5 8.5l-7 7"/></svg>'
+    badge = (f'<div class="verdict ok">{ok_svg}Vérifié</div>' if v["valide"] else f'<div class="verdict ko">{ko_svg}Invalide</div>')
     return f"""<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Passeport 360° — {e(idt['titre'])}</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<style>body{{font-family:system-ui,sans-serif;background:#0a1030;color:#e8ecff;margin:0;padding:24px}}
-main{{max-width:820px;margin:auto}}h1{{letter-spacing:.12em}}h2{{color:#3fd5f0;font-size:1rem;letter-spacing:.14em;text-transform:uppercase;margin-top:28px}}
-section{{border:1px solid #2a3a7a;border-radius:12px;padding:4px 18px 14px;margin:14px 0;background:#0e1640}}
-table{{border-collapse:collapse;width:100%}}th{{text-align:left;color:#9fb0e8;font-weight:500;width:38%;vertical-align:top}}th,td{{padding:5px 0;word-break:break-word}}
-.ok{{color:#3be0a0;font-size:1.5rem;font-weight:700}}.ko{{color:#ff5470;font-size:1.5rem;font-weight:700}}
-.demo{{color:#f5c14b;border:1px solid #f5c14b;display:inline-block;padding:2px 10px;border-radius:99px;font-size:.8rem}}
-img{{background:#fff;padding:8px;border-radius:8px;width:170px}}footer{{color:#9fb0e8;margin-top:30px;font-size:.9rem}}code{{font-size:.8rem}}</style></head>
-<body><main><h1>PASSEPORT 360°</h1><p>Dossier vérifiable · Sawti 360 — Le doublage de confiance</p>{demo}
-{badge}<p>{e(' ; '.join(v['detail']))}</p>
-<section><h2>01 · Identité du film</h2><table>{rows(idt)}</table></section>
-<section><h2>02 · Voix, licences et consentement</h2><ul>{voix}</ul></section>
-<section><h2>03 · Qualité par langue et accent</h2><table>{rows(passport['langues'])}</table></section>
-<section><h2>04 · Transparence</h2><ul>{labels}</ul><p>{e(passport['transparence']['manifeste']['avertissement'])}</p></section>
-<section><h2>05 · Responsabilité</h2><table>{rows({k: val for k, val in resp.items() if k != 'journal'})}</table></section>
-<section><h2>06 · Sécurité</h2><ul>{modeles}</ul><p>{e(passport['securite']['traitement_local'])}</p></section>
-<section><h2>07 · Durabilité</h2><table>{rows(dur)}</table></section>
-<section><h2>08 · Signature et QR de vérification</h2><img alt="QR de vérification" src="data:image/png;base64,{qr}">
+<style>:root{{--bg:#070b24;--panel:#0d1438;--ink:#e8ecff;--muted:#a9b6e6;--line:#27336b;--ok:#4ade9f;--ko:#ff6b81;--accent:#3fd5f0}}
+*{{box-sizing:border-box}}::selection{{background:var(--accent);color:var(--bg)}}a:focus-visible{{outline:2px solid var(--accent);outline-offset:2px}}
+body{{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink);margin:0;padding:32px 16px 48px;line-height:1.5}}
+main{{max-width:70ch;margin:auto}}h1{{font-size:2rem;margin:0 0 4px;text-wrap:balance}}.sub{{color:var(--muted);margin:0 0 20px}}
+h2{{font-size:1.1rem;margin:36px 0 10px;padding-top:18px;border-top:1px solid var(--line)}}
+table{{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}}th{{text-align:left;color:var(--muted);font-weight:400;width:40%;vertical-align:top}}th,td{{padding:5px 12px 5px 0;overflow-wrap:anywhere}}
+ul{{padding-left:1.1rem;margin:0}}li{{margin:4px 0}}
+.verdict{{display:flex;align-items:center;gap:10px;font-size:1.4rem;font-weight:700;margin:18px 0 4px}}.ok{{color:var(--ok)}}.ko{{color:var(--ko)}}
+.demo{{color:var(--muted);font-size:.9rem;margin:0}}.qr{{background:#fff;padding:10px;border-radius:8px;width:180px;display:block;margin:6px 0 14px}}
+footer{{color:var(--muted);margin-top:40px;padding-top:16px;border-top:1px solid var(--line);font-size:.9rem}}code{{font-size:.85rem;overflow-wrap:anywhere}}</style></head>
+<body><main><h1>Passeport 360°</h1><p class="sub">Dossier vérifiable · Sawti 360, le doublage de confiance</p>{demo}
+{badge}<p>{e(' ; '.join(v['detail']).capitalize())}.</p>
+<h2>Identité du film</h2><table>{rows(idt)}</table>
+<h2>Voix, licences et consentement</h2><ul>{voix}</ul>
+<h2>Qualité par langue et accent</h2><table>{rows(passport['langues'])}</table>
+<h2>Transparence</h2><ul>{labels}</ul><p>{e(passport['transparence']['manifeste']['avertissement'])}</p>
+<h2>Responsabilité</h2><table>{rows({k: val for k, val in resp.items() if k != 'journal'})}</table>
+<h2>Sécurité</h2><ul>{modeles}</ul><p>{e(passport['securite']['traitement_local'].capitalize())}.</p>
+<h2>Durabilité</h2><table>{rows(dur)}</table>
+<h2>Signature et vérification</h2><img class="qr" alt="QR de vérification" src="data:image/png;base64,{qr}">
 <p>Empreinte du passeport : <code>{passport_hash(passport)}</code></p>
 <p>Clé publique : <code>{e(passport.get('signature', {}).get('cle_publique', ''))}</code></p>
-<p>Vérification hors ligne : <code>python scripts/verify_passport.py passeport.json</code></p></section>
+<p>Pour vérifier hors ligne : <code>python scripts/verify_passport.py passeport.json</code></p>
 <footer>{e(passport['mentions'])}<br>{e(passport['slogan'])}</footer></main></body></html>"""
 
 

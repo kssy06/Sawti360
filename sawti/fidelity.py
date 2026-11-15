@@ -19,7 +19,7 @@ def check(source: str, translation: str) -> list[dict]:
     alerts = []
     ns, nt = sorted(_NUM.findall(source)), sorted(_NUM.findall(translation))
     if ns != nt:
-        alerts.append({"type": "CHIFFRES", "message": f"Chiffres différents : source {ns or '∅'} → traduction {nt or '∅'}"})
+        alerts.append({"type": "CHIFFRES", "message": f"Chiffres différents : {', '.join(ns) or 'aucun'} dans la source, {', '.join(nt) or 'aucun'} dans la traduction."})
     if bool(_NEG_SRC.search(source)) != bool(_NEG_FR.search(translation)):
         alerts.append({"type": "NEGATIONS", "message": "Négation présente d’un seul côté : sens possiblement inversé."})
     names_s, names_t = set(_NAME.findall(source)), set(_NAME.findall(translation))

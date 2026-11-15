@@ -56,7 +56,7 @@ def test_rewritten_journal_fails(signed):
 def test_export_and_cli(signed, tmp_path):
     p, _ = signed
     files = passport.export(p, tmp_path)
-    assert "PASSEPORT 360°" in files["html"].read_text(encoding="utf-8") and files["qr"].read_bytes()[:4] == b"\x89PNG"
+    assert "Passeport 360°" in files["html"].read_text(encoding="utf-8") and files["qr"].read_bytes()[:4] == b"\x89PNG"
     run = lambda f: subprocess.run([sys.executable, str(ROOT / "scripts" / "verify_passport.py"), str(f)],  # noqa: E731
                                    capture_output=True, text=True)
     ok = run(files["json"])
