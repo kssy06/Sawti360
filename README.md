@@ -237,4 +237,4 @@ L'équipe reste titulaire de la propriété intellectuelle du projet. Elle garan
 ## Sources
 
 - Fiches AI Academy / Novation AI Center of Excellence : consentement, diversité, transparence, responsabilité, robustesse, sécurité des données et durabilité. Textes de référence : RGPD art. 9, 32 et 33 ; AI Act art. 10, 15, 26, 50 et annexe XI ; ISO/IEC 42001 ; UNESCO 2005 et 2021.
-- Entretien avec Mohamed Karim Dahmouni, cinéaste, 14 novembre 2026.
+- Entretien avec Mohamed Karim Dahmouni, cinéaste.
