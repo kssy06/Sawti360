@@ -29,21 +29,6 @@ Hackathon IA Éthique 360, 5e édition (Junior Entreprise INSAT et OIF) .
 - [Propriété intellectuelle](#propriété-intellectuelle)
 - [Sources](#sources)
 
-## Où trouver chaque critère du cahier des charges
-
-Première soumission du 15 novembre, avec les pondérations du cahier des charges.
-
-| Critère (poids)                                                       | Où le lire                                                                                                                |
-| ---------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| Pertinence du problème détecté (30 %)                               | [Le problème](#le-problème)                                                                                               |
-| Innovation et place de l'IA (25 %)                                     | [La solution](#la-solution), [Place de l&#39;IA](#place-de-lia--construit-ou-réutilisé)                                    |
-| Démarche éthique à 360° (25 %)                                     | [Démarche éthique à 360°](#démarche-éthique-à-360)                                                                   |
-| Faisabilité et intention de développement (20 %)                     | [Périmètre par échéance](#périmètre-par-échéance), [Équipe](#équipe), [Aperçu du prototype](#aperçu-du-prototype) |
-| Livrable : README détaillé en français avec section éthique        | Ce fichier                                                                                                                 |
-| Livrable : vidéo de 1 à 2 minutes en français                         | [Vidéo de présentation](#vidéo-de-présentation)                                                                           |
-| Propriété intellectuelle : droits d'auteur, voix, licences           | [Propriété intellectuelle](#propriété-intellectuelle)                                                                   |
-| Phases suivantes : impact francophone, viabilité, modèle économique | [Francophonie](#en-cohérence-avec-la-francophonie), [Modèle économique](#modèle-économique)                             |
-
 ## Le problème
 
 Un cinéaste tunisien indépendant rencontre une barrière de langue qui empêche ses films en derja d'être compris quand ils sont présentés à des festivals ou à des publics étrangers, ce qui entraîne des films primés mais invisibles. Les outils d'IA qui pourraient les doubler lui font courir un autre risque : voix clonées sans accord, contenus non étiquetés, aucune trace de qui a décidé quoi.
