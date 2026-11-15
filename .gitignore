@@ -1,4 +1,6 @@
 data/private/
+data/consents/
+data/bench/
 keys/
 .env
 __pycache__/
