@@ -62,7 +62,6 @@ Sawti 360 est un doublage supervisé entouré d'une couche de confiance. Les out
 | 9  | Étiquetage                    | Label visible, métadonnées, générique des voix                                             | Transparence       |
 | 10 | Export                         | Piste doublée, sous-titres et Passeport 360° signé                                          | Toutes les portes  |
 
-Le périmètre de chaque étape par échéance est dans [Périmètre par échéance](#périmètre-par-échéance).
 
 ### Les neuf modules de la couche de confiance
 
@@ -78,7 +77,6 @@ Le périmètre de chaque étape par échéance est dans [Périmètre par échéa
 | Sécurité des données | Coffre local                           | Traitement local, chiffrement, accès par rôle, jamais de film inédit envoyé à une IA publique                                                 |
 | Durabilité             | Panneau énergie                       | kWh et gCO₂ par génération, mode éco avec le plus petit modèle suffisant                                                                      |
 
-Les fiches 1 et 3 du programme ne nous ont pas été transmises : « contrôle humain » et « équité d'accès » sont une hypothèse de notre part.
 
 | Ce que fait l'IA                                                                       | Ce qu'elle ne décide pas                                                 |
 | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
@@ -89,7 +87,7 @@ Les fiches 1 et 3 du programme ne nous ont pas été transmises : « contrôle h
 
 ## Aperçu du prototype
 
-Ces huit écrans sont des **maquettes du prototype**, conçues avec les principes de l'Apple Human Interface Guidelines (voir [Design de l&#39;interface](#design-de-linterface)). Les données y sont illustratives et la bannière « Maquette · données illustratives » figure sur chaque image.
+Ces huit écrans sont des **maquettes du prototype**. Les données y sont illustratives et la bannière « Maquette · données illustratives » figure sur chaque image.
 
 ### 1. Parcours du film
 
@@ -199,7 +197,6 @@ Chaque principe du programme devient une fonction concrète, testable et visible
 - Le projet s'inspire des textes cités sans prétendre constituer une certification juridique.
 - La détection de clone n'est pas infaillible.
 - Le périmètre dépend de la taille de l'équipe.
-- Les principes 1 et 3 du programme ne nous ont pas été transmis : nous les avons traités comme « contrôle humain » et « équité d'accès », en attendant les fiches.
 
 ## En cohérence avec la Francophonie
 
@@ -210,7 +207,6 @@ Chaque principe du programme devient une fonction concrète, testable et visible
 
 ## Modèle économique
 
-Business Model Canvas de première soumission.
 
 | Bloc                  | Contenu                                                                                                                                                            |
 | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -240,10 +236,8 @@ L'équipe reste titulaire de la propriété intellectuelle du projet. Elle garan
 
 ## Sources
 
-- Cahier des charges IA Éthique 360, 5e édition (JEI INSAT × OIF), JEI INSAT × OIF.
 - Fiches AI Academy / Novation AI Center of Excellence : consentement, diversité, transparence, responsabilité, robustesse, sécurité des données et durabilité. Textes de référence : RGPD art. 9, 32 et 33 ; AI Act art. 10, 15, 26, 50 et annexe XI ; ISO/IEC 42001 ; UNESCO 2005 et 2021.
 - Entretien avec Mohamed Karim Dahmouni, cinéaste, 14 novembre 2026.
 - Article LREC 2024 sur la synthèse vocale du tunisien, langue à faibles ressources : [https://aclanthology.org/2024.lrec-main.1467](https://aclanthology.org/2024.lrec-main.1467).
-- Apple Human Interface Guidelines : [https://developer.apple.com/design/human-interface-guidelines/](https://developer.apple.com/design/human-interface-guidelines/).
 
 Ce dépôt n'affirme aucun résultat que l'équipe n'a pas mesuré, et il n'est pas un avis juridique.
