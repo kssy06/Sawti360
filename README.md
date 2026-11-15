@@ -80,10 +80,10 @@ Sawti 360 est un doublage supervisé entouré d'une couche de confiance. Les out
 
 | Ce que fait l'IA                                                                       | Ce qu'elle ne décide pas                                                 |
 | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| Elle propose une transcription                                                         | Le cinéaste valide le texte qui fait foi                                 |
-| Elle propose une traduction et signale les écarts de chiffres, de noms, de négations | L'adaptateur accepte, réécrit ou rejette chaque réplique               |
-| Elle génère une voix si le moteur de règles l'autorise                              | Le titulaire fixe les usages, les projets et la durée, et peut révoquer |
-| Elle mesure sa consommation                                                            | Le référent éthique valide le passeport avant l'export                 |
+| Elle propose une transcription                                                         | L'utilisateur valide le texte qui fait foi                                 |
+| Elle propose une traduction et signale les écarts de chiffres, de noms, de négations | L'utilisateur accepte, réécrit ou rejette chaque réplique               |
+| Elle génère une voix si le moteur de règles l'autorise                              | L'utilisateur fixe les usages, les projets et la durée, et peut révoquer |
+| Elle mesure sa consommation                                                            | L'utilisateur éthique valide le passeport avant l'export                 |
 
 ## Aperçu du prototype
 
@@ -238,6 +238,3 @@ L'équipe reste titulaire de la propriété intellectuelle du projet. Elle garan
 
 - Fiches AI Academy / Novation AI Center of Excellence : consentement, diversité, transparence, responsabilité, robustesse, sécurité des données et durabilité. Textes de référence : RGPD art. 9, 32 et 33 ; AI Act art. 10, 15, 26, 50 et annexe XI ; ISO/IEC 42001 ; UNESCO 2005 et 2021.
 - Entretien avec Mohamed Karim Dahmouni, cinéaste, 14 novembre 2026.
-- Article LREC 2024 sur la synthèse vocale du tunisien, langue à faibles ressources : [https://aclanthology.org/2024.lrec-main.1467](https://aclanthology.org/2024.lrec-main.1467).
-
-Ce dépôt n'affirme aucun résultat que l'équipe n'a pas mesuré, et il n'est pas un avis juridique.
