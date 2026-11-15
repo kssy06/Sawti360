@@ -33,4 +33,17 @@ Règle : la licence de chaque modèle et jeu de données est vérifiée **avant*
 | Sawti-Bench (`data/bench/`) | ~2 min de derja + transcription manuelle (cible : 20–30 min) | enregistrement d’un membre de l’équipe ou du cinéaste, **accord écrit obligatoire** dans `data/consents/` | **[à fournir par l’équipe]** |
 | Données de démonstration (`scripts/seed_demo.py`) | licences fictives étiquetées « données de démonstration » | sans objet (aucune voix réelle) | ✅ |
 
+## Vidéo de présentation (`video/`)
+
+| Élément | Rôle | Licence | Remarque |
+|---|---|---|---|
+| HyperFrames 0.9.52 | rendu HTML → MP4 | Apache-2.0 | https://github.com/heygen-com/hyperframes ; télémétrie désactivée |
+| GSAP 3.15.0 | animations | licence standard GSAP (gratuite) | https://gsap.com |
+| world-atlas 2 (Natural Earth) | contours des pays du globe | ISC ; données Natural Earth du domaine public | https://github.com/topojson/world-atlas |
+| Polices Archivo Black, Inter, Noto Sans Arabic | typographie | SIL Open Font License | Noto Sans Arabic via `@fontsource` |
+| Effets sonores (whoosh, impacts, clics) | habillage sonore | licence Pixabay (sans attribution obligatoire) | `video/assets/audio/CREDITS.md` |
+| Captures de la console | preuves à l'écran | œuvre de l'équipe | `docs/captures/` |
+| Témoignage de M. K. Dahmouni | problème observé | **accord écrit d'image et de voix à obtenir** | non versionné ; release `media-v1` |
+| Kokoro-82M (`hexgrad/Kokoro-82M`), voix française `ff_siwis` | voix off de la vidéo, générée en local (CPU) | modèle Apache-2.0 ; la voix `ff_siwis` vient du corpus SIWIS (CC BY 4.0, à vérifier) | moteur repris du projet `automated-vids` ; mention « voix off générée par IA » au générique ; fichiers dans `video/assets/voix/` |
+
 Aucun audio de personne réelle n’est versionné dans ce dépôt.

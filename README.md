@@ -6,14 +6,14 @@ Sawti 360 est une plateforme de doublage dont le vrai produit est la confiance. 
 
 « L'IA propose · L'humain décide · La confiance accompagne chaque export. »
 
-Projet présenté au hackathon IA Éthique 360, 5e édition, organisé par la Junior Entreprise I NSAT (JEI) avec l'OIF. Sous-thématique : l'intégration de l'intelligence artificielle dans l'industrie audiovisuelle à vocation culturelle. Première soumission : 15 novembre 2026. Tout le dépôt est rédigé en français.
+Projet présenté au hackathon IA Éthique 360, 5e édition, organisé par la Junior Entreprise INSAT (JEI) avec l'OIF. Sous-thématique : l'intégration de l'intelligence artificielle dans l'industrie audiovisuelle à vocation culturelle. Première soumission : 15 novembre 2026. Tout le dépôt est rédigé en français.
 
 ![Passeport 360° d'un film](docs/maquettes/06-passeport-360.png)
 
 *Maquette du prototype, données illustratives, aucune voix réelle.*
 
 - **Ce qui est nouveau** : les outils de doublage par IA produisent une voix. Sawti 360 produit une voix et la preuve qu'elle est légitime, mesurée et traçable.
-- **Ce qui reste humain** : le cinéaste et l'adaptateur valident chaque réplique. L'IA propose, l'humain décide.
+- **Ce qui reste humain** : le créateur (cinéaste ou vidéaste) et l'adaptateur valident chaque réplique. L'IA propose, l'humain décide.
 
 > **En bref :** aucune voix sans consentement vérifié, aucune réplique exportée sans validation humaine, et un Passeport 360° pour retracer les décisions.
 
@@ -23,6 +23,7 @@ Projet présenté au hackathon IA Éthique 360, 5e édition, organisé par la Ju
 - [Le problème](#le-problème)
 - [La solution](#la-solution)
 - [Aperçu du prototype](#aperçu-du-prototype)
+- [Vidéo de présentation](#vidéo-de-présentation)
 - [Le Passeport 360° du film](#le-passeport-360-du-film)
 - [Place de l&#39;IA : construit ou réutilisé](#place-de-lia--construit-ou-réutilisé)
 - [Périmètre par échéance](#périmètre-par-échéance)
@@ -45,6 +46,7 @@ Première soumission du 15 novembre, avec les pondérations du cahier des charge
 | Démarche éthique à 360° (25 %)                                     | [Démarche éthique à 360°](#démarche-éthique-à-360)                                                                   |
 | Faisabilité et intention de développement (20 %)                     | [Périmètre par échéance](#périmètre-par-échéance), [Équipe](#équipe), [Aperçu du prototype](#aperçu-du-prototype) |
 | Livrable : README détaillé en français avec section éthique        | Ce fichier                                                                                                                 |
+| Livrable : vidéo de 1 à 2 minutes en français                         | [Vidéo de présentation](#vidéo-de-présentation)                                                                           |
 | Propriété intellectuelle : droits d'auteur, voix, licences           | [Propriété intellectuelle](#propriété-intellectuelle)                                                                   |
 | Phases suivantes : impact francophone, viabilité, modèle économique | [Francophonie](#en-cohérence-avec-la-francophonie), [Modèle économique](#modèle-économique)                             |
 
@@ -54,8 +56,8 @@ Un cinéaste tunisien indépendant rencontre une barrière de langue qui empêch
 
 **Face 1 : le film ne voyage pas.** Lors de l'entretien du 14 novembre 2026, le cinéaste tunisien Mohamed Karim Dahmouni a expliqué que les sous-titres aident, mais que le doublage permet à un film de voyager. Toute utilisation de son image ou de sa voix dans le projet est conditionnée à un accord écrit.
 
-> « Un film incompris reste invisible ; les sous-titres aident un peu ; le doublage fait voyager un film. »
-> Mohamed Karim Dahmouni, cinéaste, entretien du 14 novembre 2026
+> « Un film que le public ne comprend pas reste invisible, même s'il est extraordinaire. Les miens sont en dialecte tunisien, ils s'arrêtent à la barrière de la langue. Les sous-titres aident un peu, mais seul le doublage permet à un film de voyager. »
+> Mohamed Karim Dahmouni, cinéaste, entretien du 14 novembre 2026 et vidéo de témoignage (accord écrit d'image et de voix : à obtenir)
 
 **Face 2 : le doublage par IA est un terrain de conflits.** Les fiches du programme AI Academy citent des cas réels : en France, la voix d'un doubleur décédé recréée par IA pour une bande-annonce alors que sa famille n'avait accepté qu'un essai, puis 25 doubleurs qui obtiennent le retrait de 47 modèles clonant leur voix ; des doublages d'anime par IA mis en ligne puis retirés en quelques jours ; une voix synthétique dans un documentaire sans mention à l'écran. La technique seule ne suffit pas : il faut du consentement, de la transparence et de la responsabilité.
 
@@ -63,9 +65,11 @@ Un cinéaste tunisien indépendant rencontre une barrière de langue qui empêch
 
 | Personne interrogée              | Date             | Enseignement retenu                                                                                            |
 | --------------------------------- | ---------------- | -------------------------------------------------------------------------------------------------------------- |
-| Mohamed Karim Dahmouni, cinéaste | 14 novembre 2026 | Un film incompris reste invisible ; les sous-titres aident, tandis que le doublage peut faire voyager un film. |
+| Mohamed Karim Dahmouni, cinéaste | 14 novembre 2026 | Un film que le public ne comprend pas reste invisible ; les sous-titres aident un peu, mais seul le doublage permet à un film de voyager. |
 
 Des échanges complémentaires avec des programmateurs, doubleurs, traducteurs et producteurs permettront d'enrichir ce premier retour. Ils ne sont pas présentés ici comme déjà réalisés.
+
+**Au-delà du cinéma.** Le même blocage touche les créateurs en ligne : une vidéo YouTube, un Short, un podcast ou une vidéo générée par IA en derja reste dans le public qui comprend la derja. Le parcours et la couche de confiance sont les mêmes ; seul l'usage déclaré dans le Passeport de voix change (`doublage_video_en_ligne` : YouTube, Shorts, Reels, podcasts). C'est une hypothèse que nous n'avons pas encore vérifiée sur le terrain : l'entretien avec un vidéaste ou un podcasteur est à recueillir (voir [docs/ENTRETIENS.md](docs/ENTRETIENS.md)).
 
 ## La solution
 
@@ -163,6 +167,25 @@ Chaque entrée contient l'empreinte de la précédente. Les empreintes de la maq
 
 ![Sawti-Bench](docs/maquettes/08-sawti-bench.png)
 
+## Vidéo de présentation
+
+La vidéo de la première soumission dure 1 min 59, en français. Elle est construite en code avec [HyperFrames](https://github.com/heygen-com/hyperframes) (Apache-2.0) ; sa source est dans [video/](video/). Elle suit le fil du cahier : problème observé, solution, place de l'IA, démarche éthique.
+
+| Temps | Scène |
+| ----- | ----- |
+| 0:00 | « Ahla bik ! » rebondit contre une vitre : la barrière de la langue |
+| 0:07 | Témoignage de Mohamed Karim Dahmouni |
+| 0:31 | Le problème et les obstacles d'aujourd'hui (studio, IA générique, film envoyé en ligne) |
+| 0:42 | Pas seulement le cinéma : films, YouTube, Shorts, podcasts, vidéos générées par IA |
+| 0:50 | Globe des langues : derja, puis français (aujourd'hui), puis arabe, anglais, espagnol (demain) |
+| 1:00 | Une réplique réelle de la démo, de bout en bout : l'IA repère « 15 → 50 », le créateur corrige |
+| 1:17 | Consentement sur la vraie console : refus, accord, refus après révocation |
+| 1:36 | Passeport 360° signé et vérifié |
+| 1:44 | Les six angles éthiques |
+| 1:51 | La voix rejoint l'espace francophone ; L'IA propose · L'humain décide |
+
+Les interfaces montrées sont des captures de la console (`docs/captures/`). Le globe colore les pays où la langue est officielle ou d'usage courant ; il n'affiche aucun chiffre d'audience. La voix off est générée par IA en local (Kokoro, voix française `ff_siwis`), et le générique l'indique. Le fichier vidéo et le témoignage ne sont pas versionnés tant que l'accord écrit de Mohamed Karim Dahmouni n'est pas signé.
+
 ## Le Passeport 360° du film
 
 À chaque export, Sawti 360 génère un dossier lisible par un humain et vérifiable par une machine. Un festival, un producteur ou un financeur peut le contrôler avec un QR, sans nous croire sur parole.
@@ -250,9 +273,9 @@ Chaque principe du programme devient une fonction concrète, testable et visible
 
 ## En cohérence avec la Francophonie
 
-- **Diversité culturelle et linguistique** : le projet part de la derja, une langue à faibles ressources, et va vers le français. Nous mesurons la qualité langue par langue pour que l'écart soit visible. L'arabe est prévu pour la finale et l'amazigh pour la suite.
+- **Diversité culturelle et linguistique** : le projet part de la derja, une langue à faibles ressources, et va vers le français. Nous mesurons la qualité langue par langue pour que l'écart soit visible. L'arabe est prévu pour la finale, puis l'amazigh, l'anglais et l'espagnol, pour que les créateurs touchent d'autres publics avec leur propre voix.
 - **Jeunesse et entrepreneuriat** : rémunération par usage pour les comédiens de doublage et accès gratuit envisagé pour les étudiants et associations.
-- **Inclusion et égalité** : l'outil vise les jeunes créateurs et les petites structures qui n'ont pas accès à un studio de doublage. L'export prévoit des sous-titres, utiles aux personnes sourdes ou malentendantes.
+- **Inclusion et égalité** : l'outil vise les jeunes créateurs (cinéastes, vidéastes, podcasteurs) et les petites structures qui n'ont pas accès à un studio de doublage. L'export prévoit des sous-titres, utiles aux personnes sourdes ou malentendantes.
 - **Un numérique au service de l'humain** : le consentement, les droits du titulaire et la liberté du cinéaste passent avant la génération : le moteur de règles refuse par défaut.
 
 ## Modèle économique
