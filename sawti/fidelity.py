@@ -3,6 +3,7 @@
 Compares source and translation on: numbers, negations, capitalised names.
 Planned for the semi-final: back-translation similarity + evaluation on 100
 injected errors (results/fidelity.json — [à mesurer])."""
+
 from __future__ import annotations
 
 import re
@@ -19,11 +20,18 @@ def check(source: str, translation: str) -> list[dict]:
     alerts = []
     ns, nt = sorted(_NUM.findall(source)), sorted(_NUM.findall(translation))
     if ns != nt:
-        alerts.append({"type": "CHIFFRES", "message": f"Chiffres différents : {', '.join(ns) or 'aucun'} dans la source, {', '.join(nt) or 'aucun'} dans la traduction."})
+        alerts.append(
+            {
+                "type": "CHIFFRES",
+                "message": f"Chiffres différents : {', '.join(ns) or 'aucun'} dans la source, {', '.join(nt) or 'aucun'} dans la traduction.",
+            }
+        )
     if bool(_NEG_SRC.search(source)) != bool(_NEG_FR.search(translation)):
         alerts.append({"type": "NEGATIONS", "message": "Négation présente d’un seul côté : sens possiblement inversé."})
     names_s, names_t = set(_NAME.findall(source)), set(_NAME.findall(translation))
     missing = names_s - names_t
     if missing:
-        alerts.append({"type": "NOMS", "message": f"Nom(s) propre(s) absent(s) de la traduction : {', '.join(sorted(missing))}"})
+        alerts.append(
+            {"type": "NOMS", "message": f"Nom(s) propre(s) absent(s) de la traduction : {', '.join(sorted(missing))}"}
+        )
     return alerts

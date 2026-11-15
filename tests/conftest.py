@@ -1,5 +1,6 @@
 """Fixtures + automatic generation of results/attack_tests.md from the test run."""
-from datetime import datetime, timezone
+
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
@@ -9,7 +10,7 @@ from sawti.audit import AuditLog
 from sawti.licenses import LicenseStore
 
 ROOT = Path(__file__).resolve().parent.parent
-NOW = datetime(2026, 11, 15, 12, 0, tzinfo=timezone.utc)
+NOW = datetime(2026, 11, 15, 12, 0, tzinfo=UTC)
 _rows: list[tuple[str, str, str, str]] = []
 
 
@@ -38,9 +39,14 @@ def pytest_runtest_makereport(item, call):
 def pytest_sessionfinish(session):
     if not _rows:
         return
-    lines = ["# Tests d’attaque — résultats générés automatiquement", "",
-             f"Généré par `pytest` le {datetime.now(timezone.utc).isoformat(timespec='seconds')}. Ne pas éditer à la main.", "",
-             "| Scénario | Attendu | Observé | Test |", "|---|---|---|---|"]
+    lines = [
+        "# Tests d’attaque — résultats générés automatiquement",
+        "",
+        f"Généré par `pytest` le {datetime.now(UTC).isoformat(timespec='seconds')}. Ne pas éditer à la main.",
+        "",
+        "| Scénario | Attendu | Observé | Test |",
+        "|---|---|---|---|",
+    ]
     lines += [f"| {s} | {e} | {o} | `{n}` |" for s, e, o, n in _rows]
     out = ROOT / "results" / "attack_tests.md"
     out.parent.mkdir(exist_ok=True)

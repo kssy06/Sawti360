@@ -32,3 +32,5 @@ Règle : la licence de chaque modèle et jeu de données est vérifiée **avant*
 |---|---|---|---|
 | Sawti-Bench (`data/bench/`) | ~2 min de derja + transcription manuelle (cible : 20–30 min) | enregistrement d’un membre de l’équipe ou du cinéaste, **accord écrit obligatoire** dans `data/consents/` | **[à fournir par l’équipe]** |
 | Données de démonstration (`scripts/seed_demo.py`) | licences fictives étiquetées « données de démonstration » | sans objet (aucune voix réelle) | ✅ |
+
+Aucun audio de personne réelle n’est versionné dans ce dépôt.

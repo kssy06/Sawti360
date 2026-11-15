@@ -1,10 +1,11 @@
 """Data models: VoiceLicense, GenerationRequest, Decision, AuditEntry."""
+
 from __future__ import annotations
 
 import hashlib
 import json
 from dataclasses import asdict, dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 REASONS_FR = {
@@ -35,7 +36,7 @@ def sha256_hex(data: bytes | str) -> str:
 
 
 def now_iso() -> str:
-    return datetime.now(timezone.utc).isoformat(timespec="seconds")
+    return datetime.now(UTC).isoformat(timespec="seconds")
 
 
 @dataclass
@@ -71,7 +72,7 @@ class VoiceLicense:
         return d
 
     @classmethod
-    def from_dict(cls, d: dict) -> "VoiceLicense":
+    def from_dict(cls, d: dict) -> VoiceLicense:
         return cls(**d)
 
 

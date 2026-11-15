@@ -4,9 +4,9 @@
 
 Sawti 360 double une œuvre de la derja vers le français : un film, mais aussi une vidéo YouTube, un Short ou un podcast. L'IA propose, le créateur décide. Chaque voix a un Passeport de voix : sans consentement, rien n'est généré. À l'export, l'œuvre part avec un Passeport 360° que chacun peut vérifier.
 
-« L'IA propose · L'humain décide · La confiance agitccompagne chaque export. »
+« L'IA propose · L'humain décide · La confiance accompagne chaque export. »
 
-Hackathon IA Éthique 360, 5e édition (Junior Entreprise INSAT et OIF) .
+Hackathon IA Éthique 360, 5e édition (Junior Entreprise INSAT et OIF).
 
 ![Passeport 360°](docs/maquettes/06-passeport-360.png)
 
@@ -20,7 +20,7 @@ Hackathon IA Éthique 360, 5e édition (Junior Entreprise INSAT et OIF) .
 - [La solution](#la-solution)
 - [Aperçu du prototype](#aperçu-du-prototype)
 - [Le Passeport 360° du film](#le-passeport-360-du-film)
-- [Place de l&#39;IA : construit ou réutilisé](#place-de-lia--construit-ou-réutilisé)
+- [Place de l'IA : construit ou réutilisé](#place-de-lia--construit-ou-réutilisé)
 - [Démarche éthique à 360°](#démarche-éthique-à-360)
 - [En cohérence avec la Francophonie](#en-cohérence-avec-la-francophonie)
 - [Modèle économique](#modèle-économique)
@@ -32,7 +32,7 @@ Hackathon IA Éthique 360, 5e édition (Junior Entreprise INSAT et OIF) .
 
 Un cinéaste tunisien indépendant rencontre une barrière de langue qui empêche ses films en derja d'être compris quand ils sont présentés à des festivals ou à des publics étrangers, ce qui entraîne des films primés mais invisibles. Les outils d'IA qui pourraient les doubler lui font courir un autre risque : voix clonées sans accord, contenus non étiquetés, aucune trace de qui a décidé quoi.
 
-**Face 1 : le film ne voyage pas.** . Le cinéaste amateur tunisien Mohamed Karim Dahmouni a expliqué que les sous-titres aident, mais que le doublage permet à un film de voyager. Toute utilisation de son image ou de sa voix dans le projet est conditionnée à un accord écrit.
+**Face 1 : le film ne voyage pas.** Le cinéaste amateur tunisien Mohamed Karim Dahmouni a expliqué que les sous-titres aident, mais que le doublage permet à un film de voyager. Toute utilisation de son image ou de sa voix dans le projet est conditionnée à un accord écrit.
 
 > « Un film que le public ne comprend pas reste invisible, même s'il est extraordinaire. Les miens sont en dialecte tunisien, ils s'arrêtent à la barrière de la langue. Les sous-titres aident un peu, mais seul le doublage permet à un film de voyager. »
 > Mohamed Karim Dahmouni, cinéaste amateur tunisien.
@@ -62,8 +62,6 @@ Sawti 360 est un doublage supervisé entouré d'une couche de confiance. Les out
 | 9  | Étiquetage                    | Label visible, métadonnées, générique des voix                                             | Transparence       |
 | 10 | Export                         | Piste doublée, sous-titres et Passeport 360° signé                                          | Toutes les portes  |
 
-Le périmètre de chaque étape par échéance est dans [Périmètre par échéance](#périmètre-par-échéance).
-
 ### Les neuf modules de la couche de confiance
 
 | Principe                | Module Sawti 360                       | Ce que fait le module                                                                                                                              |
@@ -89,7 +87,7 @@ Les fiches 1 et 3 du programme ne nous ont pas été transmises : « contrôle h
 
 ## Aperçu du prototype
 
-Ces huit écrans sont des **maquettes du prototype**, conçues avec les principes de l'Apple Human Interface Guidelines (voir [Design de l&#39;interface](#design-de-linterface)). Les données y sont illustratives et la bannière « Maquette · données illustratives » figure sur chaque image.
+Ces huit écrans sont des **maquettes du prototype**, conçues avec les principes des Apple Human Interface Guidelines. Les données y sont illustratives et la bannière « Maquette · données illustratives » figure sur chaque image.
 
 ### 1. Parcours du film
 
@@ -240,7 +238,7 @@ L'équipe reste titulaire de la propriété intellectuelle du projet. Elle garan
 
 ## Sources
 
-- Cahier des charges IA Éthique 360, 5e édition (JEI INSAT × OIF), JEI INSAT × OIF.
+- Cahier des charges IA Éthique 360, 5e édition (JEI INSAT × OIF).
 - Fiches AI Academy / Novation AI Center of Excellence : consentement, diversité, transparence, responsabilité, robustesse, sécurité des données et durabilité. Textes de référence : RGPD art. 9, 32 et 33 ; AI Act art. 10, 15, 26, 50 et annexe XI ; ISO/IEC 42001 ; UNESCO 2005 et 2021.
 - Entretien avec Mohamed Karim Dahmouni, cinéaste, 14 novembre 2026.
 - Article LREC 2024 sur la synthèse vocale du tunisien, langue à faibles ressources : [https://aclanthology.org/2024.lrec-main.1467](https://aclanthology.org/2024.lrec-main.1467).

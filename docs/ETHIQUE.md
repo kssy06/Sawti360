@@ -33,11 +33,4 @@ Chaque angle du cahier des charges : **risque → notre réponse → limite rés
 
 ## Rôle du référent éthique
 
-`[prénom]` — tient ce document, traite les signalements d’abus du journal (`SIGNALEMENT_ABUS`), valide chaque Passeport 360° avant export, vérifie les consentements de `data/consents/`.
-
-## La vidéo de présentation applique les mêmes règles
-
-- Le témoignage de Mohamed Karim Dahmouni n'est utilisé qu'avec son accord écrit d'image et de voix (`[à obtenir]` avant toute diffusion publique) ; le fichier n'est pas versionné dans le dépôt.
-- La voix off est générée par IA (ElevenLabs v4 via Creative Claw, voix de bibliothèque « Chloé », aucune voix réelle clonée sans accord) et le générique l'indique : « Voix off générée par IA : ElevenLabs v4 via Creative Claw » ; la musique de fond est aussi générée par IA (Lyria 3.5) et créditée.
-- Les écrans montrés sont des captures réelles de la console ; aucun chiffre d'audience n'est affiché sur le globe des langues.
-- Pour les vidéos générées par IA publiées par des créateurs en ligne, la règle est la même : une voix sans Passeport de voix n'est pas générée.
+Ahmed (chef d'équipe) tient ce document, traite les signalements d’abus du journal (`SIGNALEMENT_ABUS`), valide chaque Passeport 360° avant export, vérifie les consentements de `data/consents/`.

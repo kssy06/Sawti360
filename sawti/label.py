@@ -1,10 +1,15 @@
 """Label visible + manifeste de provenance (inspiré de C2PA, SANS prétendre à la
 conformité C2PA) + générique des voix."""
+
 from __future__ import annotations
 
 from .models import now_iso, sha256_hex
 
-KIND_FR = {"humaine": "Voix humaine d’origine", "consentie": "Voix générée par IA · consentie", "neutre": "Voix générée par IA · neutre"}
+KIND_FR = {
+    "humaine": "Voix humaine d’origine",
+    "consentie": "Voix générée par IA · consentie",
+    "neutre": "Voix générée par IA · neutre",
+}
 
 
 def visible_label(kind: str, validator: str) -> str:
@@ -22,8 +27,15 @@ def voice_credits(voices: list[dict]) -> list[str]:
     return lines
 
 
-def provenance_manifest(*, title: str, asset_sha256: str, voices: list[dict], validator: str,
-                        models: list[dict], ai_passages: list[dict] | None = None) -> dict:
+def provenance_manifest(
+    *,
+    title: str,
+    asset_sha256: str,
+    voices: list[dict],
+    validator: str,
+    models: list[dict],
+    ai_passages: list[dict] | None = None,
+) -> dict:
     manifest = {
         "format": "sawti-manifeste/0.1",
         "avertissement": "Manifeste de provenance inspiré de C2PA ; aucune conformité C2PA n’est revendiquée.",

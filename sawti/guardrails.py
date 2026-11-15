@@ -1,4 +1,5 @@
 """Garde-fous V1 : blocklist de personnalités, signalement d’abus, contenus sensibles."""
+
 from __future__ import annotations
 
 import json

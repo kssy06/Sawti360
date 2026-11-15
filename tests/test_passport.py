@@ -15,13 +15,31 @@ KW = dict(project_id="film_01", use="doublage_film", language="fr", requested_by
 
 @pytest.fixture
 def signed(store, audit, tmp_path):
-    lic = store.create(voice_id="voice_amine", holder_name="Amine B.", projects=["film_01"], valid_from="2020-01-01", valid_until="2099-01-01")
+    lic = store.create(
+        voice_id="voice_amine",
+        holder_name="Amine B.",
+        projects=["film_01"],
+        valid_from="2020-01-01",
+        valid_until="2099-01-01",
+    )
     synth.generate(voice_id="voice_inconnue", store=store, audit=audit, out_dir=tmp_path, **KW)
     synth.generate(voice_id="voice_amine", store=store, audit=audit, out_dir=tmp_path, **KW)
-    voices = [{"role": "Personnage 1", "kind": "consentie", "holder_name": lic.holder_name, "license_id": lic.license_id}]
-    p = passport.assemble(title="Film test", version="v1", asset_sha256=None, licenses=store.list(), audit=audit,
-                          validator="Validateur", referent="Référent", voices=voices,
-                          models=[synth.PLACEHOLDER_MODEL], energy=None, wer=None)
+    voices = [
+        {"role": "Personnage 1", "kind": "consentie", "holder_name": lic.holder_name, "license_id": lic.license_id}
+    ]
+    p = passport.assemble(
+        title="Film test",
+        version="v1",
+        asset_sha256=None,
+        licenses=store.list(),
+        audit=audit,
+        validator="Validateur",
+        referent="Référent",
+        voices=voices,
+        models=[synth.PLACEHOLDER_MODEL],
+        energy=None,
+        wer=None,
+    )
     return passport.sign(p, store.key), store
 
 
@@ -57,8 +75,11 @@ def test_export_and_cli(signed, tmp_path):
     p, _ = signed
     files = passport.export(p, tmp_path)
     assert "Passeport 360°" in files["html"].read_text(encoding="utf-8") and files["qr"].read_bytes()[:4] == b"\x89PNG"
-    run = lambda f: subprocess.run([sys.executable, str(ROOT / "scripts" / "verify_passport.py"), str(f)],  # noqa: E731
-                                   capture_output=True, text=True)
+    run = lambda f: subprocess.run(
+        [sys.executable, str(ROOT / "scripts" / "verify_passport.py"), str(f)],  # noqa: E731
+        capture_output=True,
+        text=True,
+    )
     ok = run(files["json"])
     assert ok.returncode == 0 and ok.stdout.startswith("VALIDE")
     data = json.loads(files["json"].read_text(encoding="utf-8"))

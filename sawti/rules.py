@@ -2,10 +2,11 @@
 
 Pure function: no I/O, no clock, no database. Deterministic and fully tested.
 """
+
 from __future__ import annotations
 
+from collections.abc import Callable, Iterable
 from datetime import date, datetime
-from typing import Callable, Iterable
 
 from .models import REASONS_FR, Decision, GenerationRequest, VoiceLicense
 
@@ -33,7 +34,7 @@ def authorize(
     if request.voice_id.lower() in blocked:
         return _decision("PERSONNALITE_BLOQUEE", now)
 
-    candidates = [l for l in licenses if l.voice_id == request.voice_id]
+    candidates = [licence for licence in licenses if licence.voice_id == request.voice_id]
     if not candidates:
         return _decision("VOIX_NON_ENREGISTREE", now)
 
@@ -41,7 +42,7 @@ def authorize(
     # Evaluate every licence of this voice; return OK if one passes, else the
     # refusal of the most recent licence.
     last: Decision | None = None
-    for lic in sorted(candidates, key=lambda l: l.license_id):
+    for lic in sorted(candidates, key=lambda licence: licence.license_id):
         last = _check_one(request, lic, now, today, verify_signature)
         if last.allowed:
             return last

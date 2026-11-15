@@ -1,8 +1,20 @@
-import math, hashlib, json
+import hashlib
+import json
+import math
+
 import reportlab.graphics.barcode.qrencoder as qe
 
-PRINCIPES = ["Contrôle humain", "Consentement", "Équité d'accès", "Diversité", "Transparence",
-             "Responsabilité", "Robustesse", "Sécurité des données", "Durabilité"]
+PRINCIPES = [
+    "Contrôle humain",
+    "Consentement",
+    "Équité d'accès",
+    "Diversité",
+    "Transparence",
+    "Responsabilité",
+    "Robustesse",
+    "Sécurité des données",
+    "Durabilité",
+]
 
 ETAPES = [
     ("Import local", "Sécurité"),
@@ -64,59 +76,79 @@ tr:last-child td{border-bottom:0}
 .note{font-size:12.5px;color:var(--sec)}
 """
 
+
 def ico(kind, s=16):
     p = {
-     "done": '<circle cx="8" cy="8" r="7" fill="currentColor"/><path d="M4.8 8.2l2.2 2.2 4.2-4.6" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
-     "todo": '<circle cx="8" cy="8" r="6.2" fill="none" stroke="currentColor" stroke-width="1.6"/>',
-     "cur": '<circle cx="8" cy="8" r="6.2" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="8" cy="8" r="3" fill="currentColor"/>',
-     "x": '<circle cx="8" cy="8" r="7" fill="currentColor"/><path d="M5.4 5.4l5.2 5.2M10.6 5.4l-5.2 5.2" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>',
-     "lock": '<rect x="3" y="7" width="10" height="7" rx="2" fill="currentColor"/><path d="M5 7V5a3 3 0 016 0v2" stroke="currentColor" stroke-width="1.6" fill="none"/>',
-     "warn": '<path d="M8 1.6l7 12.4H1z" fill="currentColor"/><path d="M8 6v3.6M8 11.4v.2" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>',
+        "done": '<circle cx="8" cy="8" r="7" fill="currentColor"/><path d="M4.8 8.2l2.2 2.2 4.2-4.6" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+        "todo": '<circle cx="8" cy="8" r="6.2" fill="none" stroke="currentColor" stroke-width="1.6"/>',
+        "cur": '<circle cx="8" cy="8" r="6.2" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="8" cy="8" r="3" fill="currentColor"/>',
+        "x": '<circle cx="8" cy="8" r="7" fill="currentColor"/><path d="M5.4 5.4l5.2 5.2M10.6 5.4l-5.2 5.2" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>',
+        "lock": '<rect x="3" y="7" width="10" height="7" rx="2" fill="currentColor"/><path d="M5 7V5a3 3 0 016 0v2" stroke="currentColor" stroke-width="1.6" fill="none"/>',
+        "warn": '<path d="M8 1.6l7 12.4H1z" fill="currentColor"/><path d="M8 6v3.6M8 11.4v.2" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>',
     }[kind]
     return f'<svg width="{s}" height="{s}" viewBox="0 0 16 16">{p}</svg>'
+
 
 def sidebar(active):
     out = '<div class="side"><h6>PROJET</h6><div class="nav todo" style="color:var(--text);font-weight:600">'
     out += '<svg width="16" height="16" viewBox="0 0 16 16"><rect x="1.5" y="3" width="13" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M6.5 6l4 2-4 2z" fill="currentColor"/></svg>Extrait_derja_2min</div>'
-    out += '<h6>PARCOURS · 10 PORTES</h6>'
+    out += "<h6>PARCOURS · 10 PORTES</h6>"
     for i, (name, _) in enumerate(ETAPES, 1):
         a = 11 if isinstance(active, str) else active
         st = "done" if i < a else ("cur" if i == a else "todo")
         out += f'<div class="nav {st}">{ico(st)}<span>{name}</span><span class="n">{i}</span></div>'
-    out += '<h6>CONFIANCE</h6>'
+    out += "<h6>CONFIANCE</h6>"
     for k, name in [("journal", "Journal d'audit"), ("bench", "Sawti-Bench"), ("passeport", "Passeport 360°")]:
         st = "cur" if active == k else "todo"
-        out += f'<div class="nav {st}">{ico("cur" if st=="cur" else "todo")}<span>{name}</span></div>'
-    return out + '</div>'
+        out += f'<div class="nav {st}">{ico("cur" if st == "cur" else "todo")}<span>{name}</span></div>'
+    return out + "</div>"
+
 
 def window(title, subtitle, active, content):
-    return f'''<!doctype html><html lang="fr"><head><meta charset="utf-8"><style>{CSS}</style></head><body>
+    return f"""<!doctype html><html lang="fr"><head><meta charset="utf-8"><style>{CSS}</style></head><body>
 <div class="win"><div class="titlebar"><div class="lights"><i></i><i></i><i></i></div>
 <div class="ttl">{title}<small>{subtitle}</small></div><span class="badge">Maquette · données illustratives</span></div>
-<div class="body">{sidebar(active)}<div class="main">{content}</div></div></div></body></html>'''
+<div class="body">{sidebar(active)}<div class="main">{content}</div></div></div></body></html>"""
 
-def ring(states, size=200, stroke=14, center=True, on='#17703A'):
-    cx = cy = size / 2; r = size / 2 - stroke
-    n = len(states); span = 360 / n; gap = 7
+
+def ring(states, size=200, stroke=14, center=True, on="#17703A"):
+    cx = cy = size / 2
+    r = size / 2 - stroke
+    n = len(states)
+    span = 360 / n
+    gap = 7
     paths = ""
     for i, ok in enumerate(states):
-        a0 = math.radians(-90 + i * span + gap / 2); a1 = math.radians(-90 + (i + 1) * span - gap / 2)
-        x0, y0 = cx + r * math.cos(a0), cy + r * math.sin(a0); x1, y1 = cx + r * math.cos(a1), cy + r * math.sin(a1)
+        a0 = math.radians(-90 + i * span + gap / 2)
+        a1 = math.radians(-90 + (i + 1) * span - gap / 2)
+        x0, y0 = cx + r * math.cos(a0), cy + r * math.sin(a0)
+        x1, y1 = cx + r * math.cos(a1), cy + r * math.sin(a1)
         col = on if ok else "#D2D2D8"
         paths += f'<path d="M{x0:.2f} {y0:.2f}A{r} {r} 0 0 1 {x1:.2f} {y1:.2f}" stroke="{col}" stroke-width="{stroke}" fill="none" stroke-linecap="round"/>'
     t = ""
     if center:
         k = sum(states)
-        t = (f'<text x="{cx}" y="{cy+4}" text-anchor="middle" font-family="Inter" font-weight="700" font-size="{size*0.17:.0f}" fill="#1D1D1F">360°</text>'
-             f'<text x="{cx}" y="{cy+size*0.13+6:.0f}" text-anchor="middle" font-family="Inter" font-weight="500" font-size="{max(12,size*0.065):.0f}" fill="#58585D">{k} sur {n} vérifiés</text>')
+        t = (
+            f'<text x="{cx}" y="{cy + 4}" text-anchor="middle" font-family="Inter" font-weight="700" font-size="{size * 0.17:.0f}" fill="#1D1D1F">360°</text>'
+            f'<text x="{cx}" y="{cy + size * 0.13 + 6:.0f}" text-anchor="middle" font-family="Inter" font-weight="500" font-size="{max(12, size * 0.065):.0f}" fill="#58585D">{k} sur {n} vérifiés</text>'
+        )
     return f'<svg width="{size}" height="{size}" viewBox="0 0 {size} {size}">{paths}{t}</svg>'
 
+
 def qr_svg(data, px=150):
-    q = qe.QRCode(3, qe.QRErrorCorrectLevel.M); q.addData(data); q.make()
-    n = q.getModuleCount(); m = px / (n + 4)
-    rects = "".join(f'<rect x="{(c+2)*m:.2f}" y="{(r+2)*m:.2f}" width="{m+.3:.2f}" height="{m+.3:.2f}"/>'
-                    for r in range(n) for c in range(n) if q.isDark(r, c))
+    q = qe.QRCode(3, qe.QRErrorCorrectLevel.M)
+    q.addData(data)
+    q.make()
+    n = q.getModuleCount()
+    m = px / (n + 4)
+    rects = "".join(
+        f'<rect x="{(c + 2) * m:.2f}" y="{(r + 2) * m:.2f}" width="{m + 0.3:.2f}" height="{m + 0.3:.2f}"/>'
+        for r in range(n)
+        for c in range(n)
+        if q.isDark(r, c)
+    )
     return f'<svg width="{px}" height="{px}" viewBox="0 0 {px} {px}"><rect width="{px}" height="{px}" fill="#fff"/><g fill="#0E1B2E">{rects}</g></svg>'
+
 
 # ---- vraie chaîne de hachage pour le journal d'audit ----
 ENTRIES = [
@@ -127,12 +159,18 @@ ENTRIES = [
     ("2026-11-15 16:19:02", "Synthèse acceptée : licence VL-0001 valide", "Moteur de règles", "autorisation"),
     ("2026-11-15 16:25:55", "Export signé du Passeport 360°", "Référent éthique", "export"),
 ]
+
+
 def chain():
-    prev = "0" * 64; out = []
+    prev = "0" * 64
+    out = []
     for i, (t, a, who, kind) in enumerate(ENTRIES):
         h = hashlib.sha256((prev + json.dumps([i, t, a, who, kind], ensure_ascii=False)).encode()).hexdigest()
-        out.append((i, t, a, who, kind, prev, h)); prev = h
+        out.append((i, t, a, who, kind, prev, h))
+        prev = h
     return out
+
+
 CHAIN = chain()
 HEAD = CHAIN[-1][6]
 FILM_HASH = hashlib.sha256(b"Extrait_derja_2min.mp4 - maquette").hexdigest()

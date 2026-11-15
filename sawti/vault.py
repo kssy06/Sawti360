@@ -1,6 +1,7 @@
 """Coffre local (minimal V1) : chiffrement au repos (Fernet/AES) + contrôle de rôle.
 Used for unreleased film files and voice embeddings (biometric data): local,
 encrypted, deletable on revocation."""
+
 from __future__ import annotations
 
 from pathlib import Path

@@ -1,4 +1,5 @@
 """Sawti-Bench : références + WER/CER par langue, après une normalisation documentée."""
+
 from __future__ import annotations
 
 import re
@@ -31,8 +32,15 @@ def find_pairs(bench_dir: Path | None = None) -> list[dict]:
         txt = wav.with_suffix(".txt")
         if txt.exists():
             lang = "fr" if wav.stem.startswith("fr") else "ar"
-            pairs.append({"id": wav.stem, "audio": wav, "reference": txt, "langue": lang,
-                          "etiquette": "fr" if lang == "fr" else "ar-TN (derja)"})
+            pairs.append(
+                {
+                    "id": wav.stem,
+                    "audio": wav,
+                    "reference": txt,
+                    "langue": lang,
+                    "etiquette": "fr" if lang == "fr" else "ar-TN (derja)",
+                }
+            )
     return pairs
 
 
@@ -40,4 +48,8 @@ def score(reference: str, hypothesis: str) -> dict:
     import jiwer
 
     ref, hyp = normalize(reference), normalize(hypothesis)
-    return {"wer": round(jiwer.wer(ref, hyp), 4), "cer": round(jiwer.cer(ref, hyp), 4), "mots_reference": len(ref.split())}
+    return {
+        "wer": round(jiwer.wer(ref, hyp), 4),
+        "cer": round(jiwer.cer(ref, hyp), 4),
+        "mots_reference": len(ref.split()),
+    }

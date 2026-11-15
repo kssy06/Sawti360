@@ -16,7 +16,9 @@ def test_refusal_generates_nothing(store, audit, tmp_path):
 
 
 def test_accept_then_revoke_end_to_end(store, audit, tmp_path):
-    lic = store.create(voice_id="voice_amine", holder_name="A", projects=["film_01"], valid_from="2020-01-01", valid_until="2099-01-01")
+    lic = store.create(
+        voice_id="voice_amine", holder_name="A", projects=["film_01"], valid_from="2020-01-01", valid_until="2099-01-01"
+    )
     d, path = synth.generate(voice_id="voice_amine", store=store, audit=audit, out_dir=tmp_path, **KW)
     assert d.allowed and path.exists()
     with wave.open(str(path)) as w:
@@ -30,12 +32,16 @@ def test_accept_then_revoke_end_to_end(store, audit, tmp_path):
 @pytest.mark.attack("Voix de la liste de blocage (personnalité publique)", "Refusé (PERSONNALITE_BLOQUEE)")
 def test_blocklist_from_config(store, audit, tmp_path):
     assert guardrails.blocked_voice_ids()
-    d, path = synth.generate(voice_id=guardrails.blocked_voice_ids()[0], store=store, audit=audit, out_dir=tmp_path, **KW)
+    d, path = synth.generate(
+        voice_id=guardrails.blocked_voice_ids()[0], store=store, audit=audit, out_dir=tmp_path, **KW
+    )
     assert d.reason_code == "PERSONNALITE_BLOQUEE" and path is None
 
 
 def test_neutral_voice_needs_human_validation(store, audit, tmp_path):
-    d, _ = synth.generate(voice_id=synth.NEUTRAL_VOICE_ID, store=store, audit=audit, out_dir=tmp_path, human_validated=False, **KW)
+    d, _ = synth.generate(
+        voice_id=synth.NEUTRAL_VOICE_ID, store=store, audit=audit, out_dir=tmp_path, human_validated=False, **KW
+    )
     assert d.reason_code == "VALIDATION_HUMAINE_MANQUANTE"
     assert synth.generate(voice_id=synth.NEUTRAL_VOICE_ID, store=store, audit=audit, out_dir=tmp_path, **KW)[0].allowed
 

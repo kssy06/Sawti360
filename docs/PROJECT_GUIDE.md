@@ -4,6 +4,8 @@
 
 Depuis la racine du dépôt :
 
+Windows (PowerShell) :
+
 ```powershell
 python -m venv .venv
 .venv\Scripts\Activate.ps1
@@ -12,11 +14,23 @@ python scripts/seed_demo.py
 streamlit run app/streamlit_app.py
 ```
 
+macOS ou Linux :
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+python scripts/seed_demo.py
+streamlit run app/streamlit_app.py
+```
+
+Les tests se lancent avec `python -m pytest`, et le style se vérifie avec `ruff check .` (configuration dans `ruff.toml`).
+
 Les licences de démonstration sont fictives. La génération audio produit un signal neutre de remplacement, pas une voix synthétique.
 
 ## Vérification hors ligne
 
-```powershell
+```bash
 python scripts/verify_passport.py exports/passeport_360.json
 ```
 
@@ -29,15 +43,17 @@ Le script `scripts/run_wer.py` est optionnel et nécessite `faster-whisper` ains
 - `scripts/` : initialisation de la démo, vérification et mesures optionnelles.
 - `tests/` : tests du moteur de confiance et des composants principaux.
 - `data/` : exemples publics et données locales. `data/private/`, `data/consents/` et `data/bench/` sont ignorés par Git.
-- `docs/` : architecture, éthique, données et guide du projet.
+- `docs/` : architecture, éthique, données et maquettes de l’interface.
 - `design/` : sources HTML et Python des maquettes ; `docs/maquettes/` conserve leurs exports PNG.
+- `results/` : résultats des scénarios d’attaque et mesures d’énergie.
 
 Les clés cryptographiques et les données de voix ne doivent pas être ajoutées au dépôt. Les limites de la démonstration sont documentées dans `DATASHEET.md` et `ETHIQUE.md`.
 
 ## Documents de référence
 
 - `ARCHITECTURE.md` : composants, données et flux d’autorisation.
-- `ETHIQUE.md` : consentement, limites et règles de responsabilité.
+- `ETHIQUE.md` : les six angles éthiques, les limites et le rôle du référent éthique.
 - `DATASHEET.md` : modèles, dépendances et jeux de données avec leurs licences.
 - `PROJECT_GUIDE.md` : commandes de démarrage et carte des dossiers.
-- `maquettes/` : rendus PNG des sources dans `../design/maquettes/`.
+- `maquettes/` : rendus PNG des écrans, générés depuis `../design/maquettes/`.
+- `../results/attack_tests.md` : scénarios d’attaque et résultats.

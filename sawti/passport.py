@@ -1,4 +1,5 @@
 """Passeport 360° : assemble, sign (Ed25519), verify, export JSON + HTML, QR."""
+
 from __future__ import annotations
 
 import base64
@@ -15,21 +16,51 @@ from .models import canonical_json, now_iso, sha256_hex
 A_MESURER = "[à mesurer]"
 
 
-def assemble(*, title: str, version: str, asset_sha256: str | None, licenses: list, audit, validator: str,
-             referent: str, voices: list[dict], models: list[dict], energy: dict | None, wer: dict | None,
-             demo: bool = True) -> dict:
+def assemble(
+    *,
+    title: str,
+    version: str,
+    asset_sha256: str | None,
+    licenses: list,
+    audit,
+    validator: str,
+    referent: str,
+    voices: list[dict],
+    models: list[dict],
+    energy: dict | None,
+    wer: dict | None,
+    demo: bool = True,
+) -> dict:
     entries = [e.to_dict() for e in audit.entries()]
     labels = [label.visible_label(v["kind"], validator) for v in voices]
     used_ids = {v.get("license_id") for v in voices}
     return {
         "schema": "sawti-passeport-360/0.1",
         "donnees_de_demonstration": demo,
-        "identite": {"titre": title, "version": version, "date": now_iso(),
-                     "sha256_fichier_exporte": asset_sha256 or "[à compléter : aucun fichier exporté en V1]"},
+        "identite": {
+            "titre": title,
+            "version": version,
+            "date": now_iso(),
+            "sha256_fichier_exporte": asset_sha256 or "[à compléter : aucun fichier exporté en V1]",
+        },
         "voix": [
-            {**v, "licence": next(({"license_id": l.license_id, "usages": l.allowed_uses, "statut": l.status,
-                                    "valide_jusqu_au": l.valid_until, "entrainement_interdit": l.no_training}
-                                   for l in licenses if l.license_id == v.get("license_id")), None)}
+            {
+                **v,
+                "licence": next(
+                    (
+                        {
+                            "license_id": lic.license_id,
+                            "usages": lic.allowed_uses,
+                            "statut": lic.status,
+                            "valide_jusqu_au": lic.valid_until,
+                            "entrainement_interdit": lic.no_training,
+                        }
+                        for lic in licenses
+                        if lic.license_id == v.get("license_id")
+                    ),
+                    None,
+                ),
+            }
             for v in voices
         ],
         "licences_utilisees": sorted(i for i in used_ids if i),
@@ -37,17 +68,22 @@ def assemble(*, title: str, version: str, asset_sha256: str | None, licenses: li
         "transparence": {
             "labels": labels,
             "generique_des_voix": label.voice_credits(voices),
-            "manifeste": label.provenance_manifest(title=title, asset_sha256=asset_sha256 or "", voices=voices,
-                                                   validator=validator, models=models),
+            "manifeste": label.provenance_manifest(
+                title=title, asset_sha256=asset_sha256 or "", voices=voices, validator=validator, models=models
+            ),
         },
         "responsabilite": {
-            "referent_ethique": referent, "validateur": validator,
+            "referent_ethique": referent,
+            "validateur": validator,
             "journal_empreinte_de_tete": audit.head_hash(),
             "nombre_entrees": len(entries),
             "nombre_refus": sum(1 for e in entries if e["action"] == "GENERATION_REFUSEE"),
             "journal": entries,
         },
-        "securite": {"modeles": models, "traitement_local": "traitement local confirmé (aucun appel réseau dans la V1)"},
+        "securite": {
+            "modeles": models,
+            "traitement_local": "traitement local confirmé (aucun appel réseau dans la V1)",
+        },
         "durabilite": energy or {"kwh": A_MESURER, "gco2": A_MESURER, "duree_s": A_MESURER},
         "mentions": "Alignement avec les textes cités, pas de certification ; relecture juridique prévue.",
         "slogan": SLOGAN,
@@ -88,8 +124,13 @@ def verify(passport: dict, expected_public_key: str | None = None) -> dict:
         detail.append("clé publique différente de la clé attendue")
     if not chain_ok:
         detail.append(f"chaîne d’audit rompue à l’entrée {bad}" if bad is not None else "empreinte de tête incohérente")
-    return {"valide": sig_ok and key_ok and chain_ok, "signature": sig_ok, "chaine": chain_ok,
-            "cle_attendue": key_ok, "detail": detail or ["signature et chaîne d’audit vérifiées"]}
+    return {
+        "valide": sig_ok and key_ok and chain_ok,
+        "signature": sig_ok,
+        "chaine": chain_ok,
+        "cle_attendue": key_ok,
+        "detail": detail or ["signature et chaîne d’audit vérifiées"],
+    }
 
 
 def qr_png(passport: dict) -> bytes:
@@ -109,17 +150,25 @@ def to_html(passport: dict) -> str:
     idt, resp, dur = passport["identite"], passport["responsabilite"], passport["durabilite"]
 
     def rows(d: dict) -> str:
-        return "".join(f"<tr><th>{e(str(k).replace('_', ' ').capitalize())}</th><td>{e(val)}</td></tr>" for k, val in d.items())
+        return "".join(
+            f"<tr><th>{e(str(k).replace('_', ' ').capitalize())}</th><td>{e(val)}</td></tr>" for k, val in d.items()
+        )
 
-    voix = "".join(f"<li>{e(l)}</li>" for l in passport["transparence"]["generique_des_voix"])
-    labels = "".join(f"<li>{e(l)}</li>" for l in passport["transparence"]["labels"])
-    modeles = "".join(f"<li>{e(m.get('name'))} {e(m.get('version', ''))} — {e(m.get('note', m.get('sha256', '')))}</li>"
-                      for m in passport["securite"]["modeles"])
+    voix = "".join(f"<li>{e(lic)}</li>" for lic in passport["transparence"]["generique_des_voix"])
+    labels = "".join(f"<li>{e(lic)}</li>" for lic in passport["transparence"]["labels"])
+    modeles = "".join(
+        f"<li>{e(m.get('name'))} {e(m.get('version', ''))} — {e(m.get('note', m.get('sha256', '')))}</li>"
+        for m in passport["securite"]["modeles"]
+    )
     demo = '<p class="demo">Données de démonstration</p>' if passport.get("donnees_de_demonstration") else ""
     ok_svg = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M7.5 12.5l3 3 6-6.5"/></svg>'
     ko_svg = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8.5 8.5l7 7M15.5 8.5l-7 7"/></svg>'
-    badge = (f'<div class="verdict ok">{ok_svg}Vérifié</div>' if v["valide"] else f'<div class="verdict ko">{ko_svg}Invalide</div>')
-    return f"""<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Passeport 360° — {e(idt['titre'])}</title>
+    badge = (
+        f'<div class="verdict ok">{ok_svg}Vérifié</div>'
+        if v["valide"]
+        else f'<div class="verdict ko">{ko_svg}Invalide</div>'
+    )
+    return f"""<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Passeport 360° — {e(idt["titre"])}</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <style>:root{{--bg:#070b24;--panel:#0d1438;--ink:#e8ecff;--muted:#a9b6e6;--line:#27336b;--ok:#4ade9f;--ko:#ff6b81;--accent:#3fd5f0}}
 *{{box-sizing:border-box}}::selection{{background:var(--accent);color:var(--bg)}}a:focus-visible{{outline:2px solid var(--accent);outline-offset:2px}}
@@ -132,19 +181,19 @@ ul{{padding-left:1.1rem;margin:0}}li{{margin:4px 0}}
 .demo{{color:var(--muted);font-size:.9rem;margin:0}}.qr{{background:#fff;padding:10px;border-radius:8px;width:180px;display:block;margin:6px 0 14px}}
 footer{{color:var(--muted);margin-top:40px;padding-top:16px;border-top:1px solid var(--line);font-size:.9rem}}code{{font-size:.85rem;overflow-wrap:anywhere}}</style></head>
 <body><main><h1>Passeport 360°</h1><p class="sub">Dossier vérifiable · Sawti 360, le doublage de confiance</p>{demo}
-{badge}<p>{e(' ; '.join(v['detail']).capitalize())}.</p>
+{badge}<p>{e(" ; ".join(v["detail"]).capitalize())}.</p>
 <h2>Identité du film</h2><table>{rows(idt)}</table>
 <h2>Voix, licences et consentement</h2><ul>{voix}</ul>
-<h2>Qualité par langue et accent</h2><table>{rows(passport['langues'])}</table>
-<h2>Transparence</h2><ul>{labels}</ul><p>{e(passport['transparence']['manifeste']['avertissement'])}</p>
-<h2>Responsabilité</h2><table>{rows({k: val for k, val in resp.items() if k != 'journal'})}</table>
-<h2>Sécurité</h2><ul>{modeles}</ul><p>{e(passport['securite']['traitement_local'].capitalize())}.</p>
+<h2>Qualité par langue et accent</h2><table>{rows(passport["langues"])}</table>
+<h2>Transparence</h2><ul>{labels}</ul><p>{e(passport["transparence"]["manifeste"]["avertissement"])}</p>
+<h2>Responsabilité</h2><table>{rows({k: val for k, val in resp.items() if k != "journal"})}</table>
+<h2>Sécurité</h2><ul>{modeles}</ul><p>{e(passport["securite"]["traitement_local"].capitalize())}.</p>
 <h2>Durabilité</h2><table>{rows(dur)}</table>
 <h2>Signature et vérification</h2><img class="qr" alt="QR de vérification" src="data:image/png;base64,{qr}">
 <p>Empreinte du passeport : <code>{passport_hash(passport)}</code></p>
-<p>Clé publique : <code>{e(passport.get('signature', {}).get('cle_publique', ''))}</code></p>
+<p>Clé publique : <code>{e(passport.get("signature", {}).get("cle_publique", ""))}</code></p>
 <p>Pour vérifier hors ligne : <code>python scripts/verify_passport.py passeport.json</code></p>
-<footer>{e(passport['mentions'])}<br>{e(passport['slogan'])}</footer></main></body></html>"""
+<footer>{e(passport["mentions"])}<br>{e(passport["slogan"])}</footer></main></body></html>"""
 
 
 def export(passport: dict, out_dir: str | Path, stem: str = "passeport_360") -> dict:

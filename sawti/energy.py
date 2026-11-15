@@ -1,11 +1,13 @@
 """Panneau énergie : CodeCarbon wrapper. Only measured values; None => « [à mesurer] »."""
+
 from __future__ import annotations
 
 import json
 import logging
 import time
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 from .models import now_iso
 
@@ -15,9 +17,15 @@ RESULTS = ROOT / "results" / "energy.json"
 
 def measure(fn: Callable[[], Any], label: str = "tache", country_iso: str = "TUN") -> tuple[Any, dict]:
     """Runs fn() under CodeCarbon (offline mode, no network). Returns (result, record)."""
-    record = {"tache": label, "date": now_iso(), "kwh": None, "gco2": None, "duree_s": None,
-              "methode": "CodeCarbon OfflineEmissionsTracker (estimation CPU/RAM, mix électrique du pays)",
-              "pays": country_iso}
+    record = {
+        "tache": label,
+        "date": now_iso(),
+        "kwh": None,
+        "gco2": None,
+        "duree_s": None,
+        "methode": "CodeCarbon OfflineEmissionsTracker (estimation CPU/RAM, mix électrique du pays)",
+        "pays": country_iso,
+    }
     tracker = None
     try:
         from codecarbon import OfflineEmissionsTracker
@@ -61,5 +69,10 @@ def summary(records: list[dict]) -> dict:
     ok = [r for r in records if r.get("kwh") is not None]
     if not ok:
         return {"kwh": "[à mesurer]", "gco2": "[à mesurer]", "duree_s": "[à mesurer]", "mesures": 0}
-    return {"kwh": sum(r["kwh"] for r in ok), "gco2": sum(r["gco2"] for r in ok),
-            "duree_s": round(sum(r["duree_s"] for r in ok), 3), "mesures": len(ok), "methode": ok[0]["methode"]}
+    return {
+        "kwh": sum(r["kwh"] for r in ok),
+        "gco2": sum(r["gco2"] for r in ok),
+        "duree_s": round(sum(r["duree_s"] for r in ok), 3),
+        "mesures": len(ok),
+        "methode": ok[0]["methode"],
+    }

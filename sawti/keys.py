@@ -3,6 +3,7 @@
 Limit (documented): in V1 licences are signed by the platform key, not by a key
 held by the voice holder.
 """
+
 from __future__ import annotations
 
 import base64
@@ -24,9 +25,7 @@ def load_or_create_private_key(key_dir: Path | None = None) -> Ed25519PrivateKey
     key_dir.mkdir(parents=True, exist_ok=True)
     key = Ed25519PrivateKey.generate()
     path.write_bytes(
-        key.private_bytes(
-            serialization.Encoding.PEM, serialization.PrivateFormat.PKCS8, serialization.NoEncryption()
-        )
+        key.private_bytes(serialization.Encoding.PEM, serialization.PrivateFormat.PKCS8, serialization.NoEncryption())
     )
     path.chmod(0o600)
     return key
@@ -47,7 +46,7 @@ def verify(pub_b64: str, data: bytes, signature: str) -> bool:
         if not signature.startswith("ed25519:"):
             return False
         pub = Ed25519PublicKey.from_public_bytes(base64.b64decode(pub_b64))
-        pub.verify(base64.b64decode(signature[len("ed25519:"):]), data)
+        pub.verify(base64.b64decode(signature[len("ed25519:") :]), data)
         return True
     except (InvalidSignature, ValueError):
         return False

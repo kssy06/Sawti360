@@ -3,13 +3,27 @@ import pytest
 from sawti.models import GenerationRequest
 from sawti.rules import authorize
 
-BASE = dict(voice_id="voice_amine", holder_name="Amine B.", allowed_uses=["doublage_film", "bande_annonce"],
-            projects=["film_01"], languages=["fr"], valid_from="2026-11-01", valid_until="2027-05-15")
+BASE = dict(
+    voice_id="voice_amine",
+    holder_name="Amine B.",
+    allowed_uses=["doublage_film", "bande_annonce"],
+    projects=["film_01"],
+    languages=["fr"],
+    valid_from="2026-11-01",
+    valid_until="2027-05-15",
+)
 
 
 def req(**kw):
-    d = dict(request_id="R1", voice_id="voice_amine", project_id="film_01", use="doublage_film", language="fr",
-             requested_by="test", text_hash="x")
+    d = dict(
+        request_id="R1",
+        voice_id="voice_amine",
+        project_id="film_01",
+        use="doublage_film",
+        language="fr",
+        requested_by="test",
+        text_hash="x",
+    )
     d.update(kw)
     return GenerationRequest(**d)
 

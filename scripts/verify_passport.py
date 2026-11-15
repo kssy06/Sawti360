@@ -1,5 +1,6 @@
 """CLI : vérifie la signature Ed25519 et la chaîne d’audit d’un Passeport 360° exporté.
 Usage : python scripts/verify_passport.py exports/passeport_360.json [cle_publique_attendue_base64]"""
+
 import json
 import sys
 from pathlib import Path

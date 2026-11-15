@@ -1,4 +1,5 @@
 """Passeport de voix : create, sign, verify, revoke, list (SQLite)."""
+
 from __future__ import annotations
 
 import json

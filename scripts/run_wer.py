@@ -1,5 +1,6 @@
 """Mesure WER/CER sur data/bench (Sawti-Bench) avec faster-whisper, énergie mesurée.
 Écrit results/wer.json et results/wer.md. N’invente aucun résultat."""
+
 import json
 import sys
 from pathlib import Path
@@ -26,16 +27,32 @@ def main(model_size: str = "small") -> int:
         out, rec = energy.measure(lambda p=p: asr.transcribe(p["audio"], p["langue"], model_size), f"asr:{p['id']}")
         energy.save(rec)
         s = bench.score(p["reference"].read_text(encoding="utf-8"), out["text"])
-        rows.append({"id": p["id"], "langue": p["etiquette"], "modele": out["model"]["name"], **s,
-                     "kwh": rec["kwh"], "duree_s": rec["duree_s"], "date": now_iso()})
+        rows.append(
+            {
+                "id": p["id"],
+                "langue": p["etiquette"],
+                "modele": out["model"]["name"],
+                **s,
+                "kwh": rec["kwh"],
+                "duree_s": rec["duree_s"],
+                "date": now_iso(),
+            }
+        )
         print(f"{p['id']}: WER={s['wer']:.1%} CER={s['cer']:.1%}")
     RESULTS.mkdir(exist_ok=True)
     (RESULTS / "wer.json").write_text(json.dumps(rows, ensure_ascii=False, indent=2), encoding="utf-8")
-    md = ["# Sawti-Bench — WER / CER mesurés", "",
-          "Normalisation : voir `sawti/bench.py::normalize` (appliquée à la référence et à l’hypothèse).", "",
-          "| Extrait | Langue | Modèle | WER | CER | Mots réf. | kWh | Durée (s) |", "|---|---|---|---|---|---|---|---|"]
-    md += [f"| {r['id']} | {r['langue']} | {r['modele']} | {r['wer']:.1%} | {r['cer']:.1%} | {r['mots_reference']} | {r['kwh']} | {r['duree_s']} |"
-           for r in rows]
+    md = [
+        "# Sawti-Bench — WER / CER mesurés",
+        "",
+        "Normalisation : voir `sawti/bench.py::normalize` (appliquée à la référence et à l’hypothèse).",
+        "",
+        "| Extrait | Langue | Modèle | WER | CER | Mots réf. | kWh | Durée (s) |",
+        "|---|---|---|---|---|---|---|---|",
+    ]
+    md += [
+        f"| {r['id']} | {r['langue']} | {r['modele']} | {r['wer']:.1%} | {r['cer']:.1%} | {r['mots_reference']} | {r['kwh']} | {r['duree_s']} |"
+        for r in rows
+    ]
     (RESULTS / "wer.md").write_text("\n".join(md) + "\n", encoding="utf-8")
     return 0
 

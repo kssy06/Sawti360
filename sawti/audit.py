@@ -1,5 +1,6 @@
 """Journal d’audit à chaîne de hachage (SQLite). Append-only by convention;
 any modification is detected by verify_chain()."""
+
 from __future__ import annotations
 
 import sqlite3
@@ -30,7 +31,9 @@ class AuditLog:
             row = c.execute("SELECT entry_hash FROM audit ORDER BY idx DESC LIMIT 1").fetchone()
         return row[0] if row else GENESIS
 
-    def append(self, actor: str, action: str, payload: Any, decision: str = "", timestamp: str | None = None) -> AuditEntry:
+    def append(
+        self, actor: str, action: str, payload: Any, decision: str = "", timestamp: str | None = None
+    ) -> AuditEntry:
         payload_json = canonical_json(payload).decode()
         with self._conn() as c:
             row = c.execute("SELECT idx, entry_hash FROM audit ORDER BY idx DESC LIMIT 1").fetchone()
@@ -39,7 +42,17 @@ class AuditLog:
             e.entry_hash = e.compute_hash()
             c.execute(
                 "INSERT INTO audit VALUES (?,?,?,?,?,?,?,?,?)",
-                (e.index, e.timestamp, e.actor, e.action, e.payload_hash, e.decision, e.prev_hash, e.entry_hash, payload_json),
+                (
+                    e.index,
+                    e.timestamp,
+                    e.actor,
+                    e.action,
+                    e.payload_hash,
+                    e.decision,
+                    e.prev_hash,
+                    e.entry_hash,
+                    payload_json,
+                ),
             )
         return e
 

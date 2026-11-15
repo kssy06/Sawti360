@@ -13,3 +13,4 @@ exports/
 emissions.csv
 *.lock
 .codecarbon*
+
