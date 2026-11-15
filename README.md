@@ -1,21 +1,18 @@
 # Sawti 360 — Le doublage de confiance
 
-*Faire voyager les films tunisiens grâce à un doublage éthique, transparent et supervisé par des humains.*
+*Faire voyager les œuvres tunisiennes en derja, avec un doublage éthique et supervisé par des humains.*
 
-Sawti 360 est une plateforme de doublage dont le vrai produit est la confiance. Un cinéaste tunisien fait doubler son film du derja vers le français sous contrôle humain. À chaque étape, une couche de confiance applique le consentement des voix, mesure les écarts entre les langues, étiquette ce que l'IA a fait, garde la trace de chaque décision, bloque les usages abusifs, protège les films inédits et affiche l'énergie consommée. À la fin, le film sort avec son Passeport 360° : un dossier vérifiable que les festivals, les producteurs et les financeurs peuvent contrôler.
+Sawti 360 double une œuvre de la derja vers le français : un film, mais aussi une vidéo YouTube, un Short ou un podcast. L'IA propose, le créateur décide. Chaque voix a un Passeport de voix : sans consentement, rien n'est généré. À l'export, l'œuvre part avec un Passeport 360° que chacun peut vérifier.
 
 « L'IA propose · L'humain décide · La confiance accompagne chaque export. »
 
-Projet présenté au hackathon IA Éthique 360, 5e édition, organisé par la Junior Entreprise INSAT (JEI) avec l'OIF. Sous-thématique : l'intégration de l'intelligence artificielle dans l'industrie audiovisuelle à vocation culturelle. Première soumission : 15 novembre 2026. Tout le dépôt est rédigé en français.
+Hackathon IA Éthique 360, 5e édition (Junior Entreprise INSAT et OIF) · première soumission du 15 novembre 2026.
 
-![Passeport 360° d'un film](docs/maquettes/06-passeport-360.png)
+![Passeport 360°](docs/maquettes/06-passeport-360.png)
 
 *Maquette du prototype, données illustratives, aucune voix réelle.*
 
-- **Ce qui est nouveau** : les outils de doublage par IA produisent une voix. Sawti 360 produit une voix et la preuve qu'elle est légitime, mesurée et traçable.
-- **Ce qui reste humain** : le créateur (cinéaste ou vidéaste) et l'adaptateur valident chaque réplique. L'IA propose, l'humain décide.
-
-> **En bref :** aucune voix sans consentement vérifié, aucune réplique exportée sans validation humaine, et un Passeport 360° pour retracer les décisions.
+**Ce qui est nouveau :** les outils de doublage par IA produisent une voix. Sawti 360 produit une voix et la preuve qu'elle est légitime, mesurée et traçable.
 
 ## Sommaire
 
