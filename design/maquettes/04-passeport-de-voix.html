@@ -1,0 +1,66 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><style>
+:root{--bg:#F5F5F7;--surface:#FFFFFF;--side:#ECECF1;--line:#D8D8DE;--text:#1D1D1F;--sec:#58585D;
+--accent:#0A5CC2;--accent-bg:#E6F0FC;--ok:#17703A;--ok-bg:#E3F3E8;--bad:#B8241B;--bad-bg:#FCE9E7;
+--warn:#8A4F00;--warn-bg:#FFF1D9;--ink:#0E1B2E}
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:1440px;height:900px;font-family:Inter,'DejaVu Sans',system-ui,sans-serif;font-size:14px;line-height:1.4;
+color:var(--text);background:linear-gradient(135deg,#DCE3EE 0%,#E9E4EE 55%,#F1E6E1 100%);display:flex;align-items:center;justify-content:center;-webkit-font-smoothing:antialiased}
+.win{width:1360px;height:830px;background:var(--bg);border-radius:14px;box-shadow:0 0 0 1px rgba(0,0,0,.18),0 24px 60px rgba(14,27,46,.28);overflow:hidden;display:flex;flex-direction:column}
+.titlebar{height:52px;flex:none;background:#F7F7F9;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 16px;gap:16px;position:relative}
+.lights{display:flex;gap:8px}.lights i{width:12px;height:12px;border-radius:50%;display:block}
+.lights i:nth-child(1){background:#FF5F57}.lights i:nth-child(2){background:#FEBC2E}.lights i:nth-child(3){background:#28C840}
+.ttl{position:absolute;left:0;right:0;text-align:center;font-weight:600;font-size:14px;pointer-events:none}
+.ttl small{display:block;font-weight:400;font-size:12px;color:var(--sec);margin-top:-2px}
+.badge{margin-left:auto;font-size:12px;font-weight:600;color:var(--warn);background:var(--warn-bg);padding:4px 10px;border-radius:99px;position:relative}
+.body{flex:1;display:flex;min-height:0}
+.side{width:262px;flex:none;background:var(--side);border-right:1px solid var(--line);padding:14px 10px;overflow:hidden}
+.side h6{font-size:12px;font-weight:600;color:var(--sec);padding:10px 10px 6px;letter-spacing:.02em}
+.nav{display:flex;align-items:center;gap:9px;padding:6px 10px;border-radius:8px;font-size:13.5px;margin-bottom:1px}
+.nav.cur{background:var(--accent);color:#fff;font-weight:600}
+.nav.done svg{color:var(--ok)}.nav.cur svg{color:#fff}.nav.todo{color:#3C3C41}.nav.todo svg{color:#8E8E93}
+.nav svg{flex:none}.nav .n{margin-left:auto;font-size:12px;opacity:.75}
+.main{flex:1;min-width:0;padding:24px 28px;overflow:hidden}
+h1{font-size:24px;font-weight:700;letter-spacing:-.01em}
+.sub{color:var(--sec);font-size:14px;margin-top:2px}
+.card{background:var(--surface);border-radius:12px;box-shadow:0 0 0 1px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);padding:16px 18px}
+.card h3{font-size:14px;font-weight:600;margin-bottom:10px}
+.cap{font-size:12px;color:var(--sec)}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:2px 9px;border-radius:99px;white-space:nowrap}
+.chip.ok{color:var(--ok);background:var(--ok-bg)}.chip.bad{color:var(--bad);background:var(--bad-bg)}
+.chip.warn{color:var(--warn);background:var(--warn-bg)}.chip.acc{color:var(--accent);background:var(--accent-bg)}
+.chip.gray{color:#48484D;background:#EBEBF0}
+.btn{display:inline-flex;align-items:center;gap:6px;font:600 13.5px Inter,sans-serif;padding:7px 14px;border-radius:99px;background:#fff;color:var(--accent);box-shadow:0 0 0 1px rgba(0,0,0,.12)}
+.btn.pri{background:var(--accent);color:#fff;box-shadow:none}.btn.dis{color:#6A6A70;background:#EBEBF0;box-shadow:none}
+.btn.del{color:var(--bad)}
+.row{display:flex;gap:16px}.col{display:flex;flex-direction:column;gap:16px}
+table{border-collapse:collapse;width:100%}
+th{font-size:12px;font-weight:600;color:var(--sec);text-align:left;padding:6px 10px;border-bottom:1px solid var(--line)}
+td{padding:9px 10px;border-bottom:1px solid #EEEEF2;vertical-align:middle;font-size:13.5px}
+tr:last-child td{border-bottom:0}
+.ar{font-family:'DejaVu Sans',sans-serif;direction:rtl;text-align:right;font-size:17px;line-height:1.7}
+.mono{white-space:nowrap;font-family:'DejaVu Sans Mono',monospace;font-size:12px}
+.meter{display:inline-block;width:70px;height:6px;background:#E3E3E8;border-radius:9px;vertical-align:middle;overflow:hidden}
+.meter b{display:block;height:100%;border-radius:9px;background:var(--ok)}.meter.w b{background:#B96A00}
+.lbl{font-size:12px;font-weight:600;color:var(--sec);text-transform:none;margin-bottom:4px}
+.note{font-size:12.5px;color:var(--sec)}
+</style></head><body>
+<div class="win"><div class="titlebar"><div class="lights"><i></i><i></i><i></i></div>
+<div class="ttl">Sawti 360<small>Choix de la voix · Moteur de règles</small></div><span class="badge">Maquette · données illustratives</span></div>
+<div class="body"><div class="side"><h6>PROJET</h6><div class="nav todo" style="color:var(--text);font-weight:600"><svg width="16" height="16" viewBox="0 0 16 16"><rect x="1.5" y="3" width="13" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M6.5 6l4 2-4 2z" fill="currentColor"/></svg>Extrait_derja_2min</div><h6>PARCOURS · 10 PORTES</h6><div class="nav done"><svg width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="currentColor"/><path d="M4.8 8.2l2.2 2.2 4.2-4.6" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Import local</span><span class="n">1</span></div><div class="nav done"><svg width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="currentColor"/><path d="M4.8 8.2l2.2 2.2 4.2-4.6" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Séparation des pistes</span><span class="n">2</span></div><div class="nav done"><svg width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="currentColor"/><path d="M4.8 8.2l2.2 2.2 4.2-4.6" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Transcription</span><span class="n">3</span></div><div class="nav done"><svg width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="currentColor"/><path d="M4.8 8.2l2.2 2.2 4.2-4.6" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Validation de la transcription</span><span class="n">4</span></div><div class="nav done"><svg width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="currentColor"/><path d="M4.8 8.2l2.2 2.2 4.2-4.6" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Traduction contextuelle</span><span class="n">5</span></div><div class="nav done"><svg width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="currentColor"/><path d="M4.8 8.2l2.2 2.2 4.2-4.6" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Adaptation et validation</span><span class="n">6</span></div><div class="nav cur"><svg width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.2" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="8" cy="8" r="3" fill="currentColor"/></svg><span>Choix de la voix</span><span class="n">7</span></div><div class="nav todo"><svg width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.2" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>Synthèse et mixage</span><span class="n">8</span></div><div class="nav todo"><svg width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.2" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>Étiquetage</span><span class="n">9</span></div><div class="nav todo"><svg width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.2" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>Export</span><span class="n">10</span></div><h6>CONFIANCE</h6><div class="nav todo"><svg width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.2" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>Journal d'audit</span></div><div class="nav todo"><svg width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.2" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>Sawti-Bench</span></div><div class="nav todo"><svg width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.2" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>Passeport 360°</span></div></div><div class="main"><h1>Passeport de voix</h1><div class="sub">Chaque voix a une licence signée. Le moteur de règles refuse toute génération hors licence.</div><div class="row" style="margin-top:18px;align-items:flex-start"><div class="col" style="width:330px">
+<div class="card" style="padding:8px 8px"><div class="lbl" style="padding:6px 10px 2px">VOIX DISPONIBLES</div>
+<div style="padding:9px 10px;border-radius:8px;background:var(--accent-bg);display:flex;justify-content:space-between;align-items:center"><div><b>Voix d'un membre de l'équipe</b><div class="cap">Licence VL-0001</div></div><span class="chip ok">Consentie</span></div>
+<div style="padding:9px 10px;display:flex;justify-content:space-between;align-items:center"><div><b>Voix neutre Sawti</b><div class="cap">Voix de synthèse, aucune personne imitée</div></div><span class="chip gray">Neutre</span></div></div>
+<div class="card" style="background:var(--bad-bg);box-shadow:0 0 0 1px rgba(184,36,27,.35)"><div style="display:flex;gap:10px;align-items:flex-start;color:var(--bad)"><svg width="20" height="20" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="currentColor"/><path d="M5.4 5.4l5.2 5.2M10.6 5.4l-5.2 5.2" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg><div><b style="font-size:14px">Synthèse refusée</b>
+<div style="color:#5B1713;font-size:13px;margin-top:2px">Demande : voix d'une personnalité. Aucune licence valide dans le registre.</div><div class="mono" style="margin-top:6px;color:#5B1713">Refus journalisé · entrée #3</div></div></div></div>
+<div class="card" style="background:var(--ok-bg);box-shadow:0 0 0 1px rgba(23,112,58,.35)"><div style="display:flex;gap:10px;align-items:flex-start;color:var(--ok)"><svg width="20" height="20" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="currentColor"/><path d="M4.8 8.2l2.2 2.2 4.2-4.6" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><div><b style="font-size:14px">Synthèse acceptée</b>
+<div style="color:#0F4A26;font-size:13px;margin-top:2px">Licence VL-0001 valide pour ce film, cet usage et cette langue.</div><div class="mono" style="margin-top:6px;color:#0F4A26">Autorisation journalisée · entrée #4</div></div></div></div></div>
+<div class="card" style="flex:1"><div style="display:flex;justify-content:space-between;align-items:center"><h3 style="margin:0">Licence VL-0001</h3><span class="chip ok"><svg width="13" height="13" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="currentColor"/><path d="M4.8 8.2l2.2 2.2 4.2-4.6" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>Valide</span></div>
+<table style="margin-top:8px"><tr><td class="cap" style="width:190px">Titulaire</td><td>Membre de l'équipe (voix consentie)</td></tr>
+<tr><td class="cap">Usages autorisés</td><td>Doublage de ce film, derja vers français</td></tr>
+<tr><td class="cap">Projets et langues</td><td>Extrait_derja_2min · français</td></tr>
+<tr><td class="cap">Durée</td><td>12 mois, jusqu'au 15 novembre 2027</td></tr>
+<tr><td class="cap">Rémunération</td><td>Par usage, reversée au titulaire</td></tr>
+<tr><td class="cap">Empreinte vocale</td><td>Locale, consentie, supprimable</td></tr>
+<tr><td class="cap">Droit de retrait</td><td>À tout moment</td></tr></table>
+<div style="display:flex;gap:10px;align-items:center;margin-top:14px"><span class="btn del">Révoquer la licence</span><span class="btn">Supprimer l'empreinte</span></div>
+<div class="note" style="margin-top:12px;padding-top:10px;border-top:1px solid #EEEEF2">Révoquer bloque les générations futures. L'audio déjà diffusé ne peut pas être retiré, et le Passeport le dit.</div></div></div></div></div></div></body></html>
