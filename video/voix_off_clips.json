@@ -1,66 +1,51 @@
 {
   "langue": "fr",
-  "moteur": "ElevenLabs v4, voix « Chloé »",
+  "moteur": "ElevenLabs v4 via Creative Claw, voix « Chloé »",
   "clips": [
     {
       "id": "A",
       "debut_s": 0.4,
-      "texte": "Une voix tunisienne. Un public francophone. Et entre les deux… un mur !"
+      "texte": "Une voix tunisienne. Un public francophone. Et entre les deux, un mur invisible."
     },
     {
       "id": "B",
-      "debut_s": 39.46,
-      "texte": "Pour passer ce mur ? Un studio hors de prix… ou une IA qui clone des voix sans demander la permission. Non merci !"
+      "debut_s": 39.3,
+      "texte": "Pour franchir ce mur, deux impasses : un studio hors de prix, ou une IA qui clone des voix sans jamais demander la permission."
     },
     {
       "id": "C",
-      "debut_s": 48.95,
-      "texte": "Et attention : ce mur ne bloque pas que le cinéma ! YouTube, les vidéos courtes, les podcasts… tout le monde est coincé."
+      "debut_s": 49.0,
+      "texte": "Et ce mur ne bloque pas que le cinéma : YouTube, les vidéos courtes, les podcasts aussi."
     },
     {
       "id": "D",
-      "debut_s": 56.3,
-      "texte": "En derja, une vidéo reste chez elle. En français ? Elle s'ouvre à tout l'espace francophone. Et demain… encore plus loin !"
+      "debut_s": 56.0,
+      "texte": "En derja, une vidéo reste chez elle. En français, elle s'ouvre à tout l'espace francophone. Et demain, encore plus loin."
     },
     {
-      "id": "E1",
-      "debut_s": 65.65,
-      "texte": "Sawti 360."
+      "id": "E",
+      "debut_s": 65.5,
+      "texte": "Voici Sawti 360. Prenons une phrase : l'IA la transcrit, la traduit, et repère que quinze heures est devenu cinquante. Elle ne corrige pas seule : c'est le créateur qui tranche. Ensuite seulement, la voix française prend vie."
     },
     {
-      "id": "E2",
-      "debut_s": 68.22,
-      "texte": "Une phrase, de A à Z. L'IA transcrit, traduit… et hop : elle repère que quinze heures est devenu cinquante ! Elle ne corrige pas seule : c'est le créateur qui tranche. Et là, la voix prend vie."
-    },
-    {
-      "id": "F2",
-      "debut_s": 86.5,
-      "texte": "Voix inconnue ? Refusée !"
-    },
-    {
-      "id": "F3",
-      "debut_s": 90.0,
-      "texte": "Voix consentie ? Accordée !"
-    },
-    {
-      "id": "F4",
-      "debut_s": 92.6,
-      "texte": "Et si le titulaire retire son accord ? Refusée. Immédiatement."
+      "id": "F",
+      "debut_s": 82.0,
+      "texte": "Mais une voix, ça ne se prend pas : chaque voix a son passeport. Une voix inconnue ? Refusée. Une voix consentie ? Accordée. Et si le titulaire retire son accord ? Refusée, immédiatement. Sans consentement, rien n'est généré."
     },
     {
       "id": "G",
-      "debut_s": 100.9,
-      "texte": "Chaque film part avec son Passeport 360 : la preuve signée de tout ce que l'IA a fait."
+      "debut_s": 98.0,
+      "texte": "Chaque œuvre part avec son Passeport 360 : la preuve signée de ce que l'IA a fait."
     },
     {
-      "id": "I1",
-      "debut_s": 112.5,
-      "texte": "Avec son passeport… la voix voyage !"
+      "id": "H",
+      "debut_s": 104.55,
+      "texte": "Droits, données, langues, planète : tout est mesuré, même nos limites."
     },
     {
-      "id": "I2",
-      "debut_s": 115.45,
-      "texte": "Sawti 360. L'IA propose. L'humain décide."
+      "id": "I",
+      "debut_s": 110.0,
+      "texte": "Avec son passeport, la voix voyage. Sawti 360 : l'IA propose, l'humain décide."
     }
   ]
 }

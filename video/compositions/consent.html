@@ -197,7 +197,7 @@
       <g filter="url(#cs-ink)" fill="none" stroke="#c8102e"><rect x="6" y="6" width="408" height="118" stroke-width="7" /><rect x="18" y="18" width="384" height="94" stroke-width="3" /><text x="210" y="88" text-anchor="middle" font-family="Archivo Black" font-size="62" fill="#c8102e" stroke="none">RÉVOQUÉ</text></g>
     </svg>
 
-    <div id="cs-end" class="clip" data-layout-allow-occlusion data-start="15.2" data-duration="3.8"><div id="cs-endtxt"><span class="w">Sans</span><span class="w">consentement,</span><br /><span class="w red">rien</span><span class="w">n’est</span><span class="w">généré.</span></div></div>
+    <div id="cs-end" class="clip" data-layout-allow-occlusion data-start="12.9" data-duration="3.6"><div id="cs-endtxt"><span class="w">Sans</span><span class="w">consentement,</span><br /><span class="w red">rien</span><span class="w">n’est</span><span class="w">généré.</span></div></div>
   </div>
   <script>
     (function () {
@@ -235,20 +235,20 @@
       function stamp(sel, at, rot) {
         tl.fromTo(sel, { scale: 1.7, rotation: rot - 10, opacity: 0 }, { scale: 1, rotation: rot, opacity: 1, duration: 0.18, ease: "power4.out", immediateRender: false }, at);
       }
-      panel("#cs-refus", 5.0);
-      stamp("#cs-s1", 6.2, -8);
-      panel("#cs-accord", 8.6);
-      stamp("#cs-s2", 9.8, 5);
+      panel("#cs-refus", 4.6);
+      stamp("#cs-s1", 6.15, -8);
+      panel("#cs-accord", 7.0);
+      stamp("#cs-s2", 8.25, 5);
       // 3. the holder revokes
-      tl.to("#cs-cursor", { x: 770, y: 719, duration: 0.7, ease: "power3.inOut" }, 11.0);
-      tl.to("#cs-cursor", { scale: 0.85, duration: 0.08, yoyo: true, repeat: 1, transformOrigin: "4px 3px" }, 11.8);
-      tl.to("#cs-chip", { opacity: 1, duration: 0.2 }, 12.0);
-      tl.to("#cs-accord", { opacity: 0.25, duration: 0.3 }, 12.0);
-      stamp("#cs-s3", 13.8, -6);
+      tl.to("#cs-cursor", { x: 770, y: 719, duration: 0.7, ease: "power3.inOut" }, 9.0);
+      tl.to("#cs-cursor", { scale: 0.85, duration: 0.08, yoyo: true, repeat: 1, transformOrigin: "4px 3px" }, 9.9);
+      tl.to("#cs-chip", { opacity: 1, duration: 0.2 }, 10.1);
+      tl.to("#cs-accord", { opacity: 0.25, duration: 0.3 }, 10.1);
+      stamp("#cs-s3", 11.6, -6);
 
-      tl.fromTo("#cs-end", { clipPath: "inset(0 0 0 100%)" }, { clipPath: "inset(0 0 0 0%)", duration: 0.5, ease: "power2.inOut" }, 15.2);
-      tl.fromTo("#cs-endtxt .w", { opacity: 0, filter: "blur(6px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.16, stagger: 0.1, ease: "power2.out" }, 15.6);
-      tl.set(["#cs-app", "#cs-apptitle", "#cs-s1", "#cs-s2", "#cs-s3"], { opacity: 0 }, 15.75);
+      tl.fromTo("#cs-end", { clipPath: "inset(0 0 0 100%)" }, { clipPath: "inset(0 0 0 0%)", duration: 0.5, ease: "power2.inOut" }, 12.9);
+      tl.fromTo("#cs-endtxt .w", { opacity: 0, filter: "blur(6px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.16, stagger: 0.1, ease: "power2.out" }, 13.2);
+      tl.set(["#cs-app", "#cs-apptitle", "#cs-s1", "#cs-s2", "#cs-s3"], { opacity: 0 }, 13.45);
       window.__timelines["consent"] = tl;
     })();
   </script>

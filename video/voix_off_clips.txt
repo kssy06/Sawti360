@@ -1,12 +1,9 @@
-A	Une voix tunisienne. Un public francophone. Et entre les deux… un mur !
-B	Pour passer ce mur ? Un studio hors de prix… ou une IA qui clone des voix sans demander la permission. Non merci !
-C	Et attention : ce mur ne bloque pas que le cinéma ! YouTube, les vidéos courtes, les podcasts… tout le monde est coincé.
-D	En derja, une vidéo reste chez elle. En français ? Elle s'ouvre à tout l'espace francophone. Et demain… encore plus loin !
-E1	Sawti 360.
-E2	Une phrase, de A à Z. L'IA transcrit, traduit… et hop : elle repère que quinze heures est devenu cinquante ! Elle ne corrige pas seule : c'est le créateur qui tranche. Et là, la voix prend vie.
-F2	Voix inconnue ? Refusée !
-F3	Voix consentie ? Accordée !
-F4	Et si le titulaire retire son accord ? Refusée. Immédiatement.
-G	Chaque film part avec son Passeport 360 : la preuve signée de tout ce que l'IA a fait.
-I1	Avec son passeport… la voix voyage !
-I2	Sawti 360. L'IA propose. L'humain décide.
+A	Une voix tunisienne. Un public francophone. Et entre les deux, un mur invisible.
+B	Pour franchir ce mur, deux impasses : un studio hors de prix, ou une IA qui clone des voix sans jamais demander la permission.
+C	Et ce mur ne bloque pas que le cinéma : YouTube, les vidéos courtes, les podcasts aussi.
+D	En derja, une vidéo reste chez elle. En français, elle s'ouvre à tout l'espace francophone. Et demain, encore plus loin.
+E	Voici Sawti 360. Prenons une phrase : l'IA la transcrit, la traduit, et repère que quinze heures est devenu cinquante. Elle ne corrige pas seule : c'est le créateur qui tranche. Ensuite seulement, la voix française prend vie.
+F	Mais une voix, ça ne se prend pas : chaque voix a son passeport. Une voix inconnue ? Refusée. Une voix consentie ? Accordée. Et si le titulaire retire son accord ? Refusée, immédiatement. Sans consentement, rien n'est généré.
+G	Chaque œuvre part avec son Passeport 360 : la preuve signée de ce que l'IA a fait.
+H	Droits, données, langues, planète : tout est mesuré, même nos limites.
+I	Avec son passeport, la voix voyage. Sawti 360 : l'IA propose, l'humain décide.

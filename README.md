@@ -166,7 +166,7 @@ Chaque entrée contient l'empreinte de la précédente. Les empreintes de la maq
 
 ## Vidéo de présentation
 
-La vidéo de la première soumission dure 1 min 59, en français. Elle est construite en code avec [HyperFrames](https://github.com/heygen-com/hyperframes) (Apache-2.0) ; sa source est dans [video/](video/). Elle suit le fil du cahier : problème observé, solution, place de l'IA, démarche éthique.
+La vidéo de la première soumission dure 1 min 57, en français. Elle est construite en code avec [HyperFrames](https://github.com/heygen-com/hyperframes) (Apache-2.0) ; sa source est dans [video/](video/). Elle suit le fil du cahier : problème observé, solution, place de l'IA, démarche éthique.
 
 | Temps | Scène |
 | ----- | ----- |
@@ -181,7 +181,7 @@ La vidéo de la première soumission dure 1 min 59, en français. Elle est const
 | 1:44 | Les six angles éthiques |
 | 1:51 | La voix rejoint l'espace francophone ; L'IA propose · L'humain décide |
 
-Le globe colore les pays où la langue est officielle ou d'usage courant ; il n'affiche aucun chiffre d'audience. Les écrans montrés sont les maquettes de l'interface (`docs/maquettes/`). La voix off est générée par IA avec ElevenLabs (voix « Chloé »), et le générique l'indique. Le fichier vidéo et le témoignage ne sont pas versionnés tant que l'accord écrit de Mohamed Karim Dahmouni n'est pas signé.
+Le globe colore les pays où la langue est officielle ou d'usage courant ; il n'affiche aucun chiffre d'audience. Les écrans montrés sont les maquettes de l'interface (`docs/maquettes/`). La voix off est générée par IA avec ElevenLabs v4 via Creative Claw (voix « Chloé »), et le générique l'indique. Le fichier vidéo et le témoignage ne sont pas versionnés tant que l'accord écrit de Mohamed Karim Dahmouni n'est pas signé.
 
 ## Le Passeport 360° du film
 
