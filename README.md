@@ -258,7 +258,6 @@ Business Model Canvas de première soumission.
 | Back-end et sécurité                | Passeport de voix, moteur de règles, journal, coffre local, manifeste            | Amine   |
 | Front-end, audio et communication     | Console, panneau énergie, voix et mixage, slides, vidéo, README                 | Ghayth  |
 
-Au moins deux membres seront présents aux ateliers du 18 novembre.
 
 ## Propriété intellectuelle
 
