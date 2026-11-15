@@ -14,7 +14,6 @@ Projet présenté au hackathon IA Éthique 360, 5e édition, organisé par la Ju
 
 - **Ce qui est nouveau** : les outils de doublage par IA produisent une voix. Sawti 360 produit une voix et la preuve qu'elle est légitime, mesurée et traçable.
 - **Ce qui reste humain** : le cinéaste et l'adaptateur valident chaque réplique. L'IA propose, l'humain décide.
-- **Ce que le jury peut voir en 30 secondes** : une voix non consentie est refusée, une voix consentie est acceptée, et le film sort avec son passeport.
 
 > **En bref :** aucune voix sans consentement vérifié, aucune réplique exportée sans validation humaine, et un Passeport 360° pour retracer les décisions.
 
@@ -26,7 +25,6 @@ Projet présenté au hackathon IA Éthique 360, 5e édition, organisé par la Ju
 - [Aperçu du prototype](#aperçu-du-prototype)
 - [Le Passeport 360° du film](#le-passeport-360-du-film)
 - [Place de l&#39;IA : construit ou réutilisé](#place-de-lia--construit-ou-réutilisé)
-- [Démo de 60 secondes](#démo-de-60-secondes)
 - [Périmètre par échéance](#périmètre-par-échéance)
 - [Démarche éthique à 360°](#démarche-éthique-à-360)
 - [En cohérence avec la Francophonie](#en-cohérence-avec-la-francophonie)
@@ -182,28 +180,18 @@ Chaque entrée contient l'empreinte de la précédente. Les empreintes de la maq
 
 ## Place de l'IA : construit ou réutilisé
 
-| Composant                        | Réutilisé ou construit                                                   | Évaluation prévue                                 |
-| -------------------------------- | -------------------------------------------------------------------------- | --------------------------------------------------- |
-| Transcription derja et français | Réutilisé comme base ; adaptation légère si les données le permettent | WER avant et après, par langue, sur Sawti-Bench    |
+| Composant                        | Réutilisé ou construit                                                   | Évaluation prévue                                |
+| -------------------------------- | -------------------------------------------------------------------------- | -------------------------------------------------- |
+| Transcription derja et français | Réutilisé comme base ; adaptation légère si les données le permettent | WER avant et après, par langue, sur Sawti-Bench   |
 | Traduction contextuelle          | Réutilisé, plus un glossaire construit avec des traducteurs              | Évaluation qualitative par des lecteurs bilingues |
-| Vérificateur de fidélité      | Construit : règles, entités, rétro-traduction                           | Précision et rappel sur 100 erreurs injectées     |
-| Moteur de consentement           | Construit : licences signées et règles                                   | Tests d'attaque, refus attendus                     |
-| Détection de clone (Shield)     | À construire sur des empreintes vocales pré-entraînées                 | Taux d'erreur sur clones de test, publié           |
+| Vérificateur de fidélité      | Construit : règles, entités, rétro-traduction                           | Précision et rappel sur 100 erreurs injectées    |
+| Moteur de consentement           | Construit : licences signées et règles                                   | Tests d'attaque, refus attendus                    |
+| Détection de clone (Shield)     | À construire sur des empreintes vocales pré-entraînées                 | Taux d'erreur sur clones de test, publié          |
 | Voix                             | Réutilisé (licence vérifiée), voix neutre ou consentie                 | Évaluation d'écoute de la qualité et du naturel |
-| Filigrane et manifeste           | Filigrane open source réutilisé ; manifeste construit                    | Robustesse après compression et bruit              |
-| Panneau énergie                 | CodeCarbon réutilisé                                                     | kWh et gCO₂ par minute de film                     |
+| Filigrane et manifeste           | Filigrane open source réutilisé ; manifeste construit                    | Robustesse après compression et bruit             |
+| Panneau énergie                 | CodeCarbon réutilisé                                                     | kWh et gCO₂ par minute de film                    |
 
 La licence de chaque modèle et de chaque jeu de données est vérifiée avant utilisation. L'IA est au cœur de la solution, mais l'humain garde la décision à chaque étape.
-
-## Démo de 60 secondes
-
-| Seconde  | Ce qu'on voit                                                                                                             | Principe démontré               |
-| -------- | ------------------------------------------------------------------------------------------------------------------------- | --------------------------------- |
-| 0 à 10  | Karim charge un extrait ; transcription derja et score par langue                                                         | Diversité                        |
-| 10 à 25 | Alerte du vérificateur ; l'adaptateur corrige ; décision journalisée                                                   | Contrôle humain, responsabilité |
-| 25 à 40 | Demande de voix non consentie : refusée. Voix consentie d'un coéquipier : acceptée                                     | Consentement, robustesse          |
-| 40 à 50 | Export avec label visible, générique des voix et énergie affichée                                                     | Transparence, durabilité         |
-| 50 à 60 | Scan du QR : le Passeport 360° s'ouvre et se vérifie. Révocation de la licence : la génération suivante est refusée | Toutes les portes                 |
 
 ## Périmètre par échéance
 
@@ -220,7 +208,7 @@ Maturité par module, telle que planifiée : V1 pour le Passeport de voix, le mo
 
 ## Démarche éthique à 360°
 
-Chaque principe du programme devient une fonction concrète, testable et visible dans la démo.
+Chaque principe du programme devient une fonction concrète, testable et visible dans le produit.
 
 | Principe                | Cas et textes cités                                                                                                   | Module Sawti 360                       |
 | ----------------------- | ---------------------------------------------------------------------------------------------------------------------- | -------------------------------------- |
@@ -254,9 +242,9 @@ Chaque principe du programme devient une fonction concrète, testable et visible
 
 | Question                                                                   | Réponse                                                                                                                                                                                               |
 | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| N'est-ce pas un outil de doublage avec des autocollants de conformité ?   | Non : le moteur de règles refuse la génération sans licence valide, et la démo le montre. Le Passeport est vérifiable par QR.                                                                     |
+| N'est-ce pas un outil de doublage avec des autocollants de conformité ?   | Non : le moteur de règles refuse la génération sans licence valide, et le comportement est vérifiable dans le produit. Le Passeport est vérifiable par QR.                             |
 | Différence avec les outils de traduction vocale des grandes plateformes ? | Ils existent. Notre apport : évaluation du derja avec nos données, contrôle humain mesuré, consentement appliqué, provenance et passeport. Nous ne prétendons pas battre leurs modèles de base. |
-| L'humain valide-t-il vraiment ?                                            | Le prototype maintient une validation humaine obligatoire ; les alertes signalent les écarts à examiner avant export. |
+| L'humain valide-t-il vraiment ?                                            | Le prototype maintient une validation humaine obligatoire ; les alertes signalent les écarts à examiner avant export.                                                                                |
 | Que deviennent les doubleurs ?                                             | Ils restent dans la boucle, crédités et rémunérés à l'usage ; aucune voix sans consentement écrit.                                                                                              |
 | Le filigrane peut être retiré.                                           | Risque reconnu ; le manifeste signé et le label sont la preuve principale.                                                                                                                            |
 
