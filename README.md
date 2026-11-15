@@ -20,14 +20,12 @@ Hackathon IA Éthique 360, 5e édition (Junior Entreprise INSAT et OIF) · premi
 - [Le problème](#le-problème)
 - [La solution](#la-solution)
 - [Aperçu du prototype](#aperçu-du-prototype)
-- [Vidéo de présentation](#vidéo-de-présentation)
 - [Le Passeport 360° du film](#le-passeport-360-du-film)
 - [Place de l&#39;IA : construit ou réutilisé](#place-de-lia--construit-ou-réutilisé)
 - [Périmètre par échéance](#périmètre-par-échéance)
 - [Démarche éthique à 360°](#démarche-éthique-à-360)
 - [En cohérence avec la Francophonie](#en-cohérence-avec-la-francophonie)
 - [Modèle économique](#modèle-économique)
-- [Design de l&#39;interface](#design-de-linterface)
 - [Équipe](#équipe)
 - [Propriété intellectuelle](#propriété-intellectuelle)
 - [Sources](#sources)
@@ -164,24 +162,6 @@ Chaque entrée contient l'empreinte de la précédente. Les empreintes de la maq
 
 ![Sawti-Bench](docs/maquettes/08-sawti-bench.png)
 
-## Vidéo de présentation
-
-La vidéo de la première soumission dure 1 min 59, en français. Elle est construite en code avec [HyperFrames](https://github.com/heygen-com/hyperframes) (Apache-2.0) ; sa source est dans [video/](video/). Elle suit le fil du cahier : problème observé, solution, place de l'IA, démarche éthique.
-
-| Temps | Scène |
-| ----- | ----- |
-| 0:00 | « Ahla bik ! » rebondit contre une vitre : la barrière de la langue |
-| 0:07 | Témoignage de Mohamed Karim Dahmouni |
-| 0:31 | Le problème et les obstacles d'aujourd'hui (studio, IA générique, film envoyé en ligne) |
-| 0:42 | Pas seulement le cinéma : films, YouTube, Shorts, podcasts, vidéos générées par IA |
-| 0:50 | Globe des langues : derja, puis français (aujourd'hui), puis arabe, anglais, espagnol (demain) |
-| 1:00 | Une réplique réelle de la démo, de bout en bout : l'IA repère « 15 → 50 », le créateur corrige |
-| 1:17 | Consentement sur la vraie console : refus, accord, refus après révocation |
-| 1:36 | Passeport 360° signé et vérifié |
-| 1:44 | Les six angles éthiques |
-| 1:51 | La voix rejoint l'espace francophone ; L'IA propose · L'humain décide |
-
-Le globe colore les pays où la langue est officielle ou d'usage courant ; il n'affiche aucun chiffre d'audience. Les écrans montrés sont les maquettes de l'interface (`docs/maquettes/`). La voix off est générée par IA avec ElevenLabs v4 via Creative Claw (voix « Chloé »), et le générique l'indique. Le fichier vidéo et le témoignage ne sont pas versionnés tant que l'accord écrit de Mohamed Karim Dahmouni n'est pas signé.
 
 ## Le Passeport 360° du film
 
@@ -258,15 +238,6 @@ Chaque principe du programme devient une fonction concrète, testable et visible
 - Le périmètre dépend de la taille de l'équipe.
 - Les principes 1 et 3 du programme ne nous ont pas été transmis : nous les avons traités comme « contrôle humain » et « équité d'accès », en attendant les fiches.
 
-### Questions probables du jury
-
-| Question                                                                   | Réponse                                                                                                                                                                                               |
-| -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| N'est-ce pas un outil de doublage avec des autocollants de conformité ?   | Non : le moteur de règles refuse la génération sans licence valide, et le comportement est vérifiable dans le produit. Le Passeport est vérifiable par QR.                             |
-| Différence avec les outils de traduction vocale des grandes plateformes ? | Ils existent. Notre apport : évaluation du derja avec nos données, contrôle humain mesuré, consentement appliqué, provenance et passeport. Nous ne prétendons pas battre leurs modèles de base. |
-| L'humain valide-t-il vraiment ?                                            | Le prototype maintient une validation humaine obligatoire ; les alertes signalent les écarts à examiner avant export.                                                                                |
-| Que deviennent les doubleurs ?                                             | Ils restent dans la boucle, crédités et rémunérés à l'usage ; aucune voix sans consentement écrit.                                                                                              |
-| Le filigrane peut être retiré.                                           | Risque reconnu ; le manifeste signé et le label sont la preuve principale.                                                                                                                            |
 
 ## En cohérence avec la Francophonie
 
@@ -290,17 +261,6 @@ Business Model Canvas de première soumission.
 | Activités clés      | Développement, annotation, évaluation, tests d'attaque, partenariats                                                                                             |
 | Partenaires           | Adaptateurs, traducteurs, comédiens, festivals, studios, OIF, établissements d'enseignement                                                                      |
 | Coûts                | Calcul, rémunération des humains qui valident, licences, hébergement sécurisé                                                                                 |
-
-## Design de l'interface
-
-Les maquettes suivent les [Human Interface Guidelines d&#39;Apple](https://developer.apple.com/design/human-interface-guidelines/) pour une application de bureau, avec la méthode du skill de design Apple : accessibilité d'abord, conventions de plateforme ensuite, puis identité.
-
-- **Thèse de l'écran** : montrer, à chaque étape, quelle porte de confiance est franchie. Chaque écran affiche ce que l'IA a proposé et ce que l'humain a décidé.
-- **Signature** : l'anneau à neuf segments, un par module de confiance. Il se remplit à mesure que les modules sont vérifiés et devient l'emblème du Passeport 360°. Sa structure encode une information réelle, pas une décoration.
-- **Couleurs** : un sens par couleur. Vert pour valide ou consenti, rouge pour refusé, orange pour à vérifier, bleu pour l'action et l'étape en cours. L'état n'est jamais porté par la couleur seule : chaque pastille a un texte et une icône.
-- **Contraste** (calculé sur les valeurs hexadécimales) : texte principal `#1D1D1F` sur `#F5F5F7` 15,5:1 ; texte secondaire `#58585D` sur `#F5F5F7` 6,5:1 ; vert `#17703A` sur `#E3F3E8` 5,3:1 ; rouge `#B8241B` sur `#FCE9E7` 5,4:1 ; orange `#8A4F00` sur `#FFF1D9` 5,9:1 ; blanc sur bleu `#0A5CC2` 6,3:1. Tous dépassent le seuil de 4,5:1.
-- **Typographie** : une seule famille (Inter, proche de la police système), poids moyen à gras pour la hiérarchie, texte derja en écriture arabe de droite à gauche.
-- **Honnêteté** : bannière « Maquette · données illustratives » sur chaque image, et aucune mesure inventée dans Sawti-Bench.
 
 ## Équipe
 
