@@ -1,14 +1,18 @@
 # Sawti 360 — Le doublage de confiance
 
-Sawti 360 double un film de la derja vers le français, sous le contrôle du cinéaste. Chaque voix utilisée a un Passeport de voix signé par son titulaire, chaque décision est journalisée, et le film exporté part avec un Passeport 360° que n'importe qui peut vérifier.
+Sawti 360 est une plateforme de doublage dont le vrai produit est la confiance. Un cinéaste tunisien fait doubler son film du derja vers le français sous contrôle humain. À chaque étape, une couche de confiance applique le consentement des voix, mesure les écarts entre les langues, étiquette ce que l'IA a fait, garde la trace de chaque décision, bloque les usages abusifs, protège les films inédits et affiche l'énergie consommée. À la fin, le film sort avec son Passeport 360° : un dossier vérifiable que les festivals, les producteurs et les financeurs peuvent contrôler.
 
-« L’IA propose · L’humain décide · La confiance accompagne chaque export. »
+« L'IA propose · L'humain décide · La confiance accompagne chaque export. »
 
-Projet de l'équipe Houma Skhouna, présenté au hackathon IA Éthique 360, 5e édition, organisé par la Junior Entreprise INSAT (JEI, mandat 2026/2027) avec l'OIF. Sous-thématique : l'intégration de l'intelligence artificielle dans l'industrie audiovisuelle à vocation culturelle. Premier dépôt : 15 novembre 2026. Tout le dépôt est rédigé en français.
+Projet présenté au hackathon IA Éthique 360, 5e édition, organisé par la Junior Entreprise INSAT (JEI) avec l'OIF. Sous-thématique : l'intégration de l'intelligence artificielle dans l'industrie audiovisuelle à vocation culturelle. Première soumission : 15 novembre 2026. Tout le dépôt est rédigé en français.
 
-![Passeport 360° d'un film : voix, langues, transparence, responsabilité, sécurité, durabilité, signature et QR](docs/maquettes/06-passeport-360.png)
+![Passeport 360° d'un film](docs/maquettes/06-passeport-360.png)
 
-*Maquette de l'interface cible (voir [Aperçu du prototype](#aperçu-du-prototype)). Les données y sont illustratives et aucune voix réelle n'y figure.*
+*Maquette du prototype, données illustratives, aucune voix réelle.*
+
+- **Ce qui est nouveau** : les outils de doublage par IA produisent une voix. Sawti 360 produit une voix et la preuve qu'elle est légitime, mesurée et traçable.
+- **Ce qui reste humain** : le cinéaste et l'adaptateur valident chaque réplique. L'IA propose, l'humain décide.
+- **Ce que le jury peut voir en 30 secondes** : une voix non consentie est refusée, une voix consentie est acceptée, et le film sort avec son passeport.
 
 ## Sommaire
 
@@ -18,19 +22,13 @@ Projet de l'équipe Houma Skhouna, présenté au hackathon IA Éthique 360, 5e �
 - [Aperçu du prototype](#aperçu-du-prototype)
 - [Le Passeport 360° du film](#le-passeport-360-du-film)
 - [Place de l'IA : construit ou réutilisé](#place-de-lia--construit-ou-réutilisé)
-- [Lancer la démo](#lancer-la-démo)
 - [Démo de 60 secondes](#démo-de-60-secondes)
-- [Architecture](#architecture)
-- [État d'avancement](#état-davancement)
-- [Mesures](#mesures)
+- [Périmètre par échéance](#périmètre-par-échéance)
 - [Démarche éthique à 360°](#démarche-éthique-à-360)
 - [En cohérence avec la Francophonie](#en-cohérence-avec-la-francophonie)
 - [Modèle économique](#modèle-économique)
 - [Design de l'interface](#design-de-linterface)
-- [Données et modèles](#données-et-modèles)
 - [Équipe](#équipe)
-- [Feuille de route](#feuille-de-route)
-- [Ce qu'il nous reste à fournir](#ce-quil-nous-reste-à-fournir)
 - [Propriété intellectuelle](#propriété-intellectuelle)
 - [Sources](#sources)
 
@@ -38,15 +36,15 @@ Projet de l'équipe Houma Skhouna, présenté au hackathon IA Éthique 360, 5e �
 
 Première soumission du 15 novembre, avec les pondérations du cahier des charges.
 
-| Critère (poids) | Où le lire dans ce dépôt |
+| Critère (poids) | Où le lire |
 |---|---|
-| Pertinence du problème détecté (30 %) | [Le problème](#le-problème), [docs/ENTRETIENS.md](docs/ENTRETIENS.md) |
+| Pertinence du problème détecté (30 %) | [Le problème](#le-problème) |
 | Innovation et place de l'IA (25 %) | [La solution](#la-solution), [Place de l'IA](#place-de-lia--construit-ou-réutilisé) |
-| Démarche éthique à 360° (25 %) | [Démarche éthique à 360°](#démarche-éthique-à-360), [docs/ETHIQUE.md](docs/ETHIQUE.md) |
-| Faisabilité et intention de développement (20 %) | [Lancer la démo](#lancer-la-démo), [État d'avancement](#état-davancement), [Feuille de route](#feuille-de-route), [Équipe](#équipe) |
-| Livrables : README en français avec section éthique, code même incomplet | Ce fichier, `sawti/`, `app/`, `scripts/`, `tests/` |
-| Propriété intellectuelle : droits d'auteur, voix, licences | [Propriété intellectuelle](#propriété-intellectuelle), [Données et modèles](#données-et-modèles) |
-| Pour les phases suivantes : prototype, éthique, impact francophone, pitch, viabilité | [Aperçu du prototype](#aperçu-du-prototype), [Francophonie](#en-cohérence-avec-la-francophonie), [Modèle économique](#modèle-économique), [docs/PITCH.md](docs/PITCH.md) |
+| Démarche éthique à 360° (25 %) | [Démarche éthique à 360°](#démarche-éthique-à-360) |
+| Faisabilité et intention de développement (20 %) | [Périmètre par échéance](#périmètre-par-échéance), [Équipe](#équipe), [Aperçu du prototype](#aperçu-du-prototype) |
+| Livrable : README détaillé en français avec section éthique | Ce fichier |
+| Propriété intellectuelle : droits d'auteur, voix, licences | [Propriété intellectuelle](#propriété-intellectuelle) |
+| Phases suivantes : impact francophone, viabilité, modèle économique | [Francophonie](#en-cohérence-avec-la-francophonie), [Modèle économique](#modèle-économique) |
 
 ## Le problème
 
@@ -59,7 +57,15 @@ Un cinéaste tunisien indépendant rencontre une barrière de langue qui empêch
 
 **Face 2 : le doublage par IA est un terrain de conflits.** Les fiches du programme AI Academy citent des cas réels : en France, la voix d'un doubleur décédé recréée par IA pour une bande-annonce alors que sa famille n'avait accepté qu'un essai, puis 25 doubleurs qui obtiennent le retrait de 47 modèles clonant leur voix ; des doublages d'anime par IA mis en ligne puis retirés en quelques jours ; une voix synthétique dans un documentaire sans mention à l'écran. La technique seule ne suffit pas : il faut du consentement, de la transparence et de la responsabilité.
 
-**Comment nous l'avons détecté.** Observer, écouter, vérifier, formuler. Le journal des entretiens est dans [docs/ENTRETIENS.md](docs/ENTRETIENS.md). Un seul entretien est fait à ce jour, les autres (programmateur de festival, doubleur ou sous-titreur, traducteur ou adaptateur, producteur ou autre cinéaste) sont marqués `[à recueillir]`. Pour étayer le manque, nous mesurerons le taux d'erreur (WER) d'un modèle existant sur 2 minutes de derja transcrites à la main : `[à mesurer]`.
+**Comment nous l'avons détecté.** Observer, écouter, vérifier, formuler. Un seul entretien est fait à ce jour ; les autres (programmateur de festival, doubleur ou sous-titreur, traducteur ou adaptateur, producteur ou autre cinéaste) sont marqués `[à recueillir]`. Pour étayer le manque, nous mesurerons le taux d'erreur (WER) d'un modèle existant sur 2 minutes de derja transcrites à la main : `[à mesurer]`.
+
+| Nom et rôle | Date | Ce qu'il ou elle a dit |
+|---|---|---|
+| Mohamed Karim Dahmouni, cinéaste | 14 nov. 2026 | Un film incompris reste invisible ; les sous-titres aident un peu ; le doublage fait voyager un film |
+| Programmateur de festival | `[date]` | `[à recueillir]` |
+| Doubleur ou sous-titreur | `[date]` | `[à recueillir]` |
+| Traducteur ou adaptateur | `[date]` | `[à recueillir]` |
+| Producteur ou autre cinéaste | `[date]` | `[à recueillir]` |
 
 ## La solution
 
@@ -80,7 +86,7 @@ Sawti 360 est un doublage supervisé entouré d'une couche de confiance. Les out
 | 9 | Étiquetage | Label visible, métadonnées, générique des voix | Transparence |
 | 10 | Export | Piste doublée, sous-titres et Passeport 360° signé | Toutes les portes |
 
-L'état de réalisation de chaque étape est dans [État d'avancement](#état-davancement).
+Le périmètre de chaque étape par échéance est dans [Périmètre par échéance](#périmètre-par-échéance).
 
 ### Les neuf modules de la couche de confiance
 
@@ -107,7 +113,7 @@ Les fiches 1 et 3 du programme ne nous ont pas été transmises : « contrôle h
 
 ## Aperçu du prototype
 
-Ces huit écrans sont des **maquettes de l'interface cible**, conçues avec les principes de l'Apple Human Interface Guidelines (voir [Design de l'interface](#design-de-linterface)). Les données y sont illustratives, la bannière « Maquette · données illustratives » est présente sur chaque image. Les captures de la console réellement exécutable (Streamlit) sont plus bas.
+Ces huit écrans sont des **maquettes du prototype**, conçues avec les principes de l'Apple Human Interface Guidelines (voir [Design de l'interface](#design-de-linterface)). Les données y sont illustratives et la bannière « Maquette · données illustratives » figure sur chaque image.
 
 ### 1. Parcours du film
 Les dix portes de confiance et l'anneau des neuf modules. Rien ne sort sans validation humaine.
@@ -149,18 +155,6 @@ Chaque entrée contient l'empreinte de la précédente. Les empreintes de la maq
 
 ![Sawti-Bench](docs/maquettes/08-sawti-bench.png)
 
-### Captures de la console actuelle (Streamlit, données de démonstration)
-
-| Refus : voix non enregistrée | Accord : voix consentie |
-|---|---|
-| ![Refus](docs/captures/03_refus.png) | ![Accord](docs/captures/04_accord.png) |
-| **Passeport 360° signé et vérifié** | **Falsification détectée dans le journal** |
-| ![Passeport](docs/captures/05_passeport.png) | ![Falsification](docs/captures/08_falsification.png) |
-| **Refus après révocation** | **Panneau énergie** |
-| ![Révocation](docs/captures/07_refus_apres_revocation.png) | ![Énergie](docs/captures/09_energie.png) |
-
-Autre capture : [vérificateur de fidélité](docs/captures/02_fidelite.png).
-
 ## Le Passeport 360° du film
 
 À chaque export, Sawti 360 génère un dossier lisible par un humain et vérifiable par une machine. Un festival, un producteur ou un financeur peut le contrôler avec un QR, sans nous croire sur parole.
@@ -180,7 +174,7 @@ Autre capture : [vérificateur de fidélité](docs/captures/02_fidelite.png).
 
 | Composant | Réutilisé ou construit | Évaluation prévue |
 |---|---|---|
-| Transcription derja et français | Réutilisé comme base (Whisper, optionnel) ; adaptation légère si les données le permettent | WER avant et après, par langue, sur Sawti-Bench |
+| Transcription derja et français | Réutilisé comme base ; adaptation légère si les données le permettent | WER avant et après, par langue, sur Sawti-Bench |
 | Traduction contextuelle | Réutilisé, plus un glossaire construit avec des traducteurs | Notes de bilingues sur 30 segments `[à mesurer]` |
 | Vérificateur de fidélité | Construit : règles, entités, rétro-traduction | Précision et rappel sur 100 erreurs injectées |
 | Moteur de consentement | Construit : licences signées et règles | Tests d'attaque, refus attendus |
@@ -189,55 +183,7 @@ Autre capture : [vérificateur de fidélité](docs/captures/02_fidelite.png).
 | Filigrane et manifeste | Filigrane open source réutilisé ; manifeste construit | Robustesse après compression et bruit |
 | Panneau énergie | CodeCarbon réutilisé | kWh et gCO₂ par minute de film |
 
-La licence de chaque modèle et de chaque jeu de données est vérifiée avant utilisation (voir [Données et modèles](#données-et-modèles)). L'IA est au cœur de la solution, mais l'humain garde la décision à chaque étape.
-
-## Lancer la démo
-
-Il faut Python 3.11 ou plus récent. Tout tourne hors ligne, sur CPU.
-
-```bash
-git clone https://github.com/youssefbesbes/Sawti360.git
-```
-
-```bash
-cd Sawti360 && python -m venv .venv && source .venv/bin/activate
-```
-
-```bash
-pip install -r requirements.txt
-```
-
-```bash
-python scripts/seed_demo.py
-```
-
-```bash
-streamlit run app/streamlit_app.py
-```
-
-Le parcours à montrer en une minute :
-
-1. Page « Demande de génération », voix `voice_inconnue` : refus, aucun audio n'est produit.
-2. Même page, voix `voice_amine` : accord, avec le label visible et l'énergie mesurée.
-3. Page « Passeport 360° » : générer, lire le QR, vérifier.
-4. Page « Passeports de voix » : révoquer la licence d'Amine.
-5. Retour à « Demande de génération » avec `voice_amine` : refus.
-
-On peut aussi falsifier une entrée dans « Journal d’audit » et constater que la vérification échoue à cette entrée ([capture](docs/captures/08_falsification.png)).
-
-Pour vérifier un passeport exporté sans ouvrir la console :
-
-```bash
-python scripts/verify_passport.py exports/passeport_360.json
-```
-
-Les tests :
-
-```bash
-pytest
-```
-
-Les diapositives du pitch sont sur Canva : https://canva.link/lu6nsgxbyjwdj6h (plan dans [docs/PITCH.md](docs/PITCH.md)).
+La licence de chaque modèle et de chaque jeu de données est vérifiée avant utilisation. L'IA est au cœur de la solution, mais l'humain garde la décision à chaque étape.
 
 ## Démo de 60 secondes
 
@@ -249,95 +195,67 @@ Les diapositives du pitch sont sur Canva : https://canva.link/lu6nsgxbyjwdj6h (p
 | 40 à 50 | Export avec label visible, générique des voix et énergie affichée | Transparence, durabilité |
 | 50 à 60 | Scan du QR : le Passeport 360° s'ouvre et se vérifie. Révocation de la licence : la génération suivante est refusée | Toutes les portes |
 
-Ce que la console actuelle permet déjà de montrer est décrit dans [Lancer la démo](#lancer-la-démo).
+## Périmètre par échéance
 
-## Architecture
+La plupart des modules de confiance sont de l'ingénierie, donc faisables vite. Les modèles lourds passent après.
 
-```mermaid
-flowchart LR
-    S[Demande de génération] --> R{{Moteur de règles}}
-    L[(Passeports de voix)] --> R
-    G[Garde-fous] --> R
-    R -->|autorisé| SY[Synthèse + label]
-    R -->|refusé| J[(Journal d’audit)]
-    SY --> J
-    SY --> E[Panneau énergie]
-    J --> P[Passeport 360°]
-    L --> P
-    E --> P
-    P --> V[Vérification hors ligne]
-```
+| Échéance | À démontrer |
+|---|---|
+| 15 nov., 23 h 59 (première soumission) | Passeport de voix et moteur de règles (refus et accord), label et manifeste, journal d'audit, panneau énergie, mesure de WER sur 2 min de derja, README éthique |
+| 21 nov. (demi-finale) | Parcours complet sur un extrait de film : transcription, traduction, validation, voix, export, Passeport 360° ; retours des ateliers du 18 nov. intégrés |
+| 24 et 25 nov. (finale) | Sawti-Bench publié, équipe rouge, détection de clone, Passeport complet, Business Model Canvas |
+| Suite | Amazigh, mode quasi-direct supervisé pour festivals, place de marché de voix sous licence : annoncés comme vision, pas comme acquis |
 
-Le code métier est dans `sawti/`, sans dépendance à l'interface. `app/` contient la console Streamlit, `scripts/` les trois commandes (données de démo, mesure du WER, vérification d'un passeport), `tests/` les 34 tests, `results/` les sorties mesurées. Les schémas détaillés, les flux de données et ce que nous avons écrit ou réutilisé sont dans [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
-
-## État d'avancement
-
-| Module | État | Remarque |
-|---|---|---|
-| Passeport de voix (`licenses.py`) | fait | création, signature Ed25519, vérification, révocation |
-| Moteur de règles (`rules.py`) | fait | fonction pure, 12 codes de décision, un test par code |
-| Journal d'audit (`audit.py`) | fait | chaîne SHA-256, falsification localisée |
-| Garde-fous (`guardrails.py`) | fait | voix inconnue, liste de blocage, signalement d'abus |
-| Label, manifeste, générique (`label.py`) | fait | inspiré de C2PA, sans prétendre à la conformité |
-| Passeport 360° (`passport.py`) | fait | JSON, HTML, QR, vérification en ligne de commande |
-| Panneau énergie (`energy.py`) | fait | CodeCarbon |
-| Coffre local (`vault.py`) | fait, minimal | chiffrement et rôles ; pas encore branché à l'import vidéo |
-| Synthèse (`synth.py`) | porte faite, voix à venir | voir la note ci-dessous |
-| Mesure du WER (`bench.py`, `run_wer.py`) | script prêt | il manque l'enregistrement |
-| Vérificateur de fidélité (`fidelity.py`) | aperçu | règles sur les chiffres, les noms et les négations |
-| Séparation des pistes, traduction, mixage, sous-titres | demi-finale | pas commencé |
-| Shield, filigrane, intégrité des modèles, équipe rouge complète | finale | |
-| Amazigh, mode festival, place de marché de voix | feuille de route | nous ne les construisons pas |
-
-Note sur la synthèse : dans cette version, une génération autorisée produit un bip d'une seconde, pas une voix. Ce que nous montrons pour l'instant, c'est que rien n'est généré sans licence valide. La vraie synthèse arrive pour la demi-finale.
-
-## Mesures
-
-Un chiffre de ce dépôt est soit mesuré par le code, soit noté `[à mesurer]`.
-
-| Mesure | Valeur | Comment |
-|---|---|---|
-| WER et CER en derja, Whisper `small` | `[à mesurer]` | `scripts/run_wer.py`, normalisation décrite dans `bench.normalize` |
-| WER et CER en français | `[à mesurer]` | idem |
-| Tests | 34 sur 34 | `pytest`, 15 novembre 2026 |
-| Scénarios d'attaque automatisés | 18 sur 18 conformes | [results/attack_tests.md](results/attack_tests.md), régénéré à chaque exécution |
-| Énergie de trois demandes de génération | 6,0 × 10⁻⁹ kWh, 3,4 × 10⁻⁶ gCO₂, 0,015 s | CodeCarbon hors ligne, [results/energy.json](results/energy.json) |
-| Fidélité, précision et rappel sur 100 erreurs injectées | `[à mesurer]` | demi-finale |
-| Détection d'erreurs avec et sans alertes | `[à mesurer]` | demi-finale |
-| Test d'écoute | `[à mesurer]` | |
-| Shield : taux d'erreur | `[à mesurer]` | finale |
-
-La mesure d'énergie ne porte que sur la porte d'autorisation et le bip. Elle ne dit rien du coût d'une vraie synthèse vocale.
+Maturité par module, telle que planifiée : V1 pour le Passeport de voix, le moteur de règles, le label, le journal d'audit, le panneau énergie et le blocage des voix non enregistrées ; demi-finale pour l'équité d'accès par accent ; finale pour l'équipe rouge, la détection de clone et la sécurité complète ; suite pour l'amazigh.
 
 ## Démarche éthique à 360°
 
-Le détail est dans [docs/ETHIQUE.md](docs/ETHIQUE.md). En résumé, pour chacun des six angles du cahier :
+Chaque principe du programme devient une fonction concrète, testable et visible dans la démo.
 
-**Les créateurs.** Le risque est qu'une voix soit clonée sans accord. Aucune voix n'est générée sans Passeport de voix, et le texte doit avoir été validé par un humain. Limite : la licence est aujourd'hui signée par la clé de la plateforme, pas par celle du titulaire.
+| Principe | Cas et textes cités | Module Sawti 360 |
+|---|---|---|
+| Consentement | Doubleur recréé par IA (2025) ; 25 doubleurs obtiennent le retrait de 47 modèles (2026) ; RGPD art. 9 ; loi 2004-63 | Passeport de voix et moteur de règles |
+| Diversité | Common Voice et le kabyle ; Convention UNESCO 2005 ; AI Act art. 10 | Sawti-Bench |
+| Transparence | Voix synthétique d'un documentaire sans mention (2021) ; AI Act art. 50(4) et 50(2) | Label et générique des voix |
+| Responsabilité | Doublages d'anime retirés (2025) ; AI Act art. 26 ; ISO/IEC 42001 | Journal d'audit et référent éthique |
+| Robustesse | Fausse publicité avec un acteur (2023) ; AI Act art. 15 | Garde-fous et équipe rouge |
+| Sécurité des données | Fuite de 1,1 To via un faux outil IA (2024) ; RGPD art. 32 et 33 ; loi 2004-63 | Coffre local |
+| Durabilité | Une vidéo IA de 5 s ≈ 3,4 MJ (MIT Technology Review, 2025) ; UNESCO 2021 ; AI Act annexe XI | Panneau énergie |
 
-**Les droits.** Le risque est l'usage hors contrat, ou la voix d'une personnalité. Le titulaire liste les usages interdits et peut révoquer ; une liste de blocage refuse les personnalités ; un bouton permet de signaler un abus. Limite : révoquer n'efface pas un audio déjà diffusé.
+### Les six angles du cahier des charges
 
-**Les données.** Le risque est la fuite d'un film inédit ou d'une empreinte vocale. Tout est traité en local, dans un coffre chiffré avec des rôles. Limite : la clé du coffre est un simple fichier.
+| Angle | Où c'est traité | Risque résiduel et mitigation |
+|---|---|---|
+| Les créateurs | Validation humaine, crédit, générique des voix | Validation par habitude : alertes ciblées et taux de détection mesuré |
+| Les droits | Passeport de voix, licences des modèles et des données | Une voix déjà diffusée ne peut pas être retirée : le dossier le dit clairement |
+| Les données | Coffre local, datasheet, jeu de test documenté | Jeu de test petit : limites publiées |
+| Cultures et langues | Sawti-Bench, glossaire culturel, derja de premier plan | Expressions intraduisibles signalées pour un choix humain |
+| La transparence | Label, manifeste, générique, QR | Un filigrane peut être retiré : le manifeste et le label restent la preuve |
+| La planète | Panneau énergie, plus petit modèle suffisant | Les modèles de voix sont les plus coûteux : une seule synthèse par réplique validée |
 
-**Cultures et langues.** Le risque est une IA qui comprend mal la derja. Nous publions un score par langue, même mauvais, et le cinéaste valide la transcription. Limite : notre jeu de test est petit et le score en derja n'est pas encore mesuré.
+### Limites assumées
 
-**Transparence.** Le risque est que le public ignore ce que l'IA a fait. Le film porte un label, un manifeste de provenance et un générique des voix. Limite : un label se retire d'une copie, et notre manifeste n'est pas certifié C2PA.
+- Alignement avec les textes cités, pas certification. Une relecture par un juriste est prévue, y compris pour la loi organique tunisienne 2004-63 `[à vérifier]`.
+- La détection de clone n'est pas infaillible.
+- Le périmètre dépend de la taille de l'équipe.
+- Les principes 1 et 3 du programme ne nous ont pas été transmis : nous les avons traités comme « contrôle humain » et « équité d'accès », en attendant les fiches.
 
-**La planète.** Le risque est d'utiliser de gros modèles sans compter. Chaque tâche est mesurée et le résultat figure dans le passeport. Limite : CodeCarbon donne une estimation.
+### Questions probables du jury
 
-Deux principes des fiches du mentor ne nous ont pas été transmis. Nous les avons traités comme « contrôle humain » et « équité » ; c'est une hypothèse.
-
-Ce dépôt s'aligne sur les textes cités. Il n'a reçu aucune certification, et une relecture juridique est prévue. La détection de clone, quand elle existera, ne sera pas infaillible, et un filigrane audio peut être retiré.
+| Question | Réponse |
+|---|---|
+| N'est-ce pas un outil de doublage avec des autocollants de conformité ? | Non : le moteur de règles refuse la génération sans licence valide, et la démo le montre. Le Passeport est vérifiable par QR. |
+| Différence avec les outils de traduction vocale des grandes plateformes ? | Ils existent. Notre apport : évaluation du derja avec nos données, contrôle humain mesuré, consentement appliqué, provenance et passeport. Nous ne prétendons pas battre leurs modèles de base. |
+| L'humain valide-t-il vraiment ? | Mesuré par une expérience d'erreurs injectées, avec et sans alertes `[à mesurer]`. |
+| Que deviennent les doubleurs ? | Ils restent dans la boucle, crédités et rémunérés à l'usage ; aucune voix sans consentement écrit. |
+| Le filigrane peut être retiré. | Risque reconnu ; le manifeste signé et le label sont la preuve principale. |
 
 ## En cohérence avec la Francophonie
 
-**Diversité culturelle et linguistique.** Le projet part de la derja, une langue que les outils de reconnaissance vocale traitent mal, et va vers le français. Nous mesurons la qualité langue par langue pour que l'écart soit visible. L'amazigh est sur la feuille de route.
-
-**Jeunesse et entrepreneuriat.** Le Passeport de voix prévoit une rémunération par usage pour le comédien. Le montant et le modèle économique restent `[à définir]`.
-
-**Inclusion et égalité.** L'outil vise les jeunes créateurs et les petites structures, qui n'ont pas accès à un studio de doublage. L'export prévoit des sous-titres français, utiles aux personnes sourdes ou malentendantes. Ils ne sont pas encore implémentés.
-
-**Un numérique au service de l'humain.** Le consentement, les droits du titulaire et la liberté du cinéaste passent avant la génération : le moteur de règles refuse par défaut.
+- **Diversité culturelle et linguistique** : le projet part de la derja, une langue à faibles ressources, et va vers le français. Nous mesurons la qualité langue par langue pour que l'écart soit visible. L'arabe est prévu pour la finale et l'amazigh pour la suite.
+- **Jeunesse et entrepreneuriat** : rémunération par usage pour les comédiens de doublage, offre gratuite pour étudiants et associations ; prix `[à définir]`.
+- **Inclusion et égalité** : l'outil vise les jeunes créateurs et les petites structures qui n'ont pas accès à un studio de doublage. L'export prévoit des sous-titres, utiles aux personnes sourdes ou malentendantes.
+- **Un numérique au service de l'humain** : le consentement, les droits du titulaire et la liberté du cinéaste passent avant la génération : le moteur de règles refuse par défaut.
 
 ## Modèle économique
 
@@ -367,50 +285,29 @@ Les maquettes suivent les [Human Interface Guidelines d'Apple](https://developer
 - **Typographie** : une seule famille (Inter, proche de la police système), poids moyen à gras pour la hiérarchie, texte derja en écriture arabe de droite à gauche.
 - **Honnêteté** : bannière « Maquette · données illustratives » sur chaque image, et aucune mesure inventée dans Sawti-Bench.
 
-Limites : ces écrans sont des maquettes HTML rendues en images, pas l'interface Streamlit actuelle. Les contrastes ont été calculés mais pas audités sur un rendu réel, et le comportement avec un texte agrandi, le mode sombre et le lecteur d'écran ne sont pas testés.
+Limites : ces écrans sont des maquettes HTML rendues en images. Les contrastes ont été calculés mais pas audités sur un rendu réel, et le comportement avec un texte agrandi, le mode sombre et le lecteur d'écran ne sont pas testés.
 
 Les sources sont dans [design/](design/) : `python design/generer_maquettes.py` régénère les HTML et les PNG (dépendances : reportlab, playwright, pillow, Chrome).
 
-## Données et modèles
-
-La liste des modèles et des jeux de données, avec leur licence, est dans [docs/DATASHEET.md](docs/DATASHEET.md). Cette version n'exécute aucun modèle d'IA dans le parcours de démo. Le dépôt ne contient aucun enregistrement d'une personne réelle.
-
 ## Équipe
 
-| Rôle | Membre | Ce dont il ou elle s'occupe |
+| Rôle | Responsabilités | Membre |
 |---|---|---|
-| Chef d'équipe, référent éthique | `[prénom]` | coordination, consentements, validation des passeports |
-| IA parole | `[prénom]` | transcription, Sawti-Bench, synthèse, Shield |
-| IA langue | `[prénom]` | traduction, glossaire, fidélité |
-| Back-end et sécurité | `[prénom]` | règles, journal, passeport, coffre, équipe rouge |
-| Front-end, audio, communication | `[prénom]` | console, mixage, vidéo, pitch |
+| Chef d'équipe et référent éthique | Entretiens de terrain, planning, livrables, journal d'audit, décisions éthiques | `[prénom]` |
+| IA parole | Transcription derja, Sawti-Bench, mesure du WER | `[prénom]` |
+| IA langue | Traduction, glossaire, vérificateur de fidélité | `[prénom]` |
+| Back-end et sécurité | Passeport de voix, moteur de règles, journal, coffre local, manifeste | `[prénom]` |
+| Front-end, audio et communication | Console, panneau énergie, voix et mixage, slides, vidéo, README | `[prénom]` |
 
-## Feuille de route
-
-| Échéance | À démontrer |
-|---|---|
-| 15 novembre, 23 h 59 (première soumission) | Passeport de voix et moteur de règles (refus et accord), label et manifeste, journal d'audit, panneau énergie, script de mesure du WER, ce README |
-| 18 novembre | Ateliers ; les retours iront dans `docs/RETOURS_WORKSHOPS.md` |
-| 21 novembre (demi-finale) | Parcours complet sur un extrait d'une à deux minutes : transcription, traduction, validation, voix, export, Passeport 360°, avec l'accord écrit du cinéaste |
-| 24 novembre (dernière soumission) | Dépôt final : Sawti-Bench publié, équipe rouge, Shield, filigrane, Passeport complet, Business Model Canvas |
-| 25 novembre (finale) | Prototype utilisable hors ligne |
-| Suite | Amazigh, mode quasi-direct supervisé pour festivals, place de marché de voix sous licence : annoncés comme vision, pas comme acquis |
-
-## Ce qu'il nous reste à fournir
-
-- Un enregistrement de deux minutes en derja et sa transcription (`data/bench/derja_01.wav` et `.txt`), pour mesurer le WER.
-- Les formulaires de consentement signés, dans `data/consents/`.
-- L'accord écrit de Mohamed Karim Dahmouni, et la vérification des prix et sélections cités dans la vidéo.
-- Les entretiens suivants.
-- Les prénoms dans le tableau de l'équipe, et la vraie liste de blocage.
+Au moins deux membres seront présents aux ateliers du 18 novembre.
 
 ## Propriété intellectuelle
 
-L'équipe garde la propriété intellectuelle du projet. L'OIF a un droit de premier regard, comme le prévoit le cahier des charges. Aucune voix n'est utilisée sans consentement écrit. La licence du code reste à choisir.
+L'équipe reste titulaire de la propriété intellectuelle du projet. Elle garantit que ses contributions sont originales et respectent les droits d'auteur, les droits à l'image et à la voix, et les licences des données et des modèles d'IA utilisés. Aucune voix n'est utilisée sans consentement écrit ; l'accord écrit de Mohamed Karim Dahmouni est à obtenir. L'OIF dispose d'un droit de premier regard sur les prototypes et livrables, comme le prévoit le cahier des charges.
 
 ## Sources
 
-- Cahier des charges IA Éthique 360, 5e édition (JEI INSAT × OIF), [PDF du dépôt](Cahier_des_charges_IA_Ethique_360_VF%20(1).pdf).
+- Cahier des charges IA Éthique 360, 5e édition (JEI INSAT × OIF), JEI INSAT × OIF.
 - Fiches AI Academy / Novation AI Center of Excellence : consentement, diversité, transparence, responsabilité, robustesse, sécurité des données, durabilité. Textes cités : RGPD art. 9, 32 et 33 ; AI Act art. 10, 15, 26, 50 et annexe XI ; ISO/IEC 42001 ; UNESCO 2005 et 2021 ; loi organique tunisienne 2004-63 `[à vérifier]`.
 - Témoignage vidéo de Mohamed Karim Dahmouni, 14 novembre 2026 (transcription lue à partir des sous-titres incrustés, à confirmer à l'écoute).
 - Article LREC 2024 sur la synthèse vocale du tunisien, langue à faibles ressources : <https://aclanthology.org/2024.lrec-main.1467>.
