@@ -33,3 +33,7 @@ All files are distributed under the [Pixabay Content License](https://pixabay.co
 - Redistribution as part of derivative works (such as videos rendered with HyperFrames)
 
 without any attribution requirement.
+
+## Musique
+
+`musique.mp3` : musique de fond générée par IA (Google Lyria 3.5 via Creative Claw), mixée sous la voix (plus basse pendant le témoignage), fondu final. Mention au générique.

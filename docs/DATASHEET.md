@@ -45,5 +45,6 @@ Règle : la licence de chaque modèle et jeu de données est vérifiée **avant*
 | Captures de la console | preuves à l'écran | œuvre de l'équipe | `docs/captures/` |
 | Témoignage de M. K. Dahmouni | problème observé | **accord écrit d'image et de voix à obtenir** | non versionné ; release `media-v1` |
 | ElevenLabs, modèle v4 (via Creative Claw), voix de bibliothèque « Chloé » | voix off de la vidéo | crédits Creative Claw ; attribution au générique (« ElevenLabs v4 via Creative Claw ») | aucune voix réelle clonée ; fichiers dans `video/assets/voix/` |
+| Google Lyria 3.5 (via Creative Claw) | musique de fond de la vidéo | crédits Creative Claw ; mention au générique | instrumental généré, aucune œuvre existante reprise ; `video/assets/audio/musique.mp3` |
 
 Aucun audio de personne réelle n’est versionné dans ce dépôt.

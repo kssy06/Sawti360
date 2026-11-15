@@ -1,6 +1,6 @@
 # Vidéo de présentation Sawti 360 (HyperFrames)
 
-Vidéo de 1 min 57, 1920×1080, 30 i/s, en français, faite avec [HyperFrames](https://github.com/heygen-com/hyperframes) (HTML → MP4).
+Vidéo de 1 min 59, 1920×1080, 30 i/s, en français, faite avec [HyperFrames](https://github.com/heygen-com/hyperframes) (HTML → MP4).
 
 ## Les scènes (`compositions/`)
 
@@ -21,7 +21,7 @@ Vidéo de 1 min 57, 1920×1080, 30 i/s, en français, faite avec [HyperFrames](h
 
 ## Voix off
 
-Voix off générée avec **ElevenLabs v4 via Creative Claw** (voix de bibliothèque « Chloé »), attribution au générique. Narration continue : 9 répliques dans `assets/voix/`, placées par `index.html` (`vo-A` … `vo-I`) ; le texte est dans `voix_off_clips.json`. Chaque réplique a été coupée de ses silences et ramenée à −16 LUFS, comme le témoignage.
+Voix off générée avec **ElevenLabs v4 via Creative Claw** (voix de bibliothèque « Chloé »), attribution au générique. Narration continue : 9 répliques dans `assets/voix/`, placées par `index.html` (`vo-A` … `vo-I`) ; le texte est dans `voix_off_clips.json`. Musique de fond : `assets/audio/musique.mp3`, générée par IA (Google Lyria 3.5 via Creative Claw), mixée bas sous la voix et encore plus bas pendant le témoignage. Chaque réplique a été coupée de ses silences et ramenée à −16 LUFS, comme le témoignage.
 
 Les écrans de l'application sont les maquettes de l'équipe (`docs/maquettes/04-passeport-de-voix.png` et `06-passeport-360.png`), découpées dans `assets/img/n_*.png`.
 

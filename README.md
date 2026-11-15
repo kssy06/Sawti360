@@ -166,7 +166,7 @@ Chaque entrée contient l'empreinte de la précédente. Les empreintes de la maq
 
 ## Vidéo de présentation
 
-La vidéo de la première soumission dure 1 min 57, en français. Elle est construite en code avec [HyperFrames](https://github.com/heygen-com/hyperframes) (Apache-2.0) ; sa source est dans [video/](video/). Elle suit le fil du cahier : problème observé, solution, place de l'IA, démarche éthique.
+La vidéo de la première soumission dure 1 min 59, en français. Elle est construite en code avec [HyperFrames](https://github.com/heygen-com/hyperframes) (Apache-2.0) ; sa source est dans [video/](video/). Elle suit le fil du cahier : problème observé, solution, place de l'IA, démarche éthique.
 
 | Temps | Scène |
 | ----- | ----- |
