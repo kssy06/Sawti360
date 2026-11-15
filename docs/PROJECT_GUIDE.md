@@ -24,7 +24,7 @@ python scripts/seed_demo.py
 streamlit run app/streamlit_app.py
 ```
 
-Les tests se lancent avec `python -m pytest`, et le style se vérifie avec `ruff check .` (configuration dans `ruff.toml`).
+Les tests se lancent avec `python -m pytest`.
 
 Les licences de démonstration sont fictives. La génération audio produit un signal neutre de remplacement, pas une voix synthétique.
 

@@ -19,16 +19,14 @@ Hackathon IA Éthique 360, 5e édition (Junior Entreprise INSAT et OIF).
 - [Le problème](#le-problème)
 - [La solution](#la-solution)
 - [Aperçu du prototype](#aperçu-du-prototype)
-- [Ce que le prototype fait déjà](#ce-que-le-prototype-fait-déjà)
 - [Le Passeport 360° du film](#le-passeport-360-du-film)
-- [Place de l'IA : construit ou réutilisé](#place-de-lia--construit-ou-réutilisé)
+- [Place de l&#39;IA : construit ou réutilisé](#place-de-lia--construit-ou-réutilisé)
 - [Démarche éthique à 360°](#démarche-éthique-à-360)
 - [En cohérence avec la Francophonie](#en-cohérence-avec-la-francophonie)
 - [Modèle économique](#modèle-économique)
 - [Équipe](#équipe)
 - [Propriété intellectuelle](#propriété-intellectuelle)
 - [Sources](#sources)
-- [Lancer la démonstration](#lancer-la-démonstration)
 
 ## Le problème
 
@@ -43,11 +41,12 @@ Un cinéaste tunisien indépendant rencontre une barrière de langue qui empêch
 
 **Notre démarche.** Le constat s'appuie sur l'entretien avec Mohamed Karim Dahmouni et sur les difficultés de consentement, de transparence et de traçabilité documentées dans le secteur. Le WER est l'indicateur retenu pour évaluer la transcription du derja ; aucun résultat chiffré n'est avancé dans ce README.
 
-**Au-delà du cinéma.** Le même blocage touche les créateurs en ligne : une vidéo YouTube, un Short, un podcast ou une vidéo générée par IA en derja reste dans le public qui comprend la derja. Le parcours et la couche de confiance sont les mêmes ; seul l'usage déclaré dans le Passeport de voix change (`doublage_video_en_ligne` : YouTube, Shorts, Reels, podcasts).
+
+**Au-delà du cinéma.** Le même blocage touche les créateurs en ligne : une vidéo YouTube, un Short, un podcast ou une vidéo générée par IA en derja reste dans le public qui comprend la derja. Le parcours et la couche de confiance sont les mêmes ; seul l'usage déclaré dans le Passeport de voix change (`doublage_video_en_ligne` : YouTube, Shorts, Reels, podcasts). C'est une hypothèse que nous n'avons pas encore vérifiée sur le terrain : l'entretien avec un vidéaste ou un podcasteur est à recueillir (voir [docs/ENTRETIENS.md](docs/ENTRETIENS.md)).
 
 ## La solution
 
-Sawti 360 est un doublage supervisé entouré d'une couche de confiance : chaque étape a une porte, et rien ne sort sans une décision humaine.
+Sawti 360 est un doublage supervisé entouré d'une couche de confiance. Les outils de doublage par IA produisent une voix. Sawti 360 produit une voix et la preuve qu'elle est légitime, mesurée et traçable.
 
 ### Le parcours d'un film : dix étapes, dix portes de confiance
 
@@ -89,7 +88,7 @@ Les fiches 1 et 3 du programme ne nous ont pas été transmises : « contrôle h
 
 ## Aperçu du prototype
 
-Ces huit écrans sont des **maquettes du prototype**, conçues avec les principes des Apple Human Interface Guidelines. Les données y sont illustratives et la bannière « Maquette · données illustratives » figure sur chaque image.
+Ces huit écrans sont des **maquettes du prototype**, conçues avec les principes de l'Apple Human Interface Guidelines. Les données y sont illustratives et la bannière « Maquette · données illustratives » figure sur chaque image.
 
 ### 1. Parcours du film
 
@@ -139,23 +138,6 @@ Chaque entrée contient l'empreinte de la précédente. Les empreintes de la maq
 
 ![Sawti-Bench](docs/maquettes/08-sawti-bench.png)
 
-## Ce que le prototype fait déjà
-
-La V1 démontre la couche de confiance, réellement exécutée et testée. Le code est dans [`sawti/`](sawti/), la console dans [`app/`](app/).
-
-| Fonction | État en V1 | Où |
-| --- | --- | --- |
-| Passeport de voix | Licences signées (Ed25519) : titulaire, usages, projets, langues, durée, révocation | `sawti/licenses.py` |
-| Moteur de règles | Refus par défaut, motif en français pour chaque refus | `sawti/rules.py` |
-| Journal d'audit | Chaîne de hachage SHA-256 : toute modification est détectée | `sawti/audit.py` |
-| Passeport 360° | Dossier signé avec QR, vérifiable hors ligne | `sawti/passport.py`, `scripts/verify_passport.py` |
-| Garde-fous | Liste de blocage des personnalités, bouton « Signaler un abus » | `sawti/guardrails.py` |
-| Coffre local | Chiffrement au repos (Fernet), rien n'est envoyé sur le réseau | `sawti/vault.py` |
-| Panneau énergie | Mesure CodeCarbon de chaque génération | `sawti/energy.py` |
-
-**Vérifié :** 34 tests passent, dont 18 scénarios d'attaque, tous conformes à l'attendu (voix inconnue, licence révoquée ou expirée, usage interdit, journal falsifié, passeport modifié…). Le détail est dans [`results/attack_tests.md`](results/attack_tests.md).
-
-**Pas encore :** en V1, la « voix générée » est un signal neutre de remplacement. Seule la porte d'autorisation est démontrée. La transcription, la traduction et la synthèse réelles arrivent avec les modèles listés dans [`docs/DATASHEET.md`](docs/DATASHEET.md).
 
 ## Le Passeport 360° du film
 
@@ -219,6 +201,7 @@ Chaque principe du programme devient une fonction concrète, testable et visible
 - Le périmètre dépend de la taille de l'équipe.
 - Les principes 1 et 3 du programme ne nous ont pas été transmis : nous les avons traités comme « contrôle humain » et « équité d'accès », en attendant les fiches.
 
+
 ## En cohérence avec la Francophonie
 
 - **Diversité culturelle et linguistique** : le projet part de la derja, une langue à faibles ressources, et va vers le français. Nous mesurons la qualité langue par langue pour que l'écart soit visible. L'arabe est prévu pour la finale, puis l'amazigh, l'anglais et l'espagnol, pour que les créateurs touchent d'autres publics avec leur propre voix.
@@ -252,31 +235,17 @@ Business Model Canvas de première soumission.
 | Back-end et sécurité                | Passeport de voix, moteur de règles, journal, coffre local, manifeste            | Amine   |
 | Front-end, audio et communication     | Console, panneau énergie, voix et mixage, slides, vidéo, README                 | Ghayth  |
 
+
 ## Propriété intellectuelle
 
 L'équipe reste titulaire de la propriété intellectuelle du projet. Elle garantit que ses contributions sont originales et respectent les droits d'auteur, les droits à l'image et à la voix, et les licences des données et des modèles d'IA utilisés. Aucune voix ni image de personne n'est utilisée sans consentement écrit. L'OIF dispose d'un droit de premier regard sur les prototypes et livrables, comme le prévoit le cahier des charges.
 
 ## Sources
 
-- Cahier des charges IA Éthique 360, 5e édition (JEI INSAT × OIF).
+- Cahier des charges IA Éthique 360, 5e édition (JEI INSAT × OIF), JEI INSAT × OIF.
 - Fiches AI Academy / Novation AI Center of Excellence : consentement, diversité, transparence, responsabilité, robustesse, sécurité des données et durabilité. Textes de référence : RGPD art. 9, 32 et 33 ; AI Act art. 10, 15, 26, 50 et annexe XI ; ISO/IEC 42001 ; UNESCO 2005 et 2021.
 - Entretien avec Mohamed Karim Dahmouni, cinéaste, 14 novembre 2026.
 - Article LREC 2024 sur la synthèse vocale du tunisien, langue à faibles ressources : [https://aclanthology.org/2024.lrec-main.1467](https://aclanthology.org/2024.lrec-main.1467).
 - Apple Human Interface Guidelines : [https://developer.apple.com/design/human-interface-guidelines/](https://developer.apple.com/design/human-interface-guidelines/).
-
-## Lancer la démonstration
-
-Python 3.11 ou plus récent.
-
-```bash
-python -m venv .venv
-source .venv/bin/activate          # Windows : .venv\Scripts\Activate.ps1
-python -m pip install -r requirements.txt
-python scripts/seed_demo.py        # licences de démonstration, aucune voix réelle
-streamlit run app/streamlit_app.py
-python -m pytest                   # 34 tests, dont les 18 scénarios d'attaque
-```
-
-Pour aller plus loin : [architecture](docs/ARCHITECTURE.md), [démarche éthique](docs/ETHIQUE.md), [données et modèles](docs/DATASHEET.md), [guide du projet](docs/PROJECT_GUIDE.md).
 
 Ce dépôt n'affirme aucun résultat que l'équipe n'a pas mesuré, et il n'est pas un avis juridique.
