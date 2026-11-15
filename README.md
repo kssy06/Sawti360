@@ -41,10 +41,6 @@ Un cinéaste tunisien indépendant rencontre une barrière de langue qui empêch
 
 **Notre démarche.** Le constat s'appuie sur l'entretien avec Mohamed Karim Dahmouni et sur les difficultés de consentement, de transparence et de traçabilité documentées dans le secteur. Le WER est l'indicateur retenu pour évaluer la transcription du derja ; aucun résultat chiffré n'est avancé dans ce README.
 
-| Personne interrogée              | Date             | Enseignement retenu                                                                                            |
-| --------------------------------- | ---------------- | -------------------------------------------------------------------------------------------------------------- |
-| Mohamed Karim Dahmouni, cinéaste | 14 novembre 2026 | Un film que le public ne comprend pas reste invisible ; les sous-titres aident un peu, mais seul le doublage permet à un film de voyager. |
-
 Des échanges complémentaires avec des programmateurs, doubleurs, traducteurs et producteurs permettront d'enrichir ce premier retour. Ils ne sont pas présentés ici comme déjà réalisés.
 
 **Au-delà du cinéma.** Le même blocage touche les créateurs en ligne : une vidéo YouTube, un Short, un podcast ou une vidéo générée par IA en derja reste dans le public qui comprend la derja. Le parcours et la couche de confiance sont les mêmes ; seul l'usage déclaré dans le Passeport de voix change (`doublage_video_en_ligne` : YouTube, Shorts, Reels, podcasts). C'est une hypothèse que nous n'avons pas encore vérifiée sur le terrain : l'entretien avec un vidéaste ou un podcasteur est à recueillir (voir [docs/ENTRETIENS.md](docs/ENTRETIENS.md)).
