@@ -7,7 +7,7 @@ Vidéo de 1 min 59, 1920×1080, 30 i/s, en français, faite avec [HyperFrames](h
 | Temps | Fichier | Scène |
 |---|---|---|
 | 0:00 | `ouverture.html` | « Ahla bik ! » rebondit contre la vitre : la barrière de la langue |
-| 0:07 | `terrain.html` | Témoignage de M. K. Dahmouni (sa vidéo seule, avec ses propres sous-titres) |
+| 0:07 | `terrain.html` | Témoignage de M. K. Dahmouni, en entier et sans coupure (31,6 s) |
 | 0:31 | `probleme.html` | Le problème en une phrase, trois obstacles barrés, « VISA REFUSÉ » |
 | 0:42 | `createurs.html` | Pas seulement le cinéma : films, YouTube, Shorts, podcasts, vidéos IA |
 | 0:50 | `monde.html` | Globe des langues : derja → français (aujourd'hui) → arabe, anglais, espagnol (demain) |
@@ -21,11 +21,9 @@ Vidéo de 1 min 59, 1920×1080, 30 i/s, en français, faite avec [HyperFrames](h
 
 ## Voix off
 
-La voix off est générée en local avec **Kokoro-82M** (le moteur du projet `automated-vids`), voix française `ff_siwis`, sur CPU. Les 15 clips sont dans `assets/voix/` et placés par `index.html` (`vo-A` … `vo-I2`). Le texte, les temps de départ et les durées maximales sont dans `voix_off_clips.json` (la prononciation y est déjà corrigée : « Saouti », « IA » sans points). Chaque clip a été vérifié par transcription (Whisper) et ramené à −16 LUFS.
+Voix off générée avec **ElevenLabs** (modèle v4, voix de bibliothèque « Chloé »), offre gratuite : attribution au générique. Les 12 répliques sont dans `assets/voix/` et placées par `index.html` (`vo-A` … `vo-I2`) ; le texte est dans `voix_off_clips.json`. Chaque réplique a été coupée de ses silences et ramenée à −16 LUFS, comme le témoignage.
 
-Pour régénérer : `KPipeline(lang_code="f", repo_id="hexgrad/Kokoro-82M")`, voix `ff_siwis`, un fichier par clip, silences de début et de fin coupés.
-
-Autre option, plus expressive : ElevenLabs (`ELEVENLABS_A_COLLER.md`, `VOIX_OFF_ELEVENLABS.md`).
+Les écrans de l'application sont les maquettes de l'équipe (`docs/maquettes/04-passeport-de-voix.png` et `06-passeport-360.png`), découpées dans `assets/img/n_*.png`.
 
 ## Rendre la vidéo
 

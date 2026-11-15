@@ -88,8 +88,8 @@
   </style>
   <div id="root" data-composition-id="fin" data-width="1920" data-height="1080">
     <canvas id="fn-cv" width="1920" height="1080"></canvas>
-    <div id="fn-head" class="clip" data-start="0.0" data-duration="3.461"><span class="w">Avec</span><span class="w">son</span><span class="w">passeport,</span><span class="w">la</span><span class="w">voix</span><span class="w red">voyage.</span></div>
-    <div id="fn-end" class="clip" data-start="3.284" data-duration="3.816">
+    <div id="fn-head" class="clip" data-start="0.0" data-duration="3.656"><span class="w">Avec</span><span class="w">son</span><span class="w">passeport,</span><span class="w">la</span><span class="w">voix</span><span class="w red">voyage.</span></div>
+    <div id="fn-end" class="clip" data-start="3.469" data-duration="4.031">
       <div id="fn-top"><span class="w">L’IA</span><span class="w">propose</span><span class="w">·</span><span class="w">L’humain</span><span class="w">décide</span></div>
       <div id="fn-stamp">SAWTI<span class="red">360</span></div>
       <div id="fn-claim">La confiance accompagne chaque export.</div>
@@ -134,8 +134,8 @@
       tl.fromTo("#fn-stamp", { scale: 1.8, rotation: -12, opacity: 0 }, { scale: 1, rotation: -3, opacity: 1, duration: 0.2, ease: "power4.out" }, 4.4);
       tl.fromTo("#fn-claim", { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.25, ease: "power2.out" }, 4.65);
       tl.fromTo("#fn-team", { opacity: 0 }, { opacity: 1, duration: 0.4, ease: "power2.out" }, 4.95);
-      // the scene plays 8s of animation in 7.1s: the original timeline runs inside a faster wrapper
-      tl.paused(false).timeScale(8/7.1);
+      // the scene plays 8s of animation in 7.5s: the original timeline runs inside a faster wrapper
+      tl.paused(false).timeScale(8/7.5);
       const wrap = gsap.timeline({ paused: true });
       wrap.add(tl, 0);
       window.__timelines["fin"] = wrap;

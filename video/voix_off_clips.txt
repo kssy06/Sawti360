@@ -1,15 +1,12 @@
-A	Elle parle en derja. En face, un public francophone… qui ne comprend pas.
-B	Nous l'avons entendu sur le terrain. Le studio de doublage coûte trop cher. Et l'IA générique ne dit pas à qui appartient la voix.
-C	Et ce n'est pas que le cinéma : YouTube, vidéos courtes, podcasts, vidéos générées par l'IA.
-D	En derja, une vidéo reste en Tunisie. En français, elle rejoint tout l'espace francophone. Et demain… bien plus loin.
-E1	Voici Saouti trois-cent-soixante.
-E2	Suivons une réplique. L'IA transcrit… puis traduit. Elle repère une erreur : quinze heures, devenu cinquante. Le créateur corrige. Et la voix française est générée.
-F1	Chaque voix a son passeport.
-F2	Voix inconnue : refusée.
-F3	Voix consentie : accordée.
-F4	Puis le titulaire révoque sa licence : refusée.
-F5	Pas d'accord. Pas de voix.
-G	À chaque export, un Passeport trois-cent-soixante signé… que chacun peut vérifier, sans avoir à nous croire.
-H	Six angles éthiques, tous mesurés. Et nos limites… écrites.
-I1	Avec son passeport… la voix voyage.
-I2	Saouti trois-cent-soixante : l'IA propose, l'humain décide.
+A	Une voix tunisienne. Un public francophone. Et entre les deux… un mur !
+B	Pour passer ce mur ? Un studio hors de prix… ou une IA qui clone des voix sans demander la permission. Non merci !
+C	Et attention : ce mur ne bloque pas que le cinéma ! YouTube, les vidéos courtes, les podcasts… tout le monde est coincé.
+D	En derja, une vidéo reste chez elle. En français ? Elle s'ouvre à tout l'espace francophone. Et demain… encore plus loin !
+E1	Sawti 360.
+E2	Une phrase, de A à Z. L'IA transcrit, traduit… et hop : elle repère que quinze heures est devenu cinquante ! Elle ne corrige pas seule : c'est le créateur qui tranche. Et là, la voix prend vie.
+F2	Voix inconnue ? Refusée !
+F3	Voix consentie ? Accordée !
+F4	Et si le titulaire retire son accord ? Refusée. Immédiatement.
+G	Chaque film part avec son Passeport 360 : la preuve signée de tout ce que l'IA a fait.
+I1	Avec son passeport… la voix voyage !
+I2	Sawti 360. L'IA propose. L'humain décide.

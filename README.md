@@ -181,7 +181,7 @@ La vidéo de la première soumission dure 1 min 59, en français. Elle est const
 | 1:44 | Les six angles éthiques |
 | 1:51 | La voix rejoint l'espace francophone ; L'IA propose · L'humain décide |
 
-Les interfaces montrées sont des captures de la console (`docs/captures/`). Le globe colore les pays où la langue est officielle ou d'usage courant ; il n'affiche aucun chiffre d'audience. La voix off est générée par IA en local (Kokoro, voix française `ff_siwis`), et le générique l'indique. Le fichier vidéo et le témoignage ne sont pas versionnés tant que l'accord écrit de Mohamed Karim Dahmouni n'est pas signé.
+Le globe colore les pays où la langue est officielle ou d'usage courant ; il n'affiche aucun chiffre d'audience. Les écrans montrés sont les maquettes de l'interface (`docs/maquettes/`). La voix off est générée par IA avec ElevenLabs (voix « Chloé »), et le générique l'indique. Le fichier vidéo et le témoignage ne sont pas versionnés tant que l'accord écrit de Mohamed Karim Dahmouni n'est pas signé.
 
 ## Le Passeport 360° du film
 
