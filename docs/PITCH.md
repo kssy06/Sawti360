@@ -2,7 +2,7 @@
 
 Présentation Canva : https://canva.link/lu6nsgxbyjwdj6h
 
-Contenu repris de l’animatic de l’équipe ; structure inspirée d’un pitch lauréat de l’édition précédente (une idée par diapositive, un gros titre, une phrase d’accroche en bas). Aucun chiffre inventé.
+Une idée par diapositive, un gros titre, une phrase d’accroche en bas. Aucun chiffre inventé.
 
 | # | Titre | Contenu | Accroche |
 |---|---|---|---|
@@ -15,7 +15,8 @@ Contenu repris de l’animatic de l’équipe ; structure inspirée d’un pitch
 | 7 | Notre prototype | Refus → accord → refus après révocation (captures `docs/captures/`) | Sans consentement, rien n’est généré |
 | 8 | Passeport 360° | Identité du film, voix et licences, label et provenance, validation et audit, sécurité et énergie, signature + QR | Festivals, producteurs et financeurs vérifient, sans avoir à nous croire |
 | 9 | Éthique à 360° | Créateurs · droits · données · cultures et langues · transparence · planète | Nos limites sont écrites |
-| 10 | Ce que nous mesurons | 34/34 tests · 18/18 scénarios d’attaque · WER derja `[à mesurer]` · fidélité `[à mesurer]` · modèle économique `[à définir]` | Un mauvais score publié vaut mieux qu’un bon score inventé |
-| 11 | Merci | Prochaine étape : parcours complet sur 1–2 min d’extrait, avec accord écrit | L’IA propose · L’humain décide · La confiance accompagne chaque export |
+| 10 | En cohérence avec la Francophonie | Diversité culturelle et linguistique · jeunesse et entrepreneuriat · inclusion et égalité · un numérique au service de l’humain | Un film tunisien qui voyage en français, sans perdre sa voix |
+| 11 | Ce que nous mesurons | 34/34 tests · 18/18 scénarios d’attaque · WER derja `[à mesurer]` · fidélité `[à mesurer]` · modèle économique `[à définir]` | Un mauvais score publié vaut mieux qu’un bon score inventé |
+| 12 | Merci | Prochaine étape : parcours complet sur 1–2 min d’extrait, avec accord écrit | L’IA propose · L’humain décide · La confiance accompagne chaque export |
 
-À compléter par l’équipe avant le pitch : nom de l’équipe, captures de la diapositive 7, modèle économique et structure de coûts (le pitch de référence y consacre deux diapositives chiffrées et sourcées), sources de chaque fait cité.
+À compléter par l’équipe avant le pitch : nom de l’équipe, captures de la diapositive 7, modèle économique et structure de coûts (à chiffrer et à sourcer), sources de chaque fait cité.
