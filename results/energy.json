@@ -1,0 +1,29 @@
+[
+  {
+    "tache": "generation:voice_inconnue",
+    "date": "2026-11-15T09:41:29+00:00",
+    "kwh": 3.791316111182318e-09,
+    "gco2": 2.138135468797935e-06,
+    "duree_s": 0.0024,
+    "methode": "CodeCarbon OfflineEmissionsTracker (estimation CPU/RAM, mix électrique du pays)",
+    "pays": "TUN"
+  },
+  {
+    "tache": "generation:voice_amine",
+    "date": "2026-11-15T09:41:35+00:00",
+    "kwh": 1.2140457778665829e-09,
+    "gco2": 6.846684007025266e-07,
+    "duree_s": 0.0095,
+    "methode": "CodeCarbon OfflineEmissionsTracker (estimation CPU/RAM, mix électrique du pays)",
+    "pays": "TUN"
+  },
+  {
+    "tache": "generation:voice_amine",
+    "date": "2026-11-15T09:41:52+00:00",
+    "kwh": 1.0250827776114117e-09,
+    "gco2": 5.781015829306213e-07,
+    "duree_s": 0.0031,
+    "methode": "CodeCarbon OfflineEmissionsTracker (estimation CPU/RAM, mix électrique du pays)",
+    "pays": "TUN"
+  }
+]

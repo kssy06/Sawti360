@@ -1,0 +1,10 @@
+# Cœur V1 (suffisant pour la démo et les tests)
+streamlit==1.67.0
+cryptography==50.0.2
+qrcode[pil]==8.2
+jiwer==4.0.0
+codecarbon==3.3.2
+pandas==3.1.1
+pytest==9.2.0
+# Optionnel : mesure WER réelle (scripts/run_wer.py). Télécharge les poids Whisper (MIT) au 1er lancement.
+# pip install faster-whisper

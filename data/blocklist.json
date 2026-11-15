@@ -1,0 +1,5 @@
+{
+  "_note": "Liste configurable de personnalités publiques dont la voix ne peut jamais être générée. Les entrées sont des exemples génériques : l'équipe complète la liste.",
+  "voice_ids": ["voice_personnalite_publique", "voice_chef_etat", "voice_chanteur_celebre", "voice_journaliste_tv"],
+  "name_keywords": ["président", "ministre", "célébrité"]
+}
