@@ -4,9 +4,9 @@
 
 Sawti 360 double une œuvre de la derja vers le français : un film, mais aussi une vidéo YouTube, un Short ou un podcast. L'IA propose, le créateur décide. Chaque voix a un Passeport de voix : sans consentement, rien n'est généré. À l'export, l'œuvre part avec un Passeport 360° que chacun peut vérifier.
 
-« L'IA propose · L'humain décide · La confiance accompagne chaque export. »
+« L'IA propose · L'humain décide · La confiance agitccompagne chaque export. »
 
-Hackathon IA Éthique 360, 5e édition (Junior Entreprise INSAT et OIF).
+Hackathon IA Éthique 360, 5e édition (Junior Entreprise INSAT et OIF) .
 
 ![Passeport 360°](docs/maquettes/06-passeport-360.png)
 
@@ -32,7 +32,7 @@ Hackathon IA Éthique 360, 5e édition (Junior Entreprise INSAT et OIF).
 
 Un cinéaste tunisien indépendant rencontre une barrière de langue qui empêche ses films en derja d'être compris quand ils sont présentés à des festivals ou à des publics étrangers, ce qui entraîne des films primés mais invisibles. Les outils d'IA qui pourraient les doubler lui font courir un autre risque : voix clonées sans accord, contenus non étiquetés, aucune trace de qui a décidé quoi.
 
-**Face 1 : le film ne voyage pas.** Le cinéaste amateur tunisien Mohamed Karim Dahmouni a expliqué que les sous-titres aident, mais que le doublage permet à un film de voyager. Toute utilisation de son image ou de sa voix dans le projet est conditionnée à un accord écrit.
+**Face 1 : le film ne voyage pas.** . Le cinéaste amateur tunisien Mohamed Karim Dahmouni a expliqué que les sous-titres aident, mais que le doublage permet à un film de voyager. Toute utilisation de son image ou de sa voix dans le projet est conditionnée à un accord écrit.
 
 > « Un film que le public ne comprend pas reste invisible, même s'il est extraordinaire. Les miens sont en dialecte tunisien, ils s'arrêtent à la barrière de la langue. Les sous-titres aident un peu, mais seul le doublage permet à un film de voyager. »
 > Mohamed Karim Dahmouni, cinéaste amateur tunisien.
@@ -41,8 +41,7 @@ Un cinéaste tunisien indépendant rencontre une barrière de langue qui empêch
 
 **Notre démarche.** Le constat s'appuie sur l'entretien avec Mohamed Karim Dahmouni et sur les difficultés de consentement, de transparence et de traçabilité documentées dans le secteur. Le WER est l'indicateur retenu pour évaluer la transcription du derja ; aucun résultat chiffré n'est avancé dans ce README.
 
-
-**Au-delà du cinéma.** Le même blocage touche les créateurs en ligne : une vidéo YouTube, un Short, un podcast ou une vidéo générée par IA en derja reste dans le public qui comprend la derja. Le parcours et la couche de confiance sont les mêmes ; seul l'usage déclaré dans le Passeport de voix change (`doublage_video_en_ligne` : YouTube, Shorts, Reels, podcasts). C'est une hypothèse que nous n'avons pas encore vérifiée sur le terrain : l'entretien avec un vidéaste ou un podcasteur est à recueillir (voir [docs/ENTRETIENS.md](docs/ENTRETIENS.md)).
+**Au-delà du cinéma.** Le même blocage touche les créateurs en ligne : une vidéo YouTube, un Short, un podcast ou une vidéo générée par IA en derja reste dans le public qui comprend la derja. Le parcours et la couche de confiance sont les mêmes ; seul l'usage déclaré dans le Passeport de voix change (`doublage_video_en_ligne` : YouTube, Shorts, Reels, podcasts).
 
 ## La solution
 
@@ -62,6 +61,8 @@ Sawti 360 est un doublage supervisé entouré d'une couche de confiance. Les out
 | 8  | Synthèse et mixage            | Voix générée avec le plus petit modèle suffisant                                           | Durabilité        |
 | 9  | Étiquetage                    | Label visible, métadonnées, générique des voix                                             | Transparence       |
 | 10 | Export                         | Piste doublée, sous-titres et Passeport 360° signé                                          | Toutes les portes  |
+
+Le périmètre de chaque étape par échéance est dans [Périmètre par échéance](#périmètre-par-échéance).
 
 ### Les neuf modules de la couche de confiance
 
@@ -88,7 +89,7 @@ Les fiches 1 et 3 du programme ne nous ont pas été transmises : « contrôle h
 
 ## Aperçu du prototype
 
-Ces huit écrans sont des **maquettes du prototype**, conçues avec les principes de l'Apple Human Interface Guidelines. Les données y sont illustratives et la bannière « Maquette · données illustratives » figure sur chaque image.
+Ces huit écrans sont des **maquettes du prototype**, conçues avec les principes de l'Apple Human Interface Guidelines (voir [Design de l&#39;interface](#design-de-linterface)). Les données y sont illustratives et la bannière « Maquette · données illustratives » figure sur chaque image.
 
 ### 1. Parcours du film
 
@@ -137,7 +138,6 @@ Chaque entrée contient l'empreinte de la précédente. Les empreintes de la maq
 Évaluation par langue. Aucune valeur n'est inventée : les barres en pointillés se remplissent quand les mesures existent.
 
 ![Sawti-Bench](docs/maquettes/08-sawti-bench.png)
-
 
 ## Le Passeport 360° du film
 
@@ -201,7 +201,6 @@ Chaque principe du programme devient une fonction concrète, testable et visible
 - Le périmètre dépend de la taille de l'équipe.
 - Les principes 1 et 3 du programme ne nous ont pas été transmis : nous les avons traités comme « contrôle humain » et « équité d'accès », en attendant les fiches.
 
-
 ## En cohérence avec la Francophonie
 
 - **Diversité culturelle et linguistique** : le projet part de la derja, une langue à faibles ressources, et va vers le français. Nous mesurons la qualité langue par langue pour que l'écart soit visible. L'arabe est prévu pour la finale, puis l'amazigh, l'anglais et l'espagnol, pour que les créateurs touchent d'autres publics avec leur propre voix.
@@ -234,7 +233,6 @@ Business Model Canvas de première soumission.
 | IA langue                             | Traduction, glossaire, vérificateur de fidélité                                | Koussay |
 | Back-end et sécurité                | Passeport de voix, moteur de règles, journal, coffre local, manifeste            | Amine   |
 | Front-end, audio et communication     | Console, panneau énergie, voix et mixage, slides, vidéo, README                 | Ghayth  |
-
 
 ## Propriété intellectuelle
 
