@@ -29,9 +29,8 @@ Le script `scripts/run_wer.py` est optionnel et nécessite `faster-whisper` ains
 - `scripts/` : initialisation de la démo, vérification et mesures optionnelles.
 - `tests/` : tests du moteur de confiance et des composants principaux.
 - `data/` : exemples publics et données locales. `data/private/`, `data/consents/` et `data/bench/` sont ignorés par Git.
-- `docs/` : architecture, éthique, données, sécurité, entretiens et supports de présentation.
+- `docs/` : architecture, éthique, données et guide du projet.
 - `design/` : sources HTML et Python des maquettes ; `docs/maquettes/` conserve leurs exports PNG.
-- `video/` : sources et ressources du film de présentation.
 
 Les clés cryptographiques et les données de voix ne doivent pas être ajoutées au dépôt. Les limites de la démonstration sont documentées dans `DATASHEET.md` et `ETHIQUE.md`.
 
@@ -40,7 +39,5 @@ Les clés cryptographiques et les données de voix ne doivent pas être ajoutée
 - `ARCHITECTURE.md` : composants, données et flux d’autorisation.
 - `ETHIQUE.md` : consentement, limites et règles de responsabilité.
 - `DATASHEET.md` : modèles, dépendances et jeux de données avec leurs licences.
-- `RED_TEAM.md` : scénarios d’attaque et résultats attendus.
-- `ENTRETIENS.md` : observations recueillies auprès des utilisateurs.
-- `PITCH.md` et `Sawti360_pitch.pptx` : résumé du projet et support de présentation.
-- `captures/` : captures de la démonstration ; `maquettes/` : rendus PNG des sources dans `../design/maquettes/`.
+- `PROJECT_GUIDE.md` : commandes de démarrage et carte des dossiers.
+- `maquettes/` : rendus PNG des sources dans `../design/maquettes/`.

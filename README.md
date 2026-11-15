@@ -41,7 +41,6 @@ Un cinéaste tunisien indépendant rencontre une barrière de langue qui empêch
 
 **Notre démarche.** Le constat s'appuie sur l'entretien avec Mohamed Karim Dahmouni et sur les difficultés de consentement, de transparence et de traçabilité documentées dans le secteur. Le WER est l'indicateur retenu pour évaluer la transcription du derja ; aucun résultat chiffré n'est avancé dans ce README.
 
-
 **Au-delà du cinéma.** Le même blocage touche les créateurs en ligne : une vidéo YouTube, un Short, un podcast ou une vidéo générée par IA en derja reste dans le public qui comprend la derja. Le parcours et la couche de confiance sont les mêmes ; seul l'usage déclaré dans le Passeport de voix change (`doublage_video_en_ligne` : YouTube, Shorts, Reels, podcasts).
 
 ## La solution
@@ -140,7 +139,6 @@ Chaque entrée contient l'empreinte de la précédente. Les empreintes de la maq
 
 ![Sawti-Bench](docs/maquettes/08-sawti-bench.png)
 
-
 ## Le Passeport 360° du film
 
 À chaque export, Sawti 360 génère un dossier lisible par un humain et vérifiable par une machine. Un festival, un producteur ou un financeur peut le contrôler avec un QR, sans nous croire sur parole.
@@ -203,7 +201,6 @@ Chaque principe du programme devient une fonction concrète, testable et visible
 - Le périmètre dépend de la taille de l'équipe.
 - Les principes 1 et 3 du programme ne nous ont pas été transmis : nous les avons traités comme « contrôle humain » et « équité d'accès », en attendant les fiches.
 
-
 ## En cohérence avec la Francophonie
 
 - **Diversité culturelle et linguistique** : le projet part de la derja, une langue à faibles ressources, et va vers le français. Nous mesurons la qualité langue par langue pour que l'écart soit visible. L'arabe est prévu pour la finale, puis l'amazigh, l'anglais et l'espagnol, pour que les créateurs touchent d'autres publics avec leur propre voix.
@@ -236,7 +233,6 @@ Business Model Canvas de première soumission.
 | IA langue                             | Traduction, glossaire, vérificateur de fidélité                                | Koussay |
 | Back-end et sécurité                | Passeport de voix, moteur de règles, journal, coffre local, manifeste            | Amine   |
 | Front-end, audio et communication     | Console, panneau énergie, voix et mixage, slides, vidéo, README                 | Ghayth  |
-
 
 ## Propriété intellectuelle
 
