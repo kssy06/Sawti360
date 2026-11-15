@@ -22,7 +22,6 @@ Hackathon IA Éthique 360, 5e édition (Junior Entreprise INSAT et OIF) · premi
 - [Aperçu du prototype](#aperçu-du-prototype)
 - [Le Passeport 360° du film](#le-passeport-360-du-film)
 - [Place de l&#39;IA : construit ou réutilisé](#place-de-lia--construit-ou-réutilisé)
-- [Périmètre par échéance](#périmètre-par-échéance)
 - [Démarche éthique à 360°](#démarche-éthique-à-360)
 - [En cohérence avec la Francophonie](#en-cohérence-avec-la-francophonie)
 - [Modèle économique](#modèle-économique)
@@ -192,19 +191,6 @@ Chaque entrée contient l'empreinte de la précédente. Les empreintes de la maq
 | Panneau énergie                 | CodeCarbon réutilisé                                                     | kWh et gCO₂ par minute de film                    |
 
 La licence de chaque modèle et de chaque jeu de données est vérifiée avant utilisation. L'IA est au cœur de la solution, mais l'humain garde la décision à chaque étape.
-
-## Périmètre par échéance
-
-La plupart des modules de confiance sont de l'ingénierie, donc faisables vite. Les modèles lourds passent après.
-
-| Échéance                              | À démontrer                                                                                                                                                      |
-| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 15 nov., 23 h 59 (première soumission) | Passeport de voix et moteur de règles (refus et accord), label et manifeste, journal d'audit, panneau énergie, mesure de WER sur 2 min de derja, README éthique |
-| 21 nov. (demi-finale)                   | Parcours complet sur un extrait de film : transcription, traduction, validation, voix, export, Passeport 360° ; retours des ateliers du 18 nov. intégrés        |
-| 24 et 25 nov. (finale)                  | Sawti-Bench publié, équipe rouge, détection de clone, Passeport complet, Business Model Canvas                                                                  |
-| Suite                                   | Amazigh, mode quasi-direct supervisé pour festivals, place de marché de voix sous licence : annoncés comme vision, pas comme acquis                             |
-
-Maturité par module, telle que planifiée : V1 pour le Passeport de voix, le moteur de règles, le label, le journal d'audit, le panneau énergie et le blocage des voix non enregistrées ; demi-finale pour l'équité d'accès par accent ; finale pour l'équipe rouge, la détection de clone et la sécurité complète ; suite pour l'amazigh.
 
 ## Démarche éthique à 360°
 
