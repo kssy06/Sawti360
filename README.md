@@ -4,7 +4,7 @@
 
 Sawti 360 double une œuvre de la derja vers le français : un film, mais aussi une vidéo YouTube, un Short ou un podcast. L'IA propose, le créateur décide. Chaque voix a un Passeport de voix : sans consentement, rien n'est généré. À l'export, l'œuvre part avec un Passeport 360° que chacun peut vérifier.
 
-« L'IA propose · L'humain décide · La confiance accompagne chaque export. »
+« L'IA propose · L'humain décide · La confiance agitccompagne chaque export. »
 
 Hackathon IA Éthique 360, 5e édition (Junior Entreprise INSAT et OIF) .
 
