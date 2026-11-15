@@ -182,12 +182,12 @@
     }
   </style>
   <div id="root" data-composition-id="solution" data-width="1920" data-height="1080">
-    <div id="so-rv" class="clip" data-start="0" data-duration="3.0">
+    <div id="so-rv" class="clip" data-start="0.0" data-duration="2.824">
       <div id="so-stamp">SAWTI<span class="red">360</span></div>
       <div id="so-ar"><span class="ar">صوتي</span> · « ma voix »</div>
       <div id="so-tag">Le doublage de confiance</div>
     </div>
-    <div id="so-flow" class="clip" data-start="2.8" data-duration="14.2">
+    <div id="so-flow" class="clip" data-start="2.635" data-duration="13.365">
       <div id="so-h">Suivons une réplique.</div>
       <div class="so-row" id="so-r1" style="top: 190px">
         <div class="so-step"><span class="n">1</span><span class="t">Transcription</span><br /><span class="so-role so-ia">IA propose</span></div>
@@ -252,7 +252,11 @@
       tl.fromTo("#so-lab", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 11.15);
       tl.fromTo("#so-end", { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.3 }, 12.64);
       tl.to("#so-flow", { x: -1920, duration: 0.45, ease: "power3.in" }, 16.5);
-      window.__timelines["solution"] = tl;
+      // the scene plays 17s of animation in 16s: the original timeline runs inside a faster wrapper
+      tl.paused(false).timeScale(17/16);
+      const wrap = gsap.timeline({ paused: true });
+      wrap.add(tl, 0);
+      window.__timelines["solution"] = wrap;
     })();
   </script>
 </template>

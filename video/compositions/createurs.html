@@ -161,7 +161,11 @@
       });
       tl.fromTo("#cr-line .w", { opacity: 0, filter: "blur(6px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.16, stagger: 0.08, ease: "power2.out" }, 3.3);
       tl.to("#cr-stage", { scale: 2.6, opacity: 0, transformOrigin: "960px 540px", duration: 0.55, ease: "power3.in" }, 7.45);
-      window.__timelines["createurs"] = tl;
+      // the scene plays 8s of animation in 7.0s: the original timeline runs inside a faster wrapper
+      tl.paused(false).timeScale(8/7.0);
+      const wrap = gsap.timeline({ paused: true });
+      wrap.add(tl, 0);
+      window.__timelines["createurs"] = wrap;
     })();
   </script>
 </template>

@@ -101,7 +101,11 @@
       tl.fromTo("#et-foot", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 4.5);
       tl.to("#et-prism", { rotationY: -360, duration: 0.55, ease: "power2.inOut" }, 5.6);
       tl.to(["#et-view", "#et-title", "#et-foot"], { opacity: 0, duration: 0.25, ease: "power2.in" }, 6.7);
-      window.__timelines["ethique"] = tl;
+      // the scene plays 7s of animation in 5.4s: the original timeline runs inside a faster wrapper
+      tl.paused(false).timeScale(7/5.4);
+      const wrap = gsap.timeline({ paused: true });
+      wrap.add(tl, 0);
+      window.__timelines["ethique"] = wrap;
     })();
   </script>
 </template>

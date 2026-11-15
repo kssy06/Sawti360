@@ -101,8 +101,7 @@
     <div id="terrain-stage">
       <div id="terrain-frame">
         <div id="terrain-screen">
-          <video id="terrain-v1" class="clip terrain-vid" src="assets/video/temoignage.mp4" data-start="0.3" data-duration="7.9" data-media-start="0" data-has-audio="true" data-volume="1" data-fade-out="0.12" playsinline></video>
-          <video id="terrain-v2" class="clip terrain-vid" src="assets/video/temoignage.mp4" data-start="8.2" data-duration="15.6" data-media-start="15.95" data-has-audio="true" data-volume="1" data-fade-in="0.08" data-fade-out="0.25" playsinline></video>
+          <video id="terrain-v1" class="clip terrain-vid" src="assets/video/temoignage.mp4" data-start="0.3" data-duration="31.65" data-media-start="0" data-has-audio="true" data-volume="1" data-fade-out="0.3" playsinline></video>
         </div>
       </div>
       <div id="terrain-card">
@@ -131,9 +130,9 @@
 
       const tl = gsap.timeline({ paused: true });
       tl.fromTo("#terrain-frame", { rotationY: -28, rotationX: 6, z: -400, opacity: 0 }, { rotationY: -9, rotationX: 2, z: 0, opacity: 1, duration: 1.2, ease: "expo.out" }, 0);
-      tl.to("#terrain-frame", { rotationY: -3, rotationX: 1, duration: 22.3, ease: "none" }, 1.2);
+      tl.to("#terrain-frame", { rotationY: -3, rotationX: 1, duration: 30.4, ease: "none" }, 1.2);
       tl.fromTo("#terrain-card", { rotationY: 60, x: -120, opacity: 0 }, { rotationY: 12, x: 0, opacity: 1, duration: 1.0, ease: "expo.out" }, 0.45);
-      tl.to("#terrain-stage", { scale: 1.15, opacity: 0, transformOrigin: "1230px 450px", duration: 0.4, ease: "power3.in" }, 23.6);
+      tl.to("#terrain-stage", { scale: 1.15, opacity: 0, transformOrigin: "1230px 450px", duration: 0.4, ease: "power3.in" }, 31.7);
       window.__timelines["terrain"] = tl;
     })();
   </script>

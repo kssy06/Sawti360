@@ -129,7 +129,11 @@
         const L = Math.PI * (3 * (rx + ry) - Math.sqrt((3 * rx + ry) * (rx + 3 * ry)));
         tl.fromTo(c, { strokeDasharray: L, strokeDashoffset: L }, { strokeDashoffset: 0, duration: 0.55, ease: "power2.inOut" }, at);
       });
-      window.__timelines["passeport"] = tl;
+      // the scene plays 8s of animation in 6.6s: the original timeline runs inside a faster wrapper
+      tl.paused(false).timeScale(8/6.6);
+      const wrap = gsap.timeline({ paused: true });
+      wrap.add(tl, 0);
+      window.__timelines["passeport"] = wrap;
     })();
   </script>
 </template>
