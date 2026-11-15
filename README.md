@@ -1,5 +1,7 @@
 # Sawti 360 — Le doublage de confiance
 
+*Faire voyager les films tunisiens grâce à un doublage éthique, transparent et supervisé par des humains.*
+
 Sawti 360 est une plateforme de doublage dont le vrai produit est la confiance. Un cinéaste tunisien fait doubler son film du derja vers le français sous contrôle humain. À chaque étape, une couche de confiance applique le consentement des voix, mesure les écarts entre les langues, étiquette ce que l'IA a fait, garde la trace de chaque décision, bloque les usages abusifs, protège les films inédits et affiche l'énergie consommée. À la fin, le film sort avec son Passeport 360° : un dossier vérifiable que les festivals, les producteurs et les financeurs peuvent contrôler.
 
 « L'IA propose · L'humain décide · La confiance accompagne chaque export. »
@@ -287,24 +289,19 @@ Les maquettes suivent les [Human Interface Guidelines d&#39;Apple](https://devel
 
 - **Thèse de l'écran** : montrer, à chaque étape, quelle porte de confiance est franchie. Chaque écran affiche ce que l'IA a proposé et ce que l'humain a décidé.
 - **Signature** : l'anneau à neuf segments, un par module de confiance. Il se remplit à mesure que les modules sont vérifiés et devient l'emblème du Passeport 360°. Sa structure encode une information réelle, pas une décoration.
-- **Conventions macOS** : fenêtre redimensionnable, barre latérale à deux niveaux au plus, parcours numéroté, boutons arrondis avec une action principale par vue, texte de 13 px au minimum.
 - **Couleurs** : un sens par couleur. Vert pour valide ou consenti, rouge pour refusé, orange pour à vérifier, bleu pour l'action et l'étape en cours. L'état n'est jamais porté par la couleur seule : chaque pastille a un texte et une icône.
 - **Contraste** (calculé sur les valeurs hexadécimales) : texte principal `#1D1D1F` sur `#F5F5F7` 15,5:1 ; texte secondaire `#58585D` sur `#F5F5F7` 6,5:1 ; vert `#17703A` sur `#E3F3E8` 5,3:1 ; rouge `#B8241B` sur `#FCE9E7` 5,4:1 ; orange `#8A4F00` sur `#FFF1D9` 5,9:1 ; blanc sur bleu `#0A5CC2` 6,3:1. Tous dépassent le seuil de 4,5:1.
 - **Typographie** : une seule famille (Inter, proche de la police système), poids moyen à gras pour la hiérarchie, texte derja en écriture arabe de droite à gauche.
 - **Honnêteté** : bannière « Maquette · données illustratives » sur chaque image, et aucune mesure inventée dans Sawti-Bench.
 
-Limites : ces écrans sont des maquettes HTML rendues en images. Les contrastes ont été calculés mais pas audités sur un rendu réel, et le comportement avec un texte agrandi, le mode sombre et le lecteur d'écran ne sont pas testés.
-
-Les sources sont dans [design/](design/) : `python design/generer_maquettes.py` régénère les HTML et les PNG (dépendances : reportlab, playwright, pillow, Chrome).
-
 ## Équipe
 
 | Rôle                                 | Responsabilités                                                                  | Membre  |
 | ------------------------------------- | --------------------------------------------------------------------------------- | ------- |
-| Chef d'équipe et référent éthique | Entretiens de terrain, planning, livrables, journal d'audit, décisions éthiques | Amine   |
+| Chef d'équipe et référent éthique | Entretiens de terrain, planning, livrables, journal d'audit, décisions éthiques | Ahmed   |
 | IA parole                             | Transcription derja, Sawti-Bench, mesure du WER                                   | Youssef |
 | IA langue                             | Traduction, glossaire, vérificateur de fidélité                                | Koussay |
-| Back-end et sécurité                | Passeport de voix, moteur de règles, journal, coffre local, manifeste            | Ahmed   |
+| Back-end et sécurité                | Passeport de voix, moteur de règles, journal, coffre local, manifeste            | Amine   |
 | Front-end, audio et communication     | Console, panneau énergie, voix et mixage, slides, vidéo, README                 | Ghayth  |
 
 Au moins deux membres seront présents aux ateliers du 18 novembre.
