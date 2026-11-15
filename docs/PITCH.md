@@ -1,7 +1,6 @@
 # Pitch — plan des diapositives (3 min)
 
-Présentation de l’équipe : [Sawti360_pitch.pptx](https://github.com/user-attachments/files/34881856/Sawti360_pitch_final.pptx)
-tch.pptx) (15 diapositives). Le plan ci-dessous est celui de la version Canva.
+Présentation de l’équipe : [Sawti360_pitch.pptx](https://github.com/user-attachments/files/34881856/Sawti360_pitch_final.pptx) (15 diapositives), aussi dans ce dépôt : [Sawti360_pitch.pptx](Sawti360_pitch.pptx). Le plan ci-dessous est celui de la première version, en 12 diapositives ; la vidéo de présentation (`video/`) suit le même fil.
 
 
 Une idée par diapositive, un gros titre, une phrase d’accroche en bas. Aucun chiffre inventé.
