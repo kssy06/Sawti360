@@ -19,6 +19,7 @@ Hackathon IA Éthique 360, 5e édition (Junior Entreprise INSAT et OIF).
 - [Le problème](#le-problème)
 - [La solution](#la-solution)
 - [Aperçu du prototype](#aperçu-du-prototype)
+- [Ce que le prototype fait déjà](#ce-que-le-prototype-fait-déjà)
 - [Le Passeport 360° du film](#le-passeport-360-du-film)
 - [Place de l'IA : construit ou réutilisé](#place-de-lia--construit-ou-réutilisé)
 - [Démarche éthique à 360°](#démarche-éthique-à-360)
@@ -27,6 +28,7 @@ Hackathon IA Éthique 360, 5e édition (Junior Entreprise INSAT et OIF).
 - [Équipe](#équipe)
 - [Propriété intellectuelle](#propriété-intellectuelle)
 - [Sources](#sources)
+- [Lancer la démonstration](#lancer-la-démonstration)
 
 ## Le problème
 
@@ -45,7 +47,7 @@ Un cinéaste tunisien indépendant rencontre une barrière de langue qui empêch
 
 ## La solution
 
-Sawti 360 est un doublage supervisé entouré d'une couche de confiance. Les outils de doublage par IA produisent une voix. Sawti 360 produit une voix et la preuve qu'elle est légitime, mesurée et traçable.
+Sawti 360 est un doublage supervisé entouré d'une couche de confiance : chaque étape a une porte, et rien ne sort sans une décision humaine.
 
 ### Le parcours d'un film : dix étapes, dix portes de confiance
 
@@ -136,6 +138,24 @@ Chaque entrée contient l'empreinte de la précédente. Les empreintes de la maq
 Évaluation par langue. Aucune valeur n'est inventée : les barres en pointillés se remplissent quand les mesures existent.
 
 ![Sawti-Bench](docs/maquettes/08-sawti-bench.png)
+
+## Ce que le prototype fait déjà
+
+La V1 démontre la couche de confiance, réellement exécutée et testée. Le code est dans [`sawti/`](sawti/), la console dans [`app/`](app/).
+
+| Fonction | État en V1 | Où |
+| --- | --- | --- |
+| Passeport de voix | Licences signées (Ed25519) : titulaire, usages, projets, langues, durée, révocation | `sawti/licenses.py` |
+| Moteur de règles | Refus par défaut, motif en français pour chaque refus | `sawti/rules.py` |
+| Journal d'audit | Chaîne de hachage SHA-256 : toute modification est détectée | `sawti/audit.py` |
+| Passeport 360° | Dossier signé avec QR, vérifiable hors ligne | `sawti/passport.py`, `scripts/verify_passport.py` |
+| Garde-fous | Liste de blocage des personnalités, bouton « Signaler un abus » | `sawti/guardrails.py` |
+| Coffre local | Chiffrement au repos (Fernet), rien n'est envoyé sur le réseau | `sawti/vault.py` |
+| Panneau énergie | Mesure CodeCarbon de chaque génération | `sawti/energy.py` |
+
+**Vérifié :** 34 tests passent, dont 18 scénarios d'attaque, tous conformes à l'attendu (voix inconnue, licence révoquée ou expirée, usage interdit, journal falsifié, passeport modifié…). Le détail est dans [`results/attack_tests.md`](results/attack_tests.md).
+
+**Pas encore :** en V1, la « voix générée » est un signal neutre de remplacement. Seule la porte d'autorisation est démontrée. La transcription, la traduction et la synthèse réelles arrivent avec les modèles listés dans [`docs/DATASHEET.md`](docs/DATASHEET.md).
 
 ## Le Passeport 360° du film
 
@@ -243,5 +263,20 @@ L'équipe reste titulaire de la propriété intellectuelle du projet. Elle garan
 - Entretien avec Mohamed Karim Dahmouni, cinéaste, 14 novembre 2026.
 - Article LREC 2024 sur la synthèse vocale du tunisien, langue à faibles ressources : [https://aclanthology.org/2024.lrec-main.1467](https://aclanthology.org/2024.lrec-main.1467).
 - Apple Human Interface Guidelines : [https://developer.apple.com/design/human-interface-guidelines/](https://developer.apple.com/design/human-interface-guidelines/).
+
+## Lancer la démonstration
+
+Python 3.11 ou plus récent.
+
+```bash
+python -m venv .venv
+source .venv/bin/activate          # Windows : .venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+python scripts/seed_demo.py        # licences de démonstration, aucune voix réelle
+streamlit run app/streamlit_app.py
+python -m pytest                   # 34 tests, dont les 18 scénarios d'attaque
+```
+
+Pour aller plus loin : [architecture](docs/ARCHITECTURE.md), [démarche éthique](docs/ETHIQUE.md), [données et modèles](docs/DATASHEET.md), [guide du projet](docs/PROJECT_GUIDE.md).
 
 Ce dépôt n'affirme aucun résultat que l'équipe n'a pas mesuré, et il n'est pas un avis juridique.
