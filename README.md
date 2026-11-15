@@ -6,7 +6,7 @@ Sawti 360 double une œuvre de la derja vers le français : un film, mais aussi 
 
 « L'IA propose · L'humain décide · La confiance accompagne chaque export. »
 
-Hackathon IA Éthique 360, 5e édition (Junior Entreprise INSAT et OIF) · première soumission du 15 novembre 2026.
+Hackathon IA Éthique 360, 5e édition (Junior Entreprise INSAT et OIF) .
 
 ![Passeport 360°](docs/maquettes/06-passeport-360.png)
 
