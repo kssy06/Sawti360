@@ -2,7 +2,6 @@
 
 Présentation de l’équipe : [Sawti360_pitch.pptx](Sawti360_pitch.pptx) (15 diapositives). Le plan ci-dessous est celui de la version Canva.
 
-Présentation Canva : https://canva.link/lu6nsgxbyjwdj6h
 
 Une idée par diapositive, un gros titre, une phrase d’accroche en bas. Aucun chiffre inventé.
 
