@@ -6,7 +6,7 @@ import { shortHash } from "../core/canonical";
 import { PLATFORM_PUBLIC_KEY } from "../core/crypto";
 import { decodePassport, encodePassport, verifyPassport, type Passport360, type PassportFile } from "../core/passport";
 import type { AuditEntry } from "../core/types";
-import { CREATOR, useStore } from "../state/store";
+import { CREATOR, currentProject, useStore } from "../state/store";
 import { BrandMark } from "../ui/Shell";
 import { frDate, toast } from "../ui/kit";
 
@@ -99,12 +99,13 @@ function Dossier({ p }: { p: Passport360 }) {
 }
 
 export default function Passport() {
-  const passport = useStore((s) => s.passport);
+  const project = useStore(currentProject);
+  const passport = useStore((s) => s.passports[s.currentId] ?? null);
   const journal = useStore((s) => s.journal);
   const usage = useStore((s) => s.usage);
   const exportPassport = useStore((s) => s.exportPassport);
   const [qr, setQr] = useState("");
-  const generated = usage.filter((u) => u.creator === CREATOR.name).length;
+  const generated = usage.filter((u) => u.creator === CREATOR.name && u.project.startsWith(project.title)).length;
   const url = useMemo(() => (passport ? verifyUrl(passport) : ""), [passport]);
 
   useEffect(() => {
@@ -118,7 +119,7 @@ export default function Passport() {
     const blob = new Blob([JSON.stringify(file, null, 2)], { type: "application/json" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = "passeport-360-le-dernier-car.json";
+    a.download = `passeport-360-${project.id}.json`;
     a.click();
     URL.revokeObjectURL(a.href);
   };
@@ -153,7 +154,7 @@ export default function Passport() {
               : "Générez d’abord au moins une réplique validée dans le Studio, puis signez le passeport ici."}
           </p>
           {!generated && (
-            <Link to="/studio" className="btn btn-secondary btn-sm">
+            <Link to={`/studio/${project.id}`} className="btn btn-secondary btn-sm">
               Aller au Studio
             </Link>
           )}

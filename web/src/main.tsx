@@ -11,6 +11,7 @@ import { createBrowserRouter, Navigate, RouterProvider } from "react-router-dom"
 import Journal, { Credits } from "./pages/Journal";
 import { Earnings, MyVoice } from "./pages/Owner";
 import Passport, { Verify } from "./pages/Passport";
+import Projects from "./pages/Projects";
 import Studio from "./pages/Studio";
 import Voices from "./pages/Voices";
 import { useStore } from "./state/store";
@@ -18,7 +19,12 @@ import { Shell } from "./ui/Shell";
 
 function Home() {
   const persona = useStore((s) => s.persona);
-  return <Navigate to={persona === "owner" ? "/ma-voix" : "/studio"} replace />;
+  return <Navigate to={persona === "owner" ? "/ma-voix" : "/projets"} replace />;
+}
+
+function CurrentStudio() {
+  const id = useStore((s) => s.currentId);
+  return <Navigate to={`/studio/${id}`} replace />;
 }
 
 const router = createBrowserRouter([
@@ -27,7 +33,9 @@ const router = createBrowserRouter([
     element: <Shell />,
     children: [
       { path: "/", element: <Home /> },
-      { path: "/studio", element: <Studio /> },
+      { path: "/projets", element: <Projects /> },
+      { path: "/studio", element: <CurrentStudio /> },
+      { path: "/studio/:id", element: <Studio /> },
       { path: "/voix", element: <Voices /> },
       { path: "/passeport", element: <Passport /> },
       { path: "/journal", element: <Journal /> },

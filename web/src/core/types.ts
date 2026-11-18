@@ -12,7 +12,8 @@ export type Theme = "politique" | "religion" | "publicite" | "violence" | "gross
 
 export type LicenseStatus = "active" | "revoked" | "expired";
 
-export type VoiceKind = "consentie" | "neutre";
+/** consentie: a real holder's voice, paid 70 %. base: Sawti's synthetic voices, available to everyone. */
+export type VoiceKind = "consentie" | "base";
 
 /** Mirrors sawti/models.py VoiceLicense, plus the owner's forbidden themes. */
 export interface VoiceLicense {
@@ -93,6 +94,10 @@ export interface Segment {
   confidence: number;
   translation: string;
   validated: boolean;
+  /** What the vision model used to choose this translation (who speaks, to whom, what is on screen). */
+  context?: string;
+  /** Whether the vision model judged the French line short enough for the time on screen. */
+  fits?: boolean;
 }
 
 export interface AuditEntry {

@@ -52,7 +52,7 @@ export function timecode(s: number): string {
 }
 
 /* ---------- toasts ---------- */
-type Toast = { id: number; text: string; tone: "ok" | "red" | "plain" };
+type Toast = { id: number; text: string; tone: "ok" | "red" | "plain"; leaving?: boolean };
 let toasts: Toast[] = [];
 const listeners = new Set<() => void>();
 const emit = () => listeners.forEach((l) => l());
@@ -61,9 +61,13 @@ export function toast(text: string, tone: Toast["tone"] = "plain") {
   toasts = [...toasts, t].slice(-3);
   emit();
   setTimeout(() => {
+    toasts = toasts.map((x) => (x.id === t.id ? { ...x, leaving: true } : x));
+    emit();
+  }, 3600);
+  setTimeout(() => {
     toasts = toasts.filter((x) => x.id !== t.id);
     emit();
-  }, 3800);
+  }, 3820);
 }
 export function Toasts() {
   const list = useSyncExternalStore(
@@ -73,7 +77,7 @@ export function Toasts() {
   return (
     <div className="toasts" role="status" aria-live="polite">
       {list.map((t) => (
-        <div key={t.id} className="toast">
+        <div key={t.id} className={`toast ${t.leaving ? "leaving" : ""}`}>
           {t.tone === "red" ? <CircleAlert color="#ff9aa8" /> : <CircleCheck color="#9fe2bd" />}
           {t.text}
         </div>
@@ -81,6 +85,19 @@ export function Toasts() {
     </div>
   );
 }
+
+/** Keeps an element mounted for its exit animation, so it leaves the way it arrived. */
+export function usePresence(open: boolean, exitMs = 140): { mounted: boolean; closing: boolean } {
+  const [mounted, setMounted] = useState(open);
+  useEffect(() => {
+    if (open) return setMounted(true);
+    if (!mounted) return;
+    const t = setTimeout(() => setMounted(false), reduceMotionNow() ? 0 : exitMs);
+    return () => clearTimeout(t);
+  }, [open, exitMs, mounted]);
+  return { mounted: open || mounted, closing: !open && mounted };
+}
+const reduceMotionNow = () => typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
 /* ---------- popover anchored to a button, escapes overflow via position: fixed ---------- */
 export function Popover({
@@ -99,6 +116,7 @@ export function Popover({
   label: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
+  const presence = usePresence(open, 130);
   const [pos, setPos] = useState<{ top: number; left?: number; right?: number }>({ top: 0 });
   useEffect(() => {
     if (!open || !anchor.current) return;
@@ -115,9 +133,9 @@ export function Popover({
       document.removeEventListener("keydown", onKey);
     };
   }, [open, anchor, align, onClose]);
-  if (!open) return null;
+  if (!presence.mounted) return null;
   return (
-    <div ref={ref} className="pop" role="dialog" aria-label={label} style={pos}>
+    <div ref={ref} className={`pop ${presence.closing ? "closing" : ""}`} role="dialog" aria-label={label} style={pos}>
       {children}
     </div>
   );
@@ -125,18 +143,26 @@ export function Popover({
 
 /** Side sheet instead of a modal: the list stays visible, Escape closes it. */
 export function Sheet({ title, onClose, children, head }: { title: string; onClose: () => void; children: ReactNode; head?: ReactNode }) {
+  const [closing, setClosing] = useState(false);
+  const close = () => {
+    if (closing) return;
+    setClosing(true);
+    setTimeout(onClose, reduceMotionNow() ? 0 : 200);
+  };
+  const closeRef = useRef(close);
+  closeRef.current = close;
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && closeRef.current();
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [onClose]);
+  }, []);
   return (
     <>
-      <div className="sheet-scrim" onClick={onClose} />
-      <aside className="sheet" role="dialog" aria-modal="true" aria-label={title}>
+      <div className={`sheet-scrim ${closing ? "closing" : ""}`} onClick={close} />
+      <aside className={`sheet ${closing ? "closing" : ""}`} role="dialog" aria-modal="true" aria-label={title}>
         <div className="sheet-head">
           {head}
-          <button className="btn btn-ghost btn-sm" style={{ marginLeft: "auto" }} onClick={onClose}>
+          <button className="btn btn-ghost btn-sm" style={{ marginLeft: "auto" }} onClick={close}>
             Fermer
           </button>
         </div>
@@ -210,5 +236,57 @@ export function AudioClip({ url, label }: { url: string; label: string }) {
         onTimeUpdate={(e) => setProgress(e.currentTarget.currentTime / (e.currentTarget.duration || 1))}
       />
     </div>
+  );
+}
+
+const reduceMotion = () => typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+
+/** Counts to a new value with an exponential ease-out, so a debit or a payout is felt, not just read. */
+export function AnimatedNumber({ value, format = (n: number) => fmtFr.format(n) }: { value: number; format?: (n: number) => string }) {
+  const [shown, setShown] = useState(value);
+  const from = useRef(value);
+  useEffect(() => {
+    if (reduceMotion() || from.current === value) {
+      from.current = value;
+      setShown(value);
+      return;
+    }
+    const start = performance.now();
+    const a = from.current;
+    const dur = 650;
+    let raf = 0;
+    const tick = (now: number) => {
+      const k = Math.min(1, (now - start) / dur);
+      const e = k === 1 ? 1 : 1 - Math.pow(2, -10 * k);
+      setShown(Math.round(a + (value - a) * e));
+      if (k < 1) raf = requestAnimationFrame(tick);
+      else from.current = value;
+    };
+    raf = requestAnimationFrame(tick);
+    return () => {
+      cancelAnimationFrame(raf);
+      from.current = value;
+    };
+  }, [value]);
+  return <span className="num">{format(shown)}</span>;
+}
+const fmtFr = new Intl.NumberFormat("fr-FR");
+
+/** Height-animated reveal (grid rows 0fr → 1fr): content slides open instead of popping in. */
+export function Reveal({ show, children, nudge = false }: { show: boolean; children: ReactNode; nudge?: boolean }) {
+  return (
+    <div className={`reveal ${show ? "open" : ""}`} aria-hidden={!show}>
+      <div className="reveal-inner">{show ? <div className={nudge ? "nudge" : undefined}>{children}</div> : null}</div>
+    </div>
+  );
+}
+
+/** A check that draws itself: used when a step or a validation completes. */
+export function DrawCheck({ size = 18 }: { size?: number }) {
+  return (
+    <svg className="draw-check" width={size} height={size} viewBox="0 0 20 20" aria-hidden>
+      <circle cx="10" cy="10" r="9" />
+      <path d="M6 10.4l2.6 2.6L14.2 7.4" />
+    </svg>
   );
 }

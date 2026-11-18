@@ -74,7 +74,7 @@ function PassportSheet({ voice, onClose }: { voice: Voice; onClose: () => void }
       onClose={onClose}
       head={
         <>
-          <Orb hue={voice.hue} size={40} neutral={voice.kind === "neutre"} />
+          <Orb hue={voice.hue} size={40} neutral={voice.voice_id === "v_neutre"} />
           <div>
             <h2>{voice.name}</h2>
             <p className="muted">{voice.description}</p>
@@ -160,7 +160,7 @@ export default function Voices() {
       <div className="page-head">
         <div>
           <h1>Voix</h1>
-          <p className="lead">Chaque voix a son Passeport de voix : qui l’a prêtée, pour quels usages, quels thèmes sont interdits. Sans consentement valide, rien n’est généré.</p>
+          <p className="lead">Chaque voix a son Passeport de voix : qui l’a prêtée, pour quels usages, quels thèmes sont interdits. Sans licence valide, rien n’est généré.</p>
         </div>
       </div>
       <div className="toolbar">
@@ -192,53 +192,70 @@ export default function Voices() {
           </button>
         </div>
       ) : (
-        <div className="table-wrap">
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Voix</th>
-                <th>Usages autorisés</th>
-                <th>Rémunération</th>
-                <th>Passeport</th>
-                <th aria-label="Ouvrir" />
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((v) => {
-                const lic = licenses.find((l) => l.voice_id === v.voice_id);
-                return (
-                  <tr key={v.voice_id} className="click" tabIndex={0} onClick={() => setParams({ v: v.voice_id })} onKeyDown={(e) => e.key === "Enter" && setParams({ v: v.voice_id })}>
-                    <td>
-                      <span className="voice-cell">
-                        <Orb hue={v.hue} size={34} neutral={v.kind === "neutre"} />
-                        <span>
-                          <b>{v.name}</b>
-                          <span className="muted">{v.description}</span>
-                        </span>
-                      </span>
-                    </td>
-                    <td>
-                      <span className="chips">
-                        {lic?.allowed_uses.map((u) => (
-                          <span key={u} className="chip">
-                            {USES[u].replace(/ \(.*\)/, "")}
-                          </span>
-                        ))}
-                      </span>
-                    </td>
-                    <td className="num">{lic?.owner_share ? `${fmt.format(Math.round(lic.owner_share * 100))} % au titulaire` : <span className="muted">sans titulaire</span>}</td>
-                    <td>
-                      <LicenseChip lic={lic} />
-                    </td>
-                    <td className="r">
-                      <ChevronRight size={16} color="var(--ink-3)" />
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+        <>
+          {(
+            [
+              ["consentie", "Voix de titulaires", "Prêtées par des personnes réelles, sous licence signée. 70 % des jetons dépensés leur reviennent."],
+              ["base", "Voix de base Sawti", "Pour tout le monde : voix de synthèse qui n’imitent personne. Les jetons vont à Sawti."],
+            ] as const
+          ).map(([kind, title, lead]) => {
+            const group = rows.filter((v) => v.kind === kind);
+            if (group.length === 0) return null;
+            return (
+              <section key={kind} className="voice-group">
+                <div className="group-head">
+                  <h2 className="h-sm">{title}</h2>
+                  <p className="muted">{lead}</p>
+                </div>
+                <div className="table-wrap">
+                  <table className="table">
+                    <thead>
+                      <tr>
+                        <th>Voix</th>
+                        <th>Usages autorisés</th>
+                        <th>Jetons</th>
+                        <th>Passeport</th>
+                        <th aria-label="Ouvrir" />
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {group.map((v) => {
+                        const lic = licenses.find((l) => l.voice_id === v.voice_id);
+                        return (
+                          <tr key={v.voice_id} className="click" tabIndex={0} onClick={() => setParams({ v: v.voice_id })} onKeyDown={(e) => e.key === "Enter" && setParams({ v: v.voice_id })}>
+                            <td>
+                              <span className="voice-cell">
+                                <Orb hue={v.hue} size={34} neutral={v.voice_id === "v_neutre"} />
+                                <span>
+                                  <b>{v.name}</b>
+                                  <span className="muted">{v.description}</span>
+                                </span>
+                              </span>
+                            </td>
+                            <td>
+                              <span className="chips">
+                                {lic?.allowed_uses.map((u) => (
+                                  <span key={u} className="chip">
+                                    {USES[u].replace(/ \(.*\)/, "")}
+                                  </span>
+                                ))}
+                              </span>
+                            </td>
+                            <td className="num">{lic?.owner_share ? `${fmt.format(Math.round(lic.owner_share * 100))} % au titulaire` : <span className="muted">100 % Sawti</span>}</td>
+                            <td>{v.kind === "base" ? <span className="chip">Synthèse · aucune personne</span> : <LicenseChip lic={lic} />}</td>
+                            <td className="r">
+                              <ChevronRight size={16} color="var(--ink-3)" />
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+            );
+          })}
+        </>
       )}
       {open && <PassportSheet voice={open} onClose={() => setParams({})} />}
     </div>

@@ -17,11 +17,11 @@ import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { voiceById } from "../core/catalog";
 import { fmt, PLANS } from "../core/credits";
 import { balanceOf, CREATOR, earningsOf, OWNER, OWNER_VOICE, useStore, type Persona } from "../state/store";
-import { frDate, Orb, Popover, toast, Toasts } from "./kit";
+import { AnimatedNumber, frDate, Orb, Popover, toast, Toasts } from "./kit";
 
 const NAV: Record<Persona, { to: string; label: string; Icon: typeof AudioLines }[]> = {
   creator: [
-    { to: "/studio", label: "Studio de doublage", Icon: AudioLines },
+    { to: "/projets", label: "Studio de doublage", Icon: AudioLines },
     { to: "/voix", label: "Voix", Icon: Library },
     { to: "/passeport", label: "Passeport 360°", Icon: FileBadge2 },
     { to: "/journal", label: "Journal d’audit", Icon: ScrollText },
@@ -57,7 +57,7 @@ function PersonaSwitch() {
   const go = (p: Persona) => {
     setPersona(p);
     setOpen(false);
-    navigate(p === "creator" ? "/studio" : "/ma-voix");
+    navigate(p === "creator" ? "/projets" : "/ma-voix");
   };
   return (
     <>
@@ -113,7 +113,9 @@ function Meter() {
       <div className="meter">
         <div className="meter-row">
           <span className="muted">Reçu ce mois-ci</span>
-          <strong className="num">{fmt.format(earned)} jetons</strong>
+          <strong>
+            <AnimatedNumber value={earned} /> jetons
+          </strong>
         </div>
         <NavLink to="/revenus">Voir le détail des revenus</NavLink>
       </div>
@@ -124,7 +126,9 @@ function Meter() {
     <div className="meter">
       <div className="meter-row">
         <span className="muted">Jetons restants</span>
-        <strong className="num">{fmt.format(balance)}</strong>
+        <strong>
+          <AnimatedNumber value={balance} />
+        </strong>
       </div>
       <div className="bar" role="meter" aria-valuenow={balance} aria-valuemin={0} aria-valuemax={total} aria-label="Jetons restants">
         <span style={{ width: `${(balance / total) * 100}%` }} />
@@ -204,6 +208,7 @@ function SynthesisStatus() {
 }
 
 const TITLES: Record<string, string> = {
+  "/projets": "Studio de doublage",
   "/studio": "Studio de doublage",
   "/voix": "Voix",
   "/passeport": "Passeport 360°",
@@ -219,7 +224,7 @@ export function Shell() {
   const [navOpen, setNavOpen] = useState(false);
   useEffect(() => setNavOpen(false), [pathname]);
   useEffect(() => {
-    document.title = `${TITLES[pathname] ?? "Sawti 360"} · Sawti 360`;
+    document.title = `${TITLES[pathname] ?? (pathname.startsWith("/studio") ? "Studio de doublage" : "Sawti 360")} · Sawti 360`;
   }, [pathname]);
   return (
     <div className="app">
@@ -233,7 +238,7 @@ export function Shell() {
         <PersonaSwitch />
         <nav className="nav">
           {NAV[persona].map(({ to, label, Icon }) => (
-            <NavLink key={to} to={to}>
+            <NavLink key={to} to={to} className={({ isActive }) => (isActive || (to === "/projets" && pathname.startsWith("/studio")) ? "active" : "")}>
               <Icon aria-hidden />
               {label}
             </NavLink>
@@ -255,7 +260,7 @@ export function Shell() {
           <button className="btn btn-ghost btn-icon nav-toggle" aria-label="Ouvrir la navigation" onClick={() => setNavOpen(true)}>
             <Menu />
           </button>
-          <div className="crumb">{TITLES[pathname] ?? ""}</div>
+          <div className="crumb">{TITLES[pathname] ?? (pathname.startsWith("/studio") ? "Studio de doublage" : "")}</div>
           <div className="spacer" />
           <SynthesisStatus />
           <Notifications />

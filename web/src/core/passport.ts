@@ -57,8 +57,8 @@ export function assemblePassport(input: PassportInput, at: Date = new Date()): P
       const lic = input.licenses.find((l) => l.voice_id === sp.voice_id);
       return {
         personnage: sp.personnage,
-        nature: sp.kind === "neutre" ? "Voix générée par IA · neutre" : "Voix générée par IA · consentie",
-        titulaire: sp.kind === "neutre" ? "aucun (voix de synthèse)" : sp.voiceName,
+        nature: sp.kind === "base" ? "Voix générée par IA · voix de base Sawti" : "Voix générée par IA · consentie",
+        titulaire: sp.kind === "base" ? `aucun (voix de synthèse « ${sp.voiceName} »)` : sp.voiceName,
         licence: lic
           ? {
               license_id: lic.license_id,
@@ -72,8 +72,8 @@ export function assemblePassport(input: PassportInput, at: Date = new Date()): P
     }),
     langues: { source: "ar-TN (derja)", cible: "fr", qualite: "[à mesurer] : WER publié quand Sawti-Bench sera complet" },
     transparence: {
-      label: `Doublé avec IA · voix consenties · validé par ${input.validator}`,
-      generique: input.speakers.map((sp) => `${sp.personnage} : ${sp.voiceName} (${sp.kind === "neutre" ? "voix neutre" : "voix consentie, licence vérifiée"})`),
+      label: `Doublé avec IA · voix sous licence · validé par ${input.validator}`,
+      generique: input.speakers.map((sp) => `${sp.personnage} : ${sp.voiceName} (${sp.kind === "base" ? "voix de base Sawti, synthèse" : "voix consentie, licence vérifiée"})`),
       repliques_generees: input.generated,
     },
     responsabilite: {

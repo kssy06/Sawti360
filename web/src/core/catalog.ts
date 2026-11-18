@@ -27,6 +27,21 @@ export const USES: Record<Use, string> = {
   contenu_intime: "Contenu intime",
 };
 
+/** Sawti's basic voices, available to everyone: synthetic, no holder, jetons go 100 % to Sawti. */
+function BASE_VOICES(): Voice[] {
+  const b = (voice_id: string, name: string, eleven_voice_id: string, description: string, gender: Voice["gender"], hue: [number, number]): Voice => ({
+    voice_id, name, kind: "base", eleven_voice_id, description, gender, hue,
+  });
+  return [
+    b("v_base_nadia", "Nadia", "Xb7hH8MSUJpSbSDYk0k2", "Femme, posée et claire. Explications, tutoriels.", "femme", [8, 30]),
+    b("v_base_rim", "Rim", "pFZP5JQG7iQjIQuC4Bku", "Femme, chaleureuse. Récits, documentaires.", "femme", [340, 356]),
+    b("v_base_sarra", "Sarra", "cgSgspJ2msm6clMCkdW9", "Jeune femme, vive. Vlogs, Shorts.", "femme", [48, 64]),
+    b("v_base_walid", "Walid", "onwK4e9ZLuTAKqWW03F9", "Homme, grave et posé. Narration.", "homme", [222, 236]),
+    b("v_base_omar", "Omar", "cjVigY5qzO86Huf0OWal", "Homme, voix douce. Dialogues.", "homme", [200, 214]),
+    b("v_base_anis", "Anis", "iP95p4xoKVk53GoZ742B", "Jeune homme, naturel. Vidéos YouTube.", "homme", [28, 44]),
+  ];
+}
+
 export const VOICES: Voice[] = [
   {
     voice_id: "v_lina",
@@ -48,13 +63,14 @@ export const VOICES: Voice[] = [
   },
   {
     voice_id: "v_neutre",
-    name: "Voix neutre Sawti",
-    kind: "neutre",
+    name: "Voix neutre",
+    kind: "base",
     eleven_voice_id: "SAz9YHcvj6GT2YYXdXww",
-    description: "Voix de synthèse qui n’imite aucune personne. Aucun titulaire à rémunérer.",
+    description: "Voix de synthèse sans genre marqué, pour la narration.",
     gender: "neutre",
     hue: [40, 70],
   },
+  ...BASE_VOICES(),
   {
     voice_id: "v_hedi",
     name: "Hédi R.",
@@ -122,7 +138,7 @@ export const SEED_LICENSES: VoiceLicense[] = [
     license_id: "VL-2026-0003",
     voice_id: "v_neutre",
     holder_name: "Sawti 360",
-    holder_role: "voix de synthèse, aucune personne",
+    holder_role: "voix de base, synthèse, aucune personne",
     allowed_uses: ["doublage_film", "doublage_video_en_ligne", "bande_annonce"],
     forbidden_uses: ["contenu_politique", "contenu_intime"],
     forbidden_themes: [],
@@ -166,6 +182,23 @@ export const SEED_LICENSES: VoiceLicense[] = [
   },
 ];
 
+const BASE_LICENSES: VoiceLicense[] = BASE_VOICES().map((v, i) => ({
+  ...base,
+  license_id: `VL-BASE-${String(i + 1).padStart(2, "0")}`,
+  voice_id: v.voice_id,
+  holder_name: "Sawti 360",
+  holder_role: "voix de base, synthèse, aucune personne",
+  allowed_uses: ["doublage_film", "doublage_video_en_ligne", "bande_annonce", "publicite"],
+  forbidden_uses: ["contenu_politique", "contenu_intime"],
+  forbidden_themes: [],
+  languages: ["fr", "en"],
+  valid_from: "2026-01-01",
+  valid_until: "2030-12-31",
+  owner_share: 0,
+  consent_evidence_sha256: "sans objet : voix de synthèse",
+}));
+SEED_LICENSES.push(...BASE_LICENSES);
+
 export const SPEAKERS: Record<string, { name: string; defaultVoice: string }> = {
   amel: { name: "Amel", defaultVoice: "v_lina" },
   yassine: { name: "Yassine", defaultVoice: "v_sami" },
@@ -183,6 +216,11 @@ export const SEED_SEGMENTS: Segment[] = [
 ];
 
 export const MAX_TTS_CHARS = 400;
+
+/** Speaking rate used to check that a French line fits the time on screen. */
+export const FR_CHARS_PER_SECOND = 14;
+
+export const BASE_VOICE_IDS = VOICES.filter((v) => v.kind === "base").map((v) => v.voice_id);
 
 export function voiceById(id: string): Voice | undefined {
   return VOICES.find((v) => v.voice_id === id);
