@@ -16,6 +16,7 @@ import { journal } from "./routes/journal.js";
 import { me } from "./routes/me.js";
 import { projects } from "./routes/projects.js";
 import { tts } from "./routes/tts.js";
+import { uploads } from "./routes/uploads.js";
 
 export function createApp() {
   const app = new Hono<AppEnv>().basePath("/api");
@@ -35,6 +36,7 @@ export function createApp() {
   app.route("/", projects);
   app.route("/", characters);
   app.route("/", journal);
+  app.route("/", uploads);
 
   app.notFound(() => json(404, { error: "INTROUVABLE", message: "Route inconnue." }));
   app.onError((err) => {

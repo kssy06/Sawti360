@@ -84,9 +84,9 @@ Fichiers : `server/audit.ts` (ARCHITECTURE.md § 3), `server/routes/journal.ts`,
 
 ### A5. Fichiers (P0, 45 min) · dépend de A2
 Fichiers : `server/storage.ts`, `server/routes/uploads.ts`, `src/api/upload.ts`.
-- [ ] audio, image, dossier et échantillon s'envoient aux bons chemins (API.md)
-- [ ] mauvais type → 400 ; trop gros → 413 ; projet d'un autre compte → 403
-- [ ] envoi public accepté seulement avec un jeton de consentement valide
+- [x] audio, image, dossier et échantillon s'envoient aux bons chemins (API.md) (envoi réel vérifié dans Chromium avec le faux stockage)
+- [x] mauvais type → 400 ; trop gros → 413 ; projet d'un autre compte → 403
+- [x] envoi public accepté seulement avec un jeton de consentement valide
 
 ### A6. Tâches longues (P0, 45 min) · dépend de A1
 Fichiers : `server/jobs.ts`, `server/routes/jobs.ts`, `src/api/useJob.ts`.

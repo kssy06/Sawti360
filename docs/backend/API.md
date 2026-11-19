@@ -117,10 +117,13 @@ quand une notification nouvelle arrive.
 
 ### Fichiers
 
-**`POST /api/uploads`** `{ bucket, kind, projectId?, characterKey?, contentType, size, name }` → `UploadTicket`.
-`kind` ∈ `audio | frame | original | dossier | sample`. Le serveur contrôle le type MIME,
+**`POST /api/uploads`** `{ kind, bucket?, projectId?, characterKey?, contentType, size, name?, t?, sha256? }` → `UploadTicket & { contentType }`.
+`kind` ∈ `audio | frame | original | dossier | sample` ; `t` = instant de l'image en millisecondes
+(frame) ; `sha256` = empreinte du document (dossier). Le serveur contrôle le type MIME (sans
+paramètres : `audio/webm;codecs=opus` devient `audio/webm`, seul type accepté par les buckets),
 la taille (audio 25 Mo, image 1 Mo, original 50 Mo, dossier 20 Mo, échantillon 20 Mo) et
-la propriété du projet, puis fabrique le chemin :
+la propriété du projet, puis fabrique le chemin. Le navigateur envoie ensuite les octets bruts
+(`uploadToSignedUrl` avec un `ArrayBuffer` et `contentType`), jamais par Vercel :
 
 | kind | chemin |
 | --- | --- |
