@@ -139,15 +139,15 @@ Fichier : `src/media/extract.ts` (ARCHITECTURE.md § 4.2).
 
 ### B2. Découpage par Groq Whisper (P0, 1 h) · sans dépendance
 Fichiers : `server/ai/groq.ts`, `server/ai/prompts.ts` (`ASR_PROMPT`), `scripts/try-asr.ts`.
-- [ ] segments `s1, s2…` avec `start` et `end` ; texte de Whisper gardé comme simple indice ; silences écartés ; segments trop courts fusionnés
-- [ ] une erreur du fournisseur remonte typée, pour la chaîne de repli
+- [x] segments `s1, s2…` avec `start` et `end` ; texte de Whisper gardé comme simple indice ; silences écartés ; segments trop courts fusionnés (testé avec un faux Groq ; vrai appel : clé GROQ_API_KEY)
+- [x] une erreur du fournisseur remonte typée, pour la chaîne de repli
 
 ### B3. Analyse Gemini (P0, 2 h) · dépend de B2
 Fichiers : `server/ai/gemini.ts`, `server/ai/schemas.ts`, `server/ai/prompts.ts` (prompt § 4.2 et glossaire), `scripts/try-analysis.ts`.
 - [ ] sur l'extrait de démo : deux intervenants, prénom proposé seulement s'il est entendu ou écrit
 - [ ] la derja est écrite par Gemini en écoutant l'audio (pas une retouche du texte de Whisper) ; intervalles sans parole retirés
-- [ ] identifiants et horodatages inchangés ; nombres et négations conservés ; `fits` calculé
-- [ ] replis : Gemini seul (IA.md § 4.6) ; Groq texte seul
+- [x] identifiants et horodatages inchangés ; nombres et négations conservés ; `fits` calculé (contrôles du code testés ; la qualité de Gemini se mesure en B0)
+- [x] replis : Gemini seul (IA.md § 4.6) ; Groq texte seul (chaîne testée avec de faux fournisseurs)
 
 ### B4. Relecture LLM 2 (P0, 1 h) · dépend de B3
 Fichiers : `server/ai/{review,claude}.ts`, `server/routes/review.ts`, `src/state/remote/review.ts`,
