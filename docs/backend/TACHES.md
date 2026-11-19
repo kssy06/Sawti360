@@ -134,8 +134,8 @@ transcription écrite à la main. À faire avant de figer B3.
 
 ### B1. Extraction dans le navigateur (P0, 1 h 30) · sans dépendance
 Fichier : `src/media/extract.ts` (ARCHITECTURE.md § 4.2).
-- [ ] sur un MP4 H.264/AAC et un WebM de 2 min : audio Ogg/Opus de moins de 1 Mo, lisible ; 60 images au plus
-- [ ] moins de 20 s sur un portable ; Chrome et Firefox ; repli WAV si Opus n'est pas encodable
+- [x] sur un MP4 H.264/AAC et un WebM de 2 min : audio Ogg/Opus de moins de 1 Mo, lisible ; 60 images au plus (276 Ko, 60 images de 6 Ko, Chromium)
+- [ ] moins de 20 s sur un portable ; Chrome et Firefox ; repli WAV si Opus n'est pas encodable — Chromium : 2,5 s, repli WAV vérifié (3,7 Mo) ; Firefox à essayer
 
 ### B2. Découpage par Groq Whisper (P0, 1 h) · sans dépendance
 Fichiers : `server/ai/groq.ts`, `server/ai/prompts.ts` (`ASR_PROMPT`), `scripts/try-asr.ts`.
