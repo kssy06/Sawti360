@@ -46,6 +46,6 @@ export default defineConfig(({ mode }) => {
   if (mode === "demo") process.env.SAWTI_TTS_MOCK = "1";
   return {
     plugins: [react(), localApi()],
-    test: { environment: "node", include: ["src/**/*.test.ts", "server/**/*.test.ts", "api/**/*.test.ts"] },
+    test: { environment: "node", include: ["src/**/*.test.ts", "server/**/*.test.ts", "api/**/*.test.ts", "scripts/**/*.test.ts"] },
   };
 });

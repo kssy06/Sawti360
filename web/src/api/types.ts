@@ -3,6 +3,11 @@
  * Routes return the front's own types (Project, LicenseRequest, Notice…) so the store keeps them as they are.
  */
 import type { PlanId } from "../core/credits";
+import type { Passport360 } from "../core/passport";
+import type { VoiceLicense } from "../core/types";
+import type { VoiceProfile } from "../mock/registry";
+import type { Notice, OwnedVoice, Project, UsageRow } from "../state/store";
+import type { LicenseRequest } from "../state/workflow";
 
 export interface Health {
   ok: true;
@@ -30,4 +35,19 @@ export interface Me {
   isDemo: boolean;
   demoKey: string | null;
   balance: number;
+}
+
+export interface Bootstrap {
+  account: Omit<Me, "balance">;
+  balance: number;
+  projects: Record<string, Project>;
+  order: string[];
+  requests: LicenseRequest[];
+  notifications: Notice[];
+  usage: UsageRow[];
+  licenses: VoiceLicense[];
+  ownedVoices: Record<string, OwnedVoice>;
+  profiles: VoiceProfile[];
+  passports: Record<string, Passport360>;
+  journalHead: { count: number; head: string };
 }

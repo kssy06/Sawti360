@@ -14,9 +14,12 @@ import { Forgot, Login, Signup } from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Projects from "./pages/Projects";
 import { BACKEND } from "./lib/backend";
+import * as remoteBootstrap from "./state/remote/bootstrap";
+import { onRemoteError } from "./state/remote/report";
 import * as remoteSession from "./state/remote/session";
 import { useStore } from "./state/store";
 import { FullLoader } from "./ui/Loader";
+import { toast } from "./ui/kit";
 import { installPressRipple } from "./ui/motion";
 import { Shell } from "./ui/Shell";
 
@@ -53,8 +56,14 @@ const Public = ({ page: Page }: { page: LazyExoticComponent<ComponentType> }) =>
 
 installPressRipple();
 
-/* Back-end mode: restore the Supabase session (if any) and load the account's data. */
-if (BACKEND) void remoteSession.restore(useStore.setState);
+/* Back-end mode: restore the Supabase session (if any) and load the account's data; reload it when the tab comes back. */
+if (BACKEND) {
+  void remoteSession.restore(useStore.setState, useStore.getState);
+  onRemoteError((message) => toast(message, "bad"));
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") remoteBootstrap.refreshOnReturn(useStore.setState, useStore.getState);
+  });
+}
 
 /** Public consent and licence pages may be answered in another tab: keep every tab in sync. */
 window.addEventListener("storage", (e) => {

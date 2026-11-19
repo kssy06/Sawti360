@@ -8,9 +8,12 @@ import { Hono } from "hono";
 import { authGate, type AppEnv } from "./auth.js";
 import { ApiError, errorBody, json } from "./errors.js";
 import { rateLimit } from "./ratelimit.js";
+import { bootstrap } from "./routes/bootstrap.js";
+import { characters } from "./routes/characters.js";
 import { demo } from "./routes/demo.js";
 import { health } from "./routes/health.js";
 import { me } from "./routes/me.js";
+import { projects } from "./routes/projects.js";
 import { tts } from "./routes/tts.js";
 
 export function createApp() {
@@ -27,6 +30,9 @@ export function createApp() {
   app.route("/", tts);
   app.route("/", demo);
   app.route("/", me);
+  app.route("/", bootstrap);
+  app.route("/", projects);
+  app.route("/", characters);
 
   app.notFound(() => json(404, { error: "INTROUVABLE", message: "Route inconnue." }));
   app.onError((err) => {

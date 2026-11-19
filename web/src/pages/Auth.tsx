@@ -82,7 +82,7 @@ export function Login() {
       if (!password) return setError("Saisissez votre mot de passe.");
       setBusy(true);
       try {
-        await remoteSession.signIn(useStore.setState, email, password);
+        await remoteSession.signIn(useStore.setState, useStore.getState, email, password);
         navigate(state?.from ?? "/tableau-de-bord", { replace: true });
       } catch (err) {
         setError(messageOf(err));
@@ -267,7 +267,7 @@ function NewPassword() {
     setBusy(true);
     setError("");
     try {
-      await remoteSession.updatePassword(useStore.setState, password);
+      await remoteSession.updatePassword(useStore.setState, useStore.getState, password);
       navigate("/tableau-de-bord", { replace: true });
     } catch (err) {
       setError(messageOf(err));

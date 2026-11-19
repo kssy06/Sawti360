@@ -2,6 +2,7 @@ import { ArrowRight, FileVideo, Fingerprint, HardDrive, Link2, Loader2, LockKeyh
 import { useEffect, useId, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { formatDuration, formatSize, hashFile, keepVideo, probeUrl, probeVideo, setRemoteVideo, shrinkImage, type Probe } from "../media/local";
+import { messageOf } from "../api/client";
 import { runAnalysis } from "../media/pipeline";
 import { useStore, type Privacy } from "../state/store";
 import { FORMAT_LABEL, transparencyPolicy, type VideoFormat } from "../state/workflow";
@@ -97,7 +98,9 @@ export default function NewProject() {
     const p = source.probe;
     const poster = p.poster ? await shrinkImage(p.poster, 240) : undefined;
     const name = source.kind === "file" ? source.file.name : source.url.split("/").pop() || "video";
-    const pid = create({
+    let pid: string;
+    try {
+      pid = await create({
       title,
       format,
       meta: {
@@ -112,7 +115,12 @@ export default function NewProject() {
         sha256: source.kind === "file" ? hash.value : undefined,
         url: source.kind === "link" ? source.url : undefined,
       },
-    });
+      });
+    } catch (err) {
+      setStarting(false);
+      setError(messageOf(err));
+      return;
+    }
     if (source.kind === "file") await keepVideo(pid, source.file, privacy === "publique");
     else setRemoteVideo(pid, source.url);
     void runAnalysis(pid);

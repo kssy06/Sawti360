@@ -4,10 +4,9 @@
  * verifyOtp — no password in the browser's code.
  */
 import { api, setUnauthorizedHandler } from "../../api/client";
-import type { Me } from "../../api/types";
-import { PLANS } from "../../core/credits";
 import { supabase } from "../../lib/supabase";
-import { accountsWith, emptyData, type Get, type Set } from "./state";
+import { bootstrap } from "./bootstrap";
+import { emptyData, type Get, type Set } from "./state";
 
 const AUTH_MESSAGES: Record<string, string> = {
   invalid_credentials: "Adresse e-mail ou mot de passe incorrect.",
@@ -30,17 +29,7 @@ export function authMessage(err: { code?: string; message?: string } | null | un
 }
 
 /** Fills the store for the signed-in account. */
-export async function hydrate(set: Set): Promise<void> {
-  const me = await api.get<Me>("/me");
-  set({
-    session: { accountId: me.id },
-    accounts: accountsWith(me),
-    plan: me.plan,
-    spent: PLANS[me.plan].monthly - me.balance,
-    validator: me.name,
-    server: { status: "ready" },
-  });
-}
+export const hydrate = (set: Set, get: Get) => bootstrap(set, get);
 
 function signedOut(set: Set): void {
   set({ ...emptyData(), server: { status: "ready" } });
@@ -49,7 +38,7 @@ function signedOut(set: Set): void {
 let listening = false;
 
 /** At start-up: restore the Supabase session (if any), then hydrate; follow sign-outs from other tabs. */
-export async function restore(set: Set): Promise<void> {
+export async function restore(set: Set, get: Get): Promise<void> {
   try {
     const sb = await supabase();
     if (!listening) {
@@ -60,18 +49,18 @@ export async function restore(set: Set): Promise<void> {
       setUnauthorizedHandler(() => void sb.auth.signOut({ scope: "local" }));
     }
     const { data } = await sb.auth.getSession();
-    if (data.session) await hydrate(set);
+    if (data.session) await hydrate(set, get);
     else set({ server: { status: "ready" } });
   } catch (err) {
     set({ server: { status: "ready", error: err instanceof Error ? err.message : String(err) } });
   }
 }
 
-export async function signIn(set: Set, email: string, password: string): Promise<void> {
+export async function signIn(set: Set, get: Get, email: string, password: string): Promise<void> {
   const sb = await supabase();
   const { error } = await sb.auth.signInWithPassword({ email: email.trim().toLowerCase(), password });
   if (error) throw new Error(authMessage(error));
-  await hydrate(set);
+  await hydrate(set, get);
 }
 
 /** Demo buttons and the account menu: `key` is a demo key ("nour", "lina"), or the current account. */
@@ -82,16 +71,16 @@ export async function demoLogin(set: Set, get: Get, key: string): Promise<void> 
   await sb.auth.signOut({ scope: "local" }).catch(() => undefined);
   const { error } = await sb.auth.verifyOtp({ token_hash, type: "magiclink" });
   if (error) throw new Error(authMessage(error));
-  await hydrate(set);
+  await hydrate(set, get);
 }
 
 /** Returns "ok" when signed in, "confirm" when Supabase asks to confirm the address first. */
-export async function signUp(set: Set, name: string, email: string, password: string): Promise<"ok" | "confirm"> {
+export async function signUp(set: Set, get: Get, name: string, email: string, password: string): Promise<"ok" | "confirm"> {
   const sb = await supabase();
   const { data, error } = await sb.auth.signUp({ email: email.trim().toLowerCase(), password, options: { data: { name: name.trim(), org: "" } } });
   if (error) throw new Error(authMessage(error));
   if (!data.session) return "confirm";
-  await hydrate(set);
+  await hydrate(set, get);
   return "ok";
 }
 
@@ -107,9 +96,9 @@ export async function sendPasswordReset(email: string): Promise<void> {
   if (error) throw new Error(authMessage(error));
 }
 
-export async function updatePassword(set: Set, password: string): Promise<void> {
+export async function updatePassword(set: Set, get: Get, password: string): Promise<void> {
   const sb = await supabase();
   const { error } = await sb.auth.updateUser({ password });
   if (error) throw new Error(authMessage(error));
-  await hydrate(set);
+  await hydrate(set, get);
 }
