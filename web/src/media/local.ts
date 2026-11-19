@@ -151,6 +151,22 @@ export async function* captureFrames(src: string, times: number[], width = 320):
   v.load();
 }
 
+/** Re-encodes a frame at a small width so it can be kept with the project. */
+export function shrinkImage(dataUrl: string, width = 240, quality = 0.72): Promise<string> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const c = document.createElement("canvas");
+      c.width = width;
+      c.height = Math.round((img.naturalHeight / img.naturalWidth) * width) || Math.round(width * 0.5625);
+      c.getContext("2d")!.drawImage(img, 0, 0, c.width, c.height);
+      resolve(c.toDataURL("image/jpeg", quality));
+    };
+    img.onerror = () => resolve(dataUrl);
+    img.src = dataUrl;
+  });
+}
+
 export function formatDuration(s: number): string {
   if (!Number.isFinite(s)) return "–";
   const m = Math.floor(s / 60);

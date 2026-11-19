@@ -276,7 +276,7 @@ export function Verify() {
           </section>
         )}
         {error && (
-          <div className="notice notice-red" role="alert">
+          <div className="line line-red" role="alert">
             <CircleX aria-hidden />
             {error}
           </div>

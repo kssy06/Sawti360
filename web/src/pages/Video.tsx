@@ -1,4 +1,4 @@
-import { FileVideo, Pause, Play, Sparkles } from "lucide-react";
+import { Eye, FileVideo, Pause, Play } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { voiceById } from "../core/catalog";
 import { getFrames, keepVideo, loadVideo, mediaVersion, subscribeMedia, videoUrl } from "../media/local";
@@ -42,11 +42,6 @@ export function Analysis({ p }: { p: Project }) {
     <div className="analysis">
       <div className="an-stage">
         {src ? <video className="an-video" src={src} autoPlay muted loop playsInline /> : <div className="an-video an-missing" />}
-        <div className={`scan ${step === 2 ? "on" : ""}`} aria-hidden />
-        <div className="an-badge">
-          <span className="led led-mock pulse" aria-hidden />
-          {PIPELINE_STEPS[Math.min(step, PIPELINE_STEPS.length - 1)].label}
-        </div>
       </div>
 
       <ol className="steps" aria-label="Étapes de l’analyse">
@@ -60,7 +55,13 @@ export function Analysis({ p }: { p: Project }) {
                 <span className="muted">{st.detail}</span>
                 {state === "active" && i === 2 && <span className="step-count num">Images regardées : {strip.length} / {p.segments.length * 2}</span>}
                 {state === "active" && i === 3 && <span className="step-count num">Répliques traduites : {translated} / {p.segments.length}</span>}
-                {state === "active" && <span className="step-bar" aria-hidden />}
+                {state === "active" && (i === 2 || i === 3) ? (
+                  <span className="step-bar" aria-hidden>
+                    <span style={{ width: `${(i === 2 ? strip.length / Math.max(1, p.segments.length * 2) : translated / Math.max(1, p.segments.length)) * 100}%` }} />
+                  </span>
+                ) : state === "active" ? (
+                  <span className="step-bar indeterminate" aria-hidden />
+                ) : null}
               </span>
             </li>
           );
@@ -296,7 +297,7 @@ export function VideoDeck({ p, active, onPick }: { p: Project; active: string | 
 }
 
 /** Frames the vision model looked at for one line, with the context it drew from them. */
-export function SeenByAI({ p, segId, context, fits, seconds }: { p: Project; segId: string; context?: string; fits?: boolean; seconds: number }) {
+export function SeenByAI({ p, segId, context }: { p: Project; segId: string; context?: string }) {
   useMedia();
   const frames = getFrames(p.id, segId);
   if (!context && frames.length === 0) return null;
@@ -311,15 +312,10 @@ export function SeenByAI({ p, segId, context, fits, seconds }: { p: Project; seg
       )}
       <span className="seen-text">
         <span className="seen-label">
-          <Sparkles aria-hidden />
+          <Eye aria-hidden />
           Ce que l’IA a vu
         </span>
         {context && <span>{context}</span>}
-        {fits !== undefined && (
-          <span className={`chip ${fits ? "chip-ok" : "chip-warn"} seen-fit num`}>
-            {fits ? `Tient dans les ${seconds.toFixed(1).replace(".", ",")} s à l’écran` : `Trop long pour ${seconds.toFixed(1).replace(".", ",")} s : à raccourcir`}
-          </span>
-        )}
       </span>
     </div>
   );

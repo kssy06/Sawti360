@@ -18,13 +18,14 @@ const ACTIONS: Record<string, string> = {
   GENERATION_AUTORISEE: "Génération autorisée",
   GENERATION_REFUSEE: "Génération refusée",
   PASSEPORT_EXPORTE: "Passeport 360° signé",
+  VIDEO_IMPORTEE: "Vidéo importée",
+  EXPORT: "Export",
 };
 
 function decisionChip(e: AuditEntry) {
   if (!e.decision) return <span className="muted">·</span>;
   const red = e.action === "GENERATION_REFUSEE" || e.decision === "REVOQUEE";
-  const ok = e.decision === "OK" || e.decision === "VALIDE" || e.decision === "SIGNE";
-  return <span className={`chip mono ${red ? "chip-red" : ok ? "chip-ok" : ""}`}>{e.decision}</span>;
+  return <span className={`mono code ${red ? "code-red" : ""}`}>{e.decision}</span>;
 }
 
 export default function Journal() {
@@ -82,7 +83,7 @@ export default function Journal() {
             <span className="hint num">{journal.length} entrées</span>
           </div>
           {check && (
-            <div className={`notice ${check.ok ? "notice-ok" : "notice-red"} journal-verdict`} role="status">
+            <div className={`line ${check.ok ? "line-ok" : "line-red"} journal-verdict`} role="status">
               {check.ok ? <CircleCheck aria-hidden /> : <CircleX aria-hidden />}
               <span>
                 {check.ok ? (
@@ -128,12 +129,7 @@ export default function Journal() {
         </>
       ) : (
         <>
-          <div className="notice notice-plain energy-note">
-            <FlaskConical aria-hidden />
-            <span>
-              <b>Ce qui est mesuré ici :</b> la durée de chaque génération vue du navigateur, et la taille de l’audio reçu. <b>Ce qui ne l’est pas encore :</b> l’énergie de l’inférence, qui a lieu chez le fournisseur de voix et n’est pas publiée par requête. Nous l’affichons comme « à mesurer » plutôt que d’inventer un chiffre.
-            </span>
-          </div>
+          <p className="leaves energy-note"><b>Ce qui est mesuré ici :</b> la durée de chaque génération vue du navigateur, et la taille de l’audio reçu. <b>Ce qui ne l’est pas encore :</b> l’énergie de l’inférence, qui a lieu chez le fournisseur de voix et n’est pas publiée par requête. Nous l’affichons comme « à mesurer » plutôt que d’inventer un chiffre.</p>
           {usage.filter((u) => u.ms !== undefined).length === 0 ? (
             <div className="empty">
               <h2 className="h-sm">Aucune génération mesurée</h2>

@@ -1,11 +1,11 @@
-import { BellRing, CircleSlash, RotateCcw, ShieldCheck } from "lucide-react";
+import { Bell, BellRing, CircleCheck, CircleSlash, RotateCcw } from "lucide-react";
 import { useState } from "react";
 import { USES, voiceById } from "../core/catalog";
 import { fmt, OWNER_SHARE } from "../core/credits";
 import { RED_LINES, THEMES } from "../core/safety";
 import type { Theme, Use } from "../core/types";
 import { earningsOf, OWNER, OWNER_VOICE, useStore } from "../state/store";
-import { frDate, LicenseChip, Orb, toast } from "../ui/kit";
+import { frDate, LicenseStatus, Orb, toast } from "../ui/kit";
 import { shortHash } from "../core/canonical";
 
 const OFFERABLE: Use[] = ["doublage_film", "doublage_video_en_ligne", "bande_annonce", "publicite"];
@@ -39,7 +39,7 @@ export function MyVoice() {
           </p>
         </div>
         <div className="actions">
-          <LicenseChip lic={lic} />
+          <LicenseStatus lic={lic} />
         </div>
       </div>
 
@@ -85,12 +85,9 @@ export function MyVoice() {
                   </label>
                 ))}
               </fieldset>
-              <div className="notice notice-plain">
-                <ShieldCheck aria-hidden />
-                <span>
-                  <b>Toujours refusé, pour toutes les voix :</b> {Object.values(RED_LINES).map((r) => r.label.toLowerCase()).join(", ")}. Ces limites ne dépendent pas de vos réglages.
-                </span>
-              </div>
+              <p className="leaves">
+                <b>Toujours refusé, pour toutes les voix :</b> {Object.values(RED_LINES).map((r) => r.label.toLowerCase()).join(", ")}. Ces limites ne dépendent pas de vos réglages.
+              </p>
             </div>
           </section>
 
@@ -167,12 +164,12 @@ function OwnerActivity() {
         </div>
         <div className="panel-body">
           <p>
-            <span className="num big">{fmt.format(earned)}</span> jetons reçus ce mois-ci, soit {Math.round(OWNER_SHARE * 100)} % de chaque génération.
+            <b className="num">{fmt.format(earned)} jetons</b> reçus ce mois-ci, soit {Math.round(OWNER_SHARE * 100)} % de chaque génération sur votre voix.
           </p>
           <ul className="feed">
             {notes.slice(0, 6).map((n) => (
               <li key={n.id}>
-                <span className={`tick tick-${n.tone}`} aria-hidden />
+                {n.tone === "red" ? <CircleSlash className="note-icon red" aria-hidden /> : n.tone === "ok" ? <CircleCheck className="note-icon ok" aria-hidden /> : <Bell className="note-icon" aria-hidden />}
                 <div>
                   <b>{n.title}</b>
                   <p>{n.body}</p>

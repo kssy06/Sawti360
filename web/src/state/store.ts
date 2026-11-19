@@ -64,6 +64,8 @@ export interface VideoMeta {
   width: number;
   height: number;
   privacy: Privacy;
+  /** Small JPEG of one frame, shown in the project list. */
+  poster?: string;
 }
 
 /** Steps shown while a video is analysed. In this UI build they are simulated (see pipeline.ts). */

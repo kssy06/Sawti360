@@ -1,6 +1,8 @@
 import {
   AudioLines,
   Bell,
+  CircleCheck,
+  CircleSlash,
   BookUser,
   ChevronsUpDown,
   Coins,
@@ -114,7 +116,7 @@ function Meter() {
         <div className="meter-row">
           <span className="muted">Reçu ce mois-ci</span>
           <strong>
-            <AnimatedNumber value={earned} /> jetons
+            <AnimatedNumber key="earned" value={earned} /> jetons
           </strong>
         </div>
         <NavLink to="/revenus">Voir le détail des revenus</NavLink>
@@ -127,7 +129,7 @@ function Meter() {
       <div className="meter-row">
         <span className="muted">Jetons restants</span>
         <strong>
-          <AnimatedNumber value={balance} />
+          <AnimatedNumber key="balance" value={balance} />
         </strong>
       </div>
       <div className="bar" role="meter" aria-valuenow={balance} aria-valuemin={0} aria-valuemax={total} aria-label="Jetons restants">
@@ -158,7 +160,7 @@ function Notifications() {
         }}
       >
         <Bell />
-        {unread > 0 && <span className="dot num">{unread}</span>}
+        {unread > 0 && <span className="dot" aria-hidden />}
       </button>
       <Popover anchor={ref} open={open} onClose={() => setOpen(false)} align="right" label="Notifications">
         <div className="notes">
@@ -173,7 +175,7 @@ function Notifications() {
             <ul>
               {list.slice(0, 8).map((n) => (
                 <li key={n.id} className={n.read ? "" : "unread"}>
-                  <span className={`tick tick-${n.tone}`} aria-hidden />
+                  {n.tone === "red" ? <CircleSlash className="note-icon red" aria-hidden /> : n.tone === "ok" ? <CircleCheck className="note-icon ok" aria-hidden /> : <Bell className="note-icon" aria-hidden />}
                   <div>
                     <b>{n.title}</b>
                     <p>{n.body}</p>
@@ -186,24 +188,6 @@ function Notifications() {
         </div>
       </Popover>
     </>
-  );
-}
-
-function SynthesisStatus() {
-  const [state, setState] = useState<"loading" | "on" | "mock" | "off">("loading");
-  useEffect(() => {
-    fetch("/api/tts")
-      .then((r) => r.json())
-      .then((j) => setState(j.mock ? "mock" : j.configured ? "on" : "off"))
-      .catch(() => setState("off"));
-  }, []);
-  if (state === "loading") return null;
-  const text = { on: "Moteur de voix connecté", mock: "Moteur de voix : mode test", off: "Moteur de voix non configuré" }[state];
-  return (
-    <span className={`chip ${state === "on" ? "chip-ok" : "chip-outline"}`} title="La clé ElevenLabs reste côté serveur ; le navigateur ne la voit jamais.">
-      <span className={`led led-${state}`} aria-hidden />
-      {text}
-    </span>
   );
 }
 
@@ -262,7 +246,6 @@ export function Shell() {
           </button>
           <div className="crumb">{TITLES[pathname] ?? (pathname.startsWith("/studio") ? "Studio de doublage" : "")}</div>
           <div className="spacer" />
-          <SynthesisStatus />
           <Notifications />
         </header>
         <Outlet />

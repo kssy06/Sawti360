@@ -1,4 +1,4 @@
-import { CircleAlert, CircleCheck, CircleSlash, Clock3, Pause, Play, ShieldCheck, ShieldX } from "lucide-react";
+import { CircleAlert, CircleCheck, CircleSlash, Clock3, Pause, Play, ShieldCheck, ShieldX, type LucideIcon } from "lucide-react";
 import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import type { VoiceLicense } from "../core/types";
 
@@ -30,13 +30,27 @@ export function licenseState(lic: VoiceLicense | undefined, now = new Date()) {
   return { key: "valid", label: "Valide", tone: "ok" as const, Icon: ShieldCheck };
 }
 
-export function LicenseChip({ lic }: { lic: VoiceLicense | undefined }) {
+export type Tone = "ok" | "red" | "warn" | "muted" | "plain";
+
+/**
+ * Status as typography: a small icon and a word, no pill and no tinted fill.
+ * Colour appears only on what needs attention (refused, revoked, to fix) or confirms consent.
+ */
+export function Status({ tone = "plain", icon: Icon, children, title, className = "" }: { tone?: Tone; icon?: LucideIcon; children: ReactNode; title?: string; className?: string }) {
+  return (
+    <span className={`status status-${tone} ${className}`} title={title}>
+      {Icon && <Icon aria-hidden />}
+      {children}
+    </span>
+  );
+}
+
+export function LicenseStatus({ lic }: { lic: VoiceLicense | undefined }) {
   const st = licenseState(lic);
   return (
-    <span className={`chip chip-${st.tone}`}>
-      <st.Icon aria-hidden />
+    <Status tone={st.tone} icon={st.Icon}>
       {st.label}
-    </span>
+    </Status>
   );
 }
 

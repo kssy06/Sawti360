@@ -1,4 +1,4 @@
-import { ChevronRight, Loader2, Search, ShieldCheck, ShieldX, Sparkles } from "lucide-react";
+import { AudioLines, ChevronRight, CircleAlert, Loader2, Search, ShieldCheck, ShieldX } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { USES, VOICES } from "../core/catalog";
@@ -7,7 +7,7 @@ import { verifyLicense } from "../core/crypto";
 import { THEMES } from "../core/safety";
 import type { Voice } from "../core/types";
 import { useStore, type GenState } from "../state/store";
-import { AudioClip, frDate, LicenseChip, licenseState, Orb, Sheet } from "../ui/kit";
+import { AudioClip, frDate, LicenseStatus, licenseState, Orb, Reveal, Sheet, Status } from "../ui/kit";
 import { shortHash } from "../core/canonical";
 
 const LANG = { fr: "Français", ar: "Arabe", en: "Anglais" } as const;
@@ -36,31 +36,41 @@ function TryVoice({ voice }: { voice: Voice }) {
       </div>
       <div>
         <button className="btn btn-primary" onClick={run} disabled={busy || !text.trim()}>
-          {busy ? <Loader2 className="spin" /> : <Sparkles />}
+          {busy ? <Loader2 className="spin" /> : <AudioLines />}
           Générer
         </button>
       </div>
-      {res?.status === "ok" && res.url && (
-        <>
-          <AudioClip url={res.url} label={`essai de ${voice.name}`} />
-          <div className="notice notice-ok">
-            <ShieldCheck aria-hidden />
-            <span>
-              Autorisé par {res.decision?.license_id} · {res.cost} jetons, dont {res.ownerShare} pour le titulaire
+      <Reveal show={res?.status === "ok" && Boolean(res.url)}>
+        {res?.url && (
+          <div className="stack">
+            <AudioClip url={res.url} label={`essai de ${voice.name}`} />
+            <p className="line line-ok">
+              <ShieldCheck aria-hidden />
+              <span>
+                Autorisé par la licence <span className="mono">{res.decision?.license_id}</span> · {res.cost} jetons
+                {res.ownerShare ? `, dont ${res.ownerShare} pour le titulaire` : " pour Sawti (voix de base)"}
+              </span>
+            </p>
+          </div>
+        )}
+      </Reveal>
+      <Reveal show={res?.status === "refused"} nudge>
+        {res?.decision && (
+          <div className="line line-red" role="alert">
+            <ShieldX aria-hidden />
+            <span className="grow">
+              <b>Refusé, rien n’a été généré.</b> <span className="line-body">{res.decision.reason_fr}
+              {res.decision.detail ? ` Détecté : ${res.decision.detail}.` : ""}</span>
             </span>
           </div>
-        </>
-      )}
-      {res?.status === "refused" && res.decision && (
-        <div className="notice notice-red" role="alert">
-          <ShieldX aria-hidden />
-          <span className="grow">
-            <b>Refusé.</b> {res.decision.reason_fr}
-            {res.decision.detail ? ` Détecté : ${res.decision.detail}.` : ""}
-          </span>
-        </div>
-      )}
-      {res?.status === "error" && <div className="notice notice-warn">{res.message}</div>}
+        )}
+      </Reveal>
+      <Reveal show={res?.status === "error"}>
+        <p className="line line-warn">
+          <CircleAlert aria-hidden />
+          <span>{res?.message}</span>
+        </p>
+      </Reveal>
     </section>
   );
 }
@@ -82,13 +92,12 @@ function PassportSheet({ voice, onClose }: { voice: Voice; onClose: () => void }
         </>
       }
     >
-      <div className="row-gap">
-        <LicenseChip lic={lic} />
-        <span className={`chip ${sigOk ? "chip-ok" : "chip-red"}`}>
-          {sigOk ? <ShieldCheck aria-hidden /> : <ShieldX aria-hidden />}
+      <div className="status-row">
+        {voice.kind === "base" ? <Status tone="muted">Voix de base, synthèse</Status> : <LicenseStatus lic={lic} />}
+        <Status tone={sigOk ? "ok" : "red"} icon={sigOk ? ShieldCheck : ShieldX}>
           {sigOk ? "Signature vérifiée" : "Signature invalide"}
-        </span>
-        {lic?.demo && <span className="chip chip-outline">Profil fictif de démonstration</span>}
+        </Status>
+        {lic?.demo && voice.kind !== "base" && <Status tone="muted">Profil fictif de démonstration</Status>}
       </div>
       {lic && (
         <section className="stack">
@@ -208,7 +217,14 @@ export default function Voices() {
                   <p className="muted">{lead}</p>
                 </div>
                 <div className="table-wrap">
-                  <table className="table">
+                  <table className="table voices-table">
+                    <colgroup>
+                      <col className="c-voice" />
+                      <col className="c-uses" />
+                      <col className="c-tokens" />
+                      <col className="c-pass" />
+                      <col className="c-open" />
+                    </colgroup>
                     <thead>
                       <tr>
                         <th>Voix</th>
@@ -232,17 +248,9 @@ export default function Voices() {
                                 </span>
                               </span>
                             </td>
-                            <td>
-                              <span className="chips">
-                                {lic?.allowed_uses.map((u) => (
-                                  <span key={u} className="chip">
-                                    {USES[u].replace(/ \(.*\)/, "")}
-                                  </span>
-                                ))}
-                              </span>
-                            </td>
+                            <td className="uses">{lic?.allowed_uses.map((u) => USES[u].replace(/ \(.*\)/, "")).join(", ")}</td>
                             <td className="num">{lic?.owner_share ? `${fmt.format(Math.round(lic.owner_share * 100))} % au titulaire` : <span className="muted">100 % Sawti</span>}</td>
-                            <td>{v.kind === "base" ? <span className="chip">Synthèse · aucune personne</span> : <LicenseChip lic={lic} />}</td>
+                            <td>{v.kind === "base" ? <Status tone="muted">Synthèse, aucune personne</Status> : <LicenseStatus lic={lic} />}</td>
                             <td className="r">
                               <ChevronRight size={16} color="var(--ink-3)" />
                             </td>

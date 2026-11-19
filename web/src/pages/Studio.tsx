@@ -1,13 +1,14 @@
-import { ArrowLeft, ArrowRight, AudioWaveform, Captions, CircleAlert, Clapperboard, FileBadge2, Loader2, ShieldCheck, ShieldX, Sparkles, TriangleAlert } from "lucide-react";
+import { ArrowLeft, ArrowRight, AudioLines, AudioWaveform, Captions, CircleAlert, Clapperboard, FileBadge2, Loader2, ShieldCheck, ShieldX, TriangleAlert } from "lucide-react";
 import { useEffect, useId, useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
-import { USES, VOICES, voiceById } from "../core/catalog";
+import { FR_CHARS_PER_SECOND, USES, VOICES, voiceById } from "../core/catalog";
 import { costOf, fmt, split } from "../core/credits";
 import { checkFidelity } from "../core/fidelity";
 import { toSrt } from "../core/srt";
 import type { Segment, Use } from "../core/types";
 import { audioKey, audioUrls, balanceOf, useStore, type Project } from "../state/store";
-import { AnimatedNumber, AudioClip, LicenseChip, Orb, Reveal, timecode, toast } from "../ui/kit";
+import { ENGINE_TEXT, useEngineStatus } from "../ui/engine";
+import { AnimatedNumber, AudioClip, LicenseStatus, Orb, Reveal, Status, timecode, toast } from "../ui/kit";
 import { Analysis, SeenByAI, VideoDeck } from "./Video";
 
 const TEST_VOICES = [
@@ -48,14 +49,13 @@ function SegmentRow({ p, seg, active }: { p: Project; seg: Segment; active: bool
           <span className="muted">· {voice?.name ?? "voix sans passeport"}</span>
         </span>
         {lowConf ? (
-          <span className="chip chip-warn" title="Score de confiance de la transcription">
-            <TriangleAlert aria-hidden />
-            Transcription incertaine · {Math.round(seg.confidence * 100)} %
-          </span>
+          <Status tone="warn" icon={TriangleAlert} title="Score de confiance de la transcription">
+            Transcription incertaine ({Math.round(seg.confidence * 100)} %)
+          </Status>
         ) : (
-          <span className="chip" title="Score de confiance de la transcription">
-            Transcription · {Math.round(seg.confidence * 100)} %
-          </span>
+          <Status tone="muted" title="Score de confiance de la transcription">
+            Transcription {Math.round(seg.confidence * 100)} %
+          </Status>
         )}
       </div>
 
@@ -71,13 +71,19 @@ function SegmentRow({ p, seg, active }: { p: Project; seg: Segment; active: bool
             Français · proposé par l’IA, à valider
           </label>
           <textarea id={fieldId} className="textarea" rows={2} value={seg.translation} onChange={(e) => edit(seg.id, e.target.value)} lang="fr" />
+          <div className="tgt-meta">
+            <span className="muted num">
+              {cost} caractères · {cost} jetons
+            </span>
+            <Timing seconds={seg.end - seg.start} text={seg.translation} />
+          </div>
         </div>
       </div>
 
-      {p.kind === "video" && <SeenByAI p={p} segId={seg.id} context={seg.context} fits={seg.fits} seconds={seg.end - seg.start} />}
+      {p.kind === "video" && <SeenByAI p={p} segId={seg.id} context={seg.context} />}
 
       {alerts.map((a) => (
-        <div key={a.type} className="notice notice-warn">
+        <div key={a.type} className="line line-warn">
           <CircleAlert aria-hidden />
           <span className="grow">
             <b>{a.type === "CHIFFRES" ? "Chiffre modifié." : "Négation perdue."}</b> {a.message}
@@ -95,52 +101,65 @@ function SegmentRow({ p, seg, active }: { p: Project; seg: Segment; active: bool
           <input type="checkbox" checked={seg.validated} onChange={(e) => setValidated(seg.id, e.target.checked)} />
           Texte validé
         </label>
-        <span className="muted num seg-cost">
-          {cost} caractères · {cost} jetons
-        </span>
         <span className="grow" />
         {gen?.status === "ok" && url ? <AudioClip url={url} label={`réplique ${seg.id.slice(1)}`} /> : null}
         <button className="btn btn-secondary btn-sm" onClick={() => generate(seg.id)} disabled={gen?.status === "pending"}>
-          {gen?.status === "pending" ? <Loader2 className="spin" /> : <Sparkles />}
+          {gen?.status === "pending" ? <Loader2 className="spin" /> : <AudioLines />}
           {gen?.status === "ok" ? "Régénérer" : "Générer"}
         </button>
       </footer>
 
       <Reveal show={gen?.status === "pending"}>
-        <div className="notice notice-plain">
+        <p className="line">
           <Loader2 className="spin" aria-hidden />
           <span>Vérification du Passeport de voix, puis synthèse…</span>
-        </div>
+        </p>
       </Reveal>
       <Reveal show={gen?.status === "refused"} nudge>
         {gen?.decision && (
-          <div className="notice notice-red" role="alert">
+          <div className="line line-red" role="alert">
             <ShieldX aria-hidden />
             <span className="grow">
-              <b>Refusé, rien n’a été généré.</b> {gen.decision.reason_fr}
-              {gen.decision.detail ? <> Détecté : {gen.decision.detail}.</> : null} Aucun jeton débité.
+              <b>Refusé, rien n’a été généré.</b> <span className="line-body">{gen.decision.reason_fr}
+              {gen.decision.detail ? <> Détecté : {gen.decision.detail}.</> : null} Aucun jeton débité.</span>
             </span>
-            <span className="chip chip-red mono">{gen.decision.reason_code}</span>
+            <span className="mono line-code">{gen.decision.reason_code}</span>
           </div>
         )}
       </Reveal>
       <Reveal show={gen?.status === "ok"}>
-        <p className="seg-ok">
+        <p className="line line-ok">
           <ShieldCheck aria-hidden />
           <span>
             Autorisé par la licence <span className="mono">{gen?.decision?.license_id}</span> · {gen?.cost} jetons
             {gen?.ownerShare ? `, dont ${gen.ownerShare} pour ${lic?.holder_name ?? "le titulaire"}` : " pour Sawti (voix de base)"}
-            {gen?.mock ? " · audio de test (moteur en mode test)" : ""}
+            {gen?.mock ? " · audio de test, moteur en mode test" : ""}
           </span>
         </p>
       </Reveal>
       <Reveal show={gen?.status === "error"}>
-        <div className="notice notice-warn">
+        <p className="line line-warn">
           <CircleAlert aria-hidden />
           <span className="grow">{gen?.message}</span>
-        </div>
+        </p>
       </Reveal>
     </article>
+  );
+}
+
+/** Time on screen versus the estimated French speaking time, recalculated as the line is edited. */
+function Timing({ seconds, text }: { seconds: number; text: string }) {
+  const spoken = [...text.trim()].length / FR_CHARS_PER_SECOND;
+  const over = spoken > seconds + 0.2;
+  const f = (n: number) => n.toFixed(1).replace(".", ",");
+  return over ? (
+    <Status tone="warn" icon={TriangleAlert} className="num timing" title="Estimation : 14 caractères par seconde en français parlé">
+      ≈ {f(spoken)} s en français pour {f(seconds)} s à l’écran
+    </Status>
+  ) : (
+    <span className="muted num timing" title="Estimation : 14 caractères par seconde en français parlé">
+      {f(seconds)} s à l’écran · ≈ {f(spoken)} s en français
+    </span>
   );
 }
 
@@ -184,7 +203,7 @@ function Exports({ p }: { p: Project }) {
             <b>Piste audio française pour YouTube</b>
             <span className="muted">À ajouter comme langue audio dans YouTube Studio.</span>
           </span>
-          <span className="chip">Bientôt</span>
+          <span className="muted soon-label">Bientôt</span>
         </li>
         <li className="soon">
           <Clapperboard aria-hidden />
@@ -192,7 +211,7 @@ function Exports({ p }: { p: Project }) {
             <b>Vidéo doublée (MP4)</b>
             <span className="muted">Image d’origine, voix française mixée, faite dans le navigateur.</span>
           </span>
-          <span className="chip">Bientôt</span>
+          <span className="muted soon-label">Bientôt</span>
         </li>
       </ul>
     </section>
@@ -205,6 +224,7 @@ function Inspector({ p }: { p: Project }) {
   const setSpeakerVoice = useStore((s) => s.setSpeakerVoice);
   const generate = useStore((s) => s.generate);
   const balance = useStore(balanceOf);
+  const engine = useEngineStatus();
   const [running, setRunning] = useState(false);
 
   const todo = p.segments.filter((s) => s.validated && p.gens[s.id]?.status !== "ok");
@@ -261,7 +281,7 @@ function Inspector({ p }: { p: Project }) {
                 </optgroup>
               </select>
               <div className="insp-lic">
-                {v?.kind === "base" ? <span className="chip">Voix de base · synthèse</span> : <LicenseChip lic={lic} />}
+                {v?.kind === "base" ? <Status tone="muted">Voix de base, synthèse</Status> : <LicenseStatus lic={lic} />}
                 {lic && (
                   <Link to={`/voix?v=${lic.voice_id}`} className="hint">
                     Voir le passeport
@@ -306,11 +326,12 @@ function Inspector({ p }: { p: Project }) {
           </dd>
         </dl>
         <button className="btn btn-primary" onClick={runAll} disabled={running || todo.length === 0}>
-          {running ? <Loader2 className="spin" /> : <Sparkles />}
+          {running ? <Loader2 className="spin" /> : <AudioLines />}
           {todo.length ? `Générer ${todo.length} réplique${todo.length > 1 ? "s" : ""} validée${todo.length > 1 ? "s" : ""}` : "Générer les répliques validées"}
         </button>
         {todo.length === 0 && <p className="hint">{validated ? "Toutes les répliques validées sont générées." : "Validez au moins une réplique : l’IA propose, l’humain décide."}</p>}
         <p className="hint">Avant chaque réplique : Passeport de voix vérifié dans le navigateur, puis à nouveau par le serveur, et filtre de contenu.</p>
+        {engine !== "loading" && <p className={`hint ${engine === "off" ? "hint-warn" : ""}`}>{ENGINE_TEXT[engine]}</p>}
       </section>
 
       {p.kind === "video" && <Exports p={p} />}
@@ -372,12 +393,9 @@ export default function Studio() {
       ) : (
         <div className="studio-in">
           {p.kind === "video" && p.pipeline?.simulated && (
-            <div className="notice notice-plain sim-note">
-              <Sparkles aria-hidden />
-              <span>
-                <b>Démonstration de l’interface.</b> Les images sont bien extraites de votre vidéo, dans votre navigateur ; la transcription et la traduction sont un exemple en derja, en attendant le branchement des API.
-              </span>
-            </div>
+            <p className="sim-note">
+              Démonstration de l’interface : les images viennent bien de votre vidéo, extraites dans votre navigateur ; la transcription et la traduction sont un exemple en derja, en attendant le branchement des API.
+            </p>
           )}
           {p.kind === "video" && <VideoDeck p={p} active={active} onPick={pick} />}
           <div className="studio">

@@ -1,12 +1,13 @@
-import { ArrowRight, Check, Clapperboard, Film, Globe2, LockKeyhole, Trash2, UploadCloud, X } from "lucide-react";
+import { ArrowRight, Check, Globe2, LockKeyhole, Trash2, UploadCloud, X } from "lucide-react";
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { forgetVideo, formatDuration, formatSize, keepVideo, probeVideo, type Probe } from "../media/local";
+import { forgetVideo, formatDuration, formatSize, keepVideo, probeVideo, shrinkImage, type Probe } from "../media/local";
 import { runAnalysis } from "../media/pipeline";
 import { DEMO_ID, useStore, type Privacy, type Project } from "../state/store";
 import { frDate, Reveal, toast } from "../ui/kit";
 
 const MAX_BYTES = 4 * 1024 * 1024 * 1024;
+const plural = (n: number, word: string) => `${n} ${word}${n > 1 ? "s" : ""}`;
 
 function Uploader() {
   const navigate = useNavigate();
@@ -43,7 +44,8 @@ function Uploader() {
 
   const start = async () => {
     if (!file || !probe) return;
-    const pid = createVideoProject({ name: file.name, size: file.size, type: file.type, duration: probe.duration, width: probe.width, height: probe.height, privacy });
+    const poster = await shrinkImage(probe.poster, 240);
+    const pid = createVideoProject({ name: file.name, size: file.size, type: file.type, duration: probe.duration, width: probe.width, height: probe.height, privacy, poster });
     await keepVideo(pid, file, privacy === "publique");
     void runAnalysis(pid);
     navigate(`/studio/${pid}`);
@@ -83,7 +85,7 @@ function Uploader() {
         </label>
       </Reveal>
       <Reveal show={Boolean(error)} nudge>
-        <div className="notice notice-red" role="alert">
+        <div className="line line-red" role="alert">
           <X aria-hidden />
           {error}
         </div>
@@ -131,12 +133,9 @@ function Uploader() {
                 ))}
               </fieldset>
 
-              <div className="notice notice-plain">
-                <Film aria-hidden />
-                <span>
-                  <b>Ce qui quitte votre ordinateur :</b> la piste audio et une ou deux images par réplique, pour la transcription et la traduction. Le fichier vidéo, lui, reste ici.
-                </span>
-              </div>
+              <p className="leaves">
+                <b>Ce qui quitte votre ordinateur :</b> la piste audio et une ou deux images par réplique, pour la transcription et la traduction. Le fichier vidéo, lui, reste ici.
+              </p>
 
               <div className="stage-actions">
                 <button className="btn btn-primary" onClick={start}>
@@ -166,9 +165,13 @@ function ProjectRow({ p }: { p: Project }) {
   };
   return (
     <li className="proj" tabIndex={0} onClick={go} onKeyDown={(e) => e.key === "Enter" && go()}>
-      <span className="proj-icon" aria-hidden>
-        {p.kind === "demo" ? <Clapperboard /> : <Film />}
-      </span>
+      {p.video?.poster ? (
+        <img className="proj-thumb" src={p.video.poster} alt="" />
+      ) : (
+        <span className="proj-thumb proj-card" aria-hidden>
+          {p.title}
+        </span>
+      )}
       <span className="proj-main">
         <b>{p.title}</b>
         <span className="muted">
@@ -178,13 +181,10 @@ function ProjectRow({ p }: { p: Project }) {
       </span>
       <span className="proj-state">
         {analysing ? (
-          <span className="chip chip-outline">
-            <span className="led led-mock pulse" aria-hidden />
-            Analyse en cours
-          </span>
+          <span className="muted">Analyse en cours…</span>
         ) : (
           <span className="muted num">
-            {p.segments.length} répliques · {validated} validées · {done} doublées
+            {plural(p.segments.length, "réplique")} · {plural(validated, "validée")} · {plural(done, "doublée")}
           </span>
         )}
       </span>
@@ -203,7 +203,7 @@ function ProjectRow({ p }: { p: Project }) {
           <Trash2 />
         </button>
       ) : (
-        <span className="chip">Exemple</span>
+        <span className="muted proj-tag">Exemple</span>
       )}
     </li>
   );
