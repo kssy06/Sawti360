@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { costOf, fmt, PLANS, type PlanId } from "../core/credits";
 import { voiceById } from "../core/catalog";
+import { BACKEND } from "../lib/backend";
 import { profileOf } from "../mock/registry";
 import { accountOf, balanceOf, useStore } from "../state/store";
 import { PAYMENT_LABEL, requestStatus, type LicenseRequest, type RequestStatus } from "../state/workflow";
@@ -196,7 +197,7 @@ export function Payments() {
             <div className="choices choices-3" role="radiogroup" aria-label="Offre">
               {(Object.keys(PLANS) as PlanId[]).map((id) => (
                 <label key={id} className="choice">
-                  <input type="radio" name="plan" checked={plan === id} onChange={() => (setPlan(id), toast(`Offre ${PLANS[id].name} sélectionnée (simulation)`, "ok"))} />
+                  <input type="radio" name="plan" checked={plan === id} onChange={() => (setPlan(id), toast(BACKEND ? `Offre ${PLANS[id].name} : jetons crédités (prototype, 0 DT débité)` : `Offre ${PLANS[id].name} sélectionnée (simulation)`, "ok"))} />
                   <span className="choice-radio" aria-hidden />
                   <b>
                     {PLANS[id].name} · <span className="num">{fmt.format(PLANS[id].monthly)}</span> jetons / mois

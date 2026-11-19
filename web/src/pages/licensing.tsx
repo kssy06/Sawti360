@@ -1,7 +1,10 @@
 import { CreditCard, ExternalLink, Hourglass, Loader2, Play, Send } from "lucide-react";
 import { useId, useState } from "react";
 import { voiceById } from "../core/catalog";
+import { messageOf } from "../api/client";
+import { BACKEND } from "../lib/backend";
 import { profileOf, type VoiceProfile } from "../mock/registry";
+import { licenceLinkFor } from "../state/remote/licensing";
 import { accountOf, sampleUrls, useStore, type Project } from "../state/store";
 import { EXPIRY_HOURS, hoursLeft, PAYMENT_LABEL, requestStatus, REQUEST_LABEL, type LicenseRequest, type RequestStatus } from "../state/workflow";
 import { AudioClip, Callout, Dialog, KV, Progress, Prov, relTime, Status, toast, type Tone } from "../ui/kit";
@@ -81,6 +84,7 @@ export function RequestDialog({ open, onClose, voiceId, project, characterKey, o
   const chars = p ? Object.values(p.characters) : [];
   const [key, setKey] = useState(characterKey ?? chars[0]?.key ?? "");
   const [msg, setMsg] = useState("");
+  const [sending, setSending] = useState(false);
   const ids = { p: useId(), c: useId(), m: useId() };
   if (!prof) return null;
   const valid = Boolean(p && key && p.characters[key]);
@@ -98,12 +102,19 @@ export function RequestDialog({ open, onClose, voiceId, project, characterKey, o
           </button>
           <button
             className="btn btn-primary"
-            disabled={!valid}
-            onClick={() => {
-              const r = requestLicense(pid, key, voiceId, msg.trim());
-              toast(`Demande envoyée à ${prof.publicName}`, "ok");
-              onSent?.(r);
-              onClose();
+            disabled={!valid || sending}
+            onClick={async () => {
+              setSending(true);
+              try {
+                const r = await requestLicense(pid, key, voiceId, msg.trim());
+                toast(`Demande envoyée à ${prof.publicName}`, "ok");
+                onSent?.(r);
+                onClose();
+              } catch (err) {
+                toast(messageOf(err), "bad");
+              } finally {
+                setSending(false);
+              }
             }}
           >
             <Send />
@@ -162,7 +173,7 @@ export function RequestDialog({ open, onClose, voiceId, project, characterKey, o
             <textarea id={ids.m} className="textarea" rows={3} value={msg} onChange={(e) => setMsg(e.target.value)} placeholder="Présentez le projet et le rôle." maxLength={500} />
           </div>
           <Callout tone="plain">
-            Un e-mail avec un lien sécurisé est envoyé au titulaire, qui accepte ou refuse sans se connecter. <Prov kind="sim">e-mail</Prov>
+            Un e-mail avec un lien sécurisé est envoyé au titulaire, qui accepte ou refuse sans se connecter. <Prov kind={BACKEND ? "real" : "sim"}>e-mail</Prov>
           </Callout>
         </>
       )}
@@ -179,11 +190,17 @@ export function PayDialog({ request, onClose }: { request: LicenseRequest | null
   const run = async (ok: boolean) => {
     if (!request) return;
     setBusy(ok ? "ok" : "fail");
-    await new Promise((r) => setTimeout(r, 900));
-    pay(request.id, ok);
-    setBusy(null);
-    toast(ok ? "Paiement confirmé (simulation)" : "Paiement échoué (simulation)", ok ? "ok" : "bad");
-    onClose();
+    try {
+      if (!BACKEND) await new Promise((r) => setTimeout(r, 900));
+      await pay(request.id, ok);
+      if (BACKEND) toast(ok ? "Paiement confirmé · 0 DT débité (prototype)" : "Paiement échoué (simulation de la démo)", ok ? "ok" : "bad");
+      else toast(ok ? "Paiement confirmé (simulation)" : "Paiement échoué (simulation)", ok ? "ok" : "bad");
+      onClose();
+    } catch (err) {
+      toast(messageOf(err), "bad");
+    } finally {
+      setBusy(null);
+    }
   };
   return (
     <Dialog
@@ -214,9 +231,15 @@ export function PayDialog({ request, onClose }: { request: LicenseRequest | null
               ["Licence", "Permanente, pour ce projet uniquement"],
             ]}
           />
-          <Callout tone="info" title="Paiement simulé">
-            Aucun moyen de paiement n’est demandé ni débité. La voix devient utilisable dès la confirmation.
-          </Callout>
+          {BACKEND ? (
+            <Callout tone="info" title="Paiement gratuit (prototype)">
+              Aucun argent réel : la licence est confirmée à l’instant et 0 DT est débité. La voix devient utilisable dès la confirmation.
+            </Callout>
+          ) : (
+            <Callout tone="info" title="Paiement simulé">
+              Aucun moyen de paiement n’est demandé ni débité. La voix devient utilisable dès la confirmation.
+            </Callout>
+          )}
         </>
       )}
     </Dialog>
@@ -229,7 +252,8 @@ export function RequestBlock({ r, onPay, compact = false }: { r: LicenseRequest;
   const expire = useStore((s) => s.expireRequest);
   const st = requestStatus(r);
   const prof = profileOf(r.voiceId);
-  const link = `${window.location.origin}/licence/${r.token}`;
+  // Back-end mode: the link exists only for a fictional owner (given once by the server, kept in this browser).
+  const link = BACKEND ? licenceLinkFor(r.id) : `${window.location.origin}/licence/${r.token}`;
   return (
     <div className="stack-sm">
       <div className="row">
@@ -249,10 +273,12 @@ export function RequestBlock({ r, onPay, compact = false }: { r: LicenseRequest;
       )}
       {!compact && st === "envoyee" && (
         <div className="row">
-          <a className="btn btn-secondary btn-sm" href={link} target="_blank" rel="noreferrer">
-            <ExternalLink />
-            Ouvrir comme le titulaire (démonstration)
-          </a>
+          {link && (
+            <a className="btn btn-secondary btn-sm" href={link} target="_blank" rel="noreferrer">
+              <ExternalLink />
+              Ouvrir comme le titulaire (démonstration)
+            </a>
+          )}
           <button className="btn btn-ghost btn-sm" onClick={() => expire(r.id)}>
             Simuler l’expiration de 72 h
           </button>

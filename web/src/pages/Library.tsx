@@ -103,7 +103,8 @@ export default function Library() {
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState<"all" | "ok" | "free">("all");
   const [asking, setAsking] = useState<string | null>(null);
-  const profiles = allProfiles({ ownedVoices: owned });
+  const serverProfiles = useStore((s) => s.profiles);
+  const profiles = allProfiles({ ownedVoices: owned, profiles: serverProfiles });
   const open = profiles.find((p) => p.voiceId === params.get("v"));
   const rows = useMemo(
     () =>

@@ -3,6 +3,7 @@ export * as analysis from "./analysis";
 export * as bootstrap from "./bootstrap";
 export * as characters from "./characters";
 export * as journal from "./journal";
+export * as licensing from "./licensing";
 export * as projects from "./projects";
 export * as review from "./review";
 export * as session from "./session";

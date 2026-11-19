@@ -5,6 +5,7 @@ import { USES } from "../core/catalog";
 import { fmt, OWNER_SHARE } from "../core/credits";
 import { RED_LINES, THEMES } from "../core/safety";
 import type { Theme, Use } from "../core/types";
+import { messageOf } from "../api/client";
 import { paragraphFor, type VoiceProfile } from "../mock/registry";
 import { accountOf, earningsOf, sampleUrls, useStore } from "../state/store";
 import { EXPIRY_HOURS, hoursLeft, PAYMENT_LABEL, requestStatus, REQUEST_LABEL, type LicenseRequest } from "../state/workflow";
@@ -257,10 +258,16 @@ function IncomingRow({ r }: { r: LicenseRequest }) {
             </button>
             <button
               className={confirm === "accept" ? "btn btn-primary" : "btn btn-danger-solid"}
-              onClick={() => {
-                respond(r.token, confirm === "accept");
-                toast(confirm === "accept" ? "Demande acceptée" : "Demande refusée", confirm === "accept" ? "ok" : "plain");
+              onClick={async () => {
+                const accept = confirm === "accept";
                 setConfirm(null);
+                try {
+                  // Back-end mode: link tokens are never sent to the browser; the connected owner answers by request id.
+                  await respond(r.token || r.id, accept);
+                  toast(accept ? "Demande acceptée" : "Demande refusée", accept ? "ok" : "plain");
+                } catch (err) {
+                  toast(messageOf(err), "bad");
+                }
               }}
             >
               {confirm === "accept" ? "Accepter" : "Refuser"}

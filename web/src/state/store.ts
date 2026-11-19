@@ -192,7 +192,7 @@ interface Actions {
   signup: (name: string, email: string, password?: string) => void | Promise<"ok" | "confirm">;
   logout: () => void | Promise<void>;
   setPersona: (p: Persona) => void;
-  setPlan: (p: PlanId) => void;
+  setPlan: (p: PlanId) => void | Promise<void>;
   openProject: (id: string) => void;
   createVideoProject: (input: NewProjectInput) => string | Promise<string>;
   patchProject: (id: string, patch: Partial<Project>) => void;
@@ -224,10 +224,11 @@ interface Actions {
   resetDossier: (pid: string, key: string) => void;
 
   /* voice licensing */
-  requestLicense: (pid: string, key: string, voiceId: string, message: string) => LicenseRequest;
-  respondLicense: (token: string, accept: boolean) => void;
-  payLicense: (id: string, success: boolean) => void;
-  expireRequest: (id: string) => void;
+  requestLicense: (pid: string, key: string, voiceId: string, message: string) => LicenseRequest | Promise<LicenseRequest>;
+  /** `token`: the link's token; in back-end mode, the request id when the owner answers connected. */
+  respondLicense: (token: string, accept: boolean) => void | Promise<unknown>;
+  payLicense: (id: string, success: boolean) => void | Promise<void>;
+  expireRequest: (id: string) => void | Promise<void>;
   assignVoice: (pid: string, key: string, voiceId: string) => void | Promise<void>;
 
   /* translation, generation */
@@ -417,7 +418,7 @@ export const useStore = create<Store>()(
         },
         logout: () => (BACKEND ? remote.session.logout(set) : void set({ session: null })),
         setPersona: (persona) => set({ persona }),
-        setPlan: (plan) => set({ plan }),
+        setPlan: (plan) => (BACKEND ? remote.licensing.setPlan(set, get, plan) : void set({ plan })),
         openProject: (pid) => set((s) => (s.projects[pid] ? { currentId: pid } : {})),
         createVideoProject: ({ meta, title, format }) => {
           if (BACKEND) return remote.projects.createVideoProject(set, { meta, title, format });
@@ -580,6 +581,7 @@ export const useStore = create<Store>()(
 
         /* ---------------------------------------------- licensing */
         requestLicense: (pid, key, voiceId, message) => {
+          if (BACKEND) return remote.licensing.requestLicense(set, pid, key, voiceId, message);
           const p = get().projects[pid];
           const prof = profileOf(voiceId);
           const now = new Date();
@@ -595,6 +597,7 @@ export const useStore = create<Store>()(
           return r;
         },
         respondLicense: (t, accept) => {
+          if (BACKEND) return remote.licensing.respondLicense(set, t, accept);
           const r = get().requests.find((x) => x.token === t);
           if (!r || requestStatus(r) !== "envoyee") return;
           const ref = `LP-2026-${String(Math.floor(Math.random() * 9000) + 1000)}`;
@@ -610,12 +613,14 @@ export const useStore = create<Store>()(
           });
         },
         payLicense: (rid, success) => {
+          if (BACKEND) return remote.licensing.payLicense(set, get, rid, success);
           set((s) => ({ requests: s.requests.map((x) => (x.id === rid ? { ...x, payment: success ? "confirme" : "echoue", paymentAt: new Date().toISOString() } : x)) }));
           const r = get().requests.find((x) => x.id === rid)!;
           log(me(), success ? "PAIEMENT_CONFIRME" : "PAIEMENT_ECHOUE", { demande: rid, montant: r.price, simule: true }, success ? "CONFIRME" : "ECHOUE");
           notify({ to: meId(), space: "creator", tone: success ? "ok" : "red", title: success ? "Paiement confirmé (simulé)" : "Paiement échoué (simulé)", body: `${r.projectTitle} · ${profileOf(r.voiceId)?.publicName} · ${r.price} DT`, link: "/paiements" });
         },
         expireRequest: (rid) => {
+          if (BACKEND) return remote.licensing.expireRequest(set, rid);
           set((s) => ({ requests: s.requests.map((x) => (x.id === rid ? { ...x, sentAt: new Date(Date.now() - EXPIRY_MS - 60000).toISOString(), expiresAt: new Date(Date.now() - 60000).toISOString() } : x)) }));
           const r = get().requests.find((x) => x.id === rid)!;
           notify({ to: meId(), space: "creator", tone: "warn", title: "Demande expirée après 72 h", body: `${r.projectTitle} · ${profileOf(r.voiceId)?.publicName}. Choisissez une autre voix ou une voix IA.`, link: `/projet/${r.projectId}/voix` });
@@ -712,7 +717,8 @@ export const useStore = create<Store>()(
 );
 
 /** Profiles of every voice in the library: catalogue holders plus voices created by demo accounts. */
-export function allProfiles(s: Pick<Data, "ownedVoices">): VoiceProfile[] {
+export function allProfiles(s: Pick<Data, "ownedVoices"> & Partial<Pick<Data, "profiles">>): VoiceProfile[] {
+  if (BACKEND && s.profiles) return s.profiles;
   const own = Object.values(s.ownedVoices).map((o) => o.profile);
   const ids = new Set(own.map((p) => p.voiceId));
   return [...own, ...VOICES.filter((v) => v.kind === "consentie" && !ids.has(v.voice_id)).map((v) => profileOf(v.voice_id)).filter((x): x is VoiceProfile => Boolean(x))];

@@ -97,11 +97,11 @@ Fichiers : `server/jobs.ts`, `server/routes/jobs.ts`, `src/api/useJob.ts`.
 Fichiers : `server/routes/{voices,licences,payments}.ts`, `server/ledger.ts`,
 `src/state/remote/{licensing,payments}.ts`, `pages/licensing.tsx`, `pages/PublicResponses.tsx`
 (`LicenseResponsePage` seulement), `pages/Owner.tsx` (`OwnerRequests`), `pages/Requests.tsx`, `pages/Library.tsx`.
-- [ ] demande → titulaire notifié et e-mail → acceptation (connecté, et par le lien sur un autre appareil)
-- [ ] « Payer » confirme tout de suite, « 0 DT débité · prototype » ; la voix devient utilisable
-- [ ] changer de plan crédite les jetons du plan ; le solde affiché suit le registre
-- [ ] demande expirée (bouton de démo) ou refusée → la voix reste bloquée, alternatives proposées
-- [ ] deuxième décision sur le même lien → 409
+- [x] demande → titulaire notifié et e-mail → acceptation (connecté, et par le lien sur un autre appareil) (Chromium ; e-mail réel : SMTP Gmail)
+- [x] « Payer » confirme tout de suite, « 0 DT débité · prototype » ; la voix devient utilisable
+- [x] changer de plan crédite les jetons du plan ; le solde affiché suit le registre
+- [x] demande expirée (bouton de démo) ou refusée → la voix reste bloquée, alternatives proposées (statuts testés sur l'API ; blocage par voiceSlot inchangé)
+- [x] deuxième décision sur le même lien → 409
 
 ### A8. Signatures et passeports (P0, 1 h 30) · dépend de A3, A4
 Fichiers : `scripts/keys.ts`, `server/sign.ts`, `src/core/crypto.ts`, `src/state/passportBuild.ts`,

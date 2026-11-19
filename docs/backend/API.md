@@ -235,9 +235,11 @@ notification et e-mail au créateur. Remplace `respondConsent`.
 Écoute d'un échantillon : moteur de règles et filtre, débit de jetons. Remplace `tryVoice`.
 
 **`POST /api/license-requests`** `{ projectId, characterKey, voiceId, message }` →
-`{ request: LicenseRequest, licenceUrl?: string }`. `licenceUrl` n'est renvoyé que pour un
-profil fictif sans compte (démo). E-mail et notification au titulaire, journal
-`LICENCE_DEMANDEE`. Remplace `requestLicense`.
+`201 { request: LicenseRequest, project: Project, mail: boolean, licenceUrl?: string }`.
+`licenceUrl` n'est renvoyé que pour un profil fictif sans compte (démo) ; le navigateur le garde
+localement pour le bouton « Ouvrir comme le titulaire ». `request.token` est toujours vide (jetons
+stockés hachés). La voix est attribuée au personnage (`project`). 409 si la voix est indisponible.
+E-mail (`mail`) et notification au titulaire, journal `LICENCE_DEMANDEE`. Remplace `requestLicense`.
 
 **`POST /api/license-requests/:id/decision`** `{ accept }` (titulaire connecté) → `LicenseRequest`.
 410 si expirée, 409 si déjà décidée. Journal `LICENCE_ACCEPTEE` ou `LICENCE_REFUSEE`,
@@ -255,7 +257,7 @@ Remplace le bouton de démonstration `expireRequest`.
 | { kind: "licence"; requestId: string; simulateFailure?: boolean }
 | { kind: "jetons"; plan: "gratuit" | "createur" | "studio" }
 ```
-→ `{ payment, balance, request?: LicenseRequest }`. **Aucun argent réel.** Licence : la demande
+→ `{ payment: { id, kind, requestId, plan, amount, charged: 0, tokens, status, method, at }, balance, request?: LicenseRequest }`. **Aucun argent réel.** Licence : la demande
 doit être acceptée ; le paiement est confirmé à l'instant (`method: "prototype_gratuit"`,
 0 DT débité), sauf `simulateFailure` qui garde le bouton « échec » de la démo. Jetons : le plan
 change et ses jetons mensuels sont crédités aussitôt (`achat_prototype`). Journal

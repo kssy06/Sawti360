@@ -20,7 +20,8 @@ export default function VoicesStep({ p }: { p: Project }) {
   const [ask, setAsk] = useState<{ key: string; voiceId: string } | null>(null);
   const [paying, setPaying] = useState<LicenseRequest | null>(null);
   const slots = slotsOf({ requests }, p);
-  const profiles = allProfiles({ ownedVoices: owned });
+  const serverProfiles = useStore((s) => s.profiles);
+  const profiles = allProfiles({ ownedVoices: owned, profiles: serverProfiles });
   const chars = Object.values(p.characters);
   const notReady = chars.filter((c) => !slots[c.key]?.usable).length;
 

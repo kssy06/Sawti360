@@ -1,7 +1,10 @@
 import { CircleCheck, CircleX, Hourglass, LockKeyhole } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { useParams } from "react-router-dom";
+import { messageOf } from "../api/client";
+import { BACKEND } from "../lib/backend";
 import { paragraphFor, profileOf } from "../mock/registry";
+import { usePublicLicence } from "../state/remote/licensing";
 import { useStore } from "../state/store";
 import { EXPIRY_HOURS, hoursLeft, requestStatus } from "../state/workflow";
 import { Brand } from "../ui/brand";
@@ -169,8 +172,23 @@ export function ConsentPage() {
 
 export function LicenseResponsePage() {
   const { token = "" } = useParams();
-  const r = useStore((s) => s.requests.find((x) => x.token === token));
-  const respond = useStore((s) => s.respondLicense);
+  const local = useStore((s) => s.requests.find((x) => x.token === token));
+  const localRespond = useStore((s) => s.respondLicense);
+  // Back-end mode: the request is read from the server by the link's token (any device, no account).
+  const remote = usePublicLicence(token, BACKEND);
+  const r = BACKEND ? remote.request : local;
+  const respond = (t: string, accept: boolean) =>
+    Promise.resolve(BACKEND ? remote.respond(t, accept) : localRespond(t, accept)).then(
+      () => toast(accept ? "Demande acceptée" : "Demande refusée", accept ? "ok" : "plain"),
+      (err) => toast(messageOf(err), "bad"),
+    );
+  if (BACKEND && remote.loading) {
+    return (
+      <PublicFrame title="Demande de licence">
+        <p className="muted">Chargement de la demande…</p>
+      </PublicFrame>
+    );
+  }
   if (!r) {
     return (
       <PublicFrame title="Demande de licence">
@@ -178,7 +196,7 @@ export function LicenseResponsePage() {
       </PublicFrame>
     );
   }
-  const prof = profileOf(r.voiceId);
+  const prof = BACKEND ? { publicName: remote.ownerName } : profileOf(r.voiceId);
   const st = requestStatus(r);
   return (
     <PublicFrame title="Demande de licence">
@@ -212,10 +230,10 @@ export function LicenseResponsePage() {
               </span>
             </div>
             <div className="big-choice">
-              <button className="btn btn-primary btn-lg" onClick={() => (respond(token, true), toast("Demande acceptée", "ok"))}>
+              <button className="btn btn-primary btn-lg" onClick={() => void respond(token, true)}>
                 Accepter
               </button>
-              <button className="btn btn-secondary btn-lg" onClick={() => (respond(token, false), toast("Demande refusée"))}>
+              <button className="btn btn-secondary btn-lg" onClick={() => void respond(token, false)}>
                 Refuser
               </button>
             </div>
