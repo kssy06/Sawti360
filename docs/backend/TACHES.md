@@ -54,7 +54,7 @@ Fichiers : `web/api/index.ts`, `web/server/{app,env,db,errors}.ts`, `web/server/
 Fichiers : `src/lib/supabase.ts`, `src/state/remote/session.ts`, `src/pages/Auth.tsx` (branche back-end),
 `server/auth.ts`, `server/routes/{demo,me}.ts`, `store.ts` (aiguillage de `login`, `signup`, `logout`), `ui/Shell.tsx`.
 - [x] inscription : ligne `accounts` et 100 000 jetons créés par le déclencheur (testé sur Postgres avec `schema.sql` ; à revoir sur Supabase)
-- [ ] connexion, déconnexion, et boutons des comptes de démo (`/api/demo/session` + `verifyOtp`) — code prêt et route testée ; à vérifier avec les clés Supabase
+- [x] connexion, déconnexion, et boutons des comptes de démo (`/api/demo/session` + `verifyOtp`) — vérifiés dans Chromium avec le faux Supabase ; à revoir avec les clés
 - [ ] mot de passe oublié : e-mail reçu, nouveau mot de passe accepté — code prêt ; demande le SMTP Gmail dans Supabase (SETUP.md § 2.5)
 - [x] toute route protégée sans jeton → 401
 
@@ -73,9 +73,9 @@ Fichiers : `src/state/seed.ts`, `scripts/seed.ts` (+ script npm `seed`, SETUP.md
 4. Store en mode back-end : hydratation après connexion et au retour sur l'onglet ; `persist`
    ne garde que `persona` et `currentId`.
 5. Routes projets, segments, personnages (API.md), avec leurs entrées de journal.
-- [ ] connecté en Nour Films, le tableau de bord est identique à la version simulée
-- [ ] une traduction modifiée sur l'ordinateur apparaît sur le téléphone après rafraîchissement
-- [ ] supprimer un projet importé marche ; supprimer un exemple est refusé
+- [x] connecté en Nour Films, le tableau de bord est identique à la version simulée (Chromium, base locale + faux Supabase ; à revoir sur Supabase)
+- [x] une traduction modifiée sur l'ordinateur apparaît sur le téléphone après rafraîchissement (rechargement vérifié dans Chromium)
+- [x] supprimer un projet importé marche ; supprimer un exemple est refusé (testé sur l'API)
 
 ### A4. Journal côté serveur (P0, 1 h) · dépend de A1
 Fichiers : `server/audit.ts` (ARCHITECTURE.md § 3), `server/routes/journal.ts`, `src/state/remote/journal.ts`, `pages/Trust.tsx`.

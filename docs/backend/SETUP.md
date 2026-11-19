@@ -131,6 +131,29 @@ Remarques :
   `TEST_DATABASE_URL=postgres://postgres:postgres@localhost:5432/postgres npm test`.
   Sans cette variable, ces tests sont sautés et les autres tournent.
 
+### 7 bis. Essayer le mode back-end sans Supabase (développement uniquement)
+
+Pour travailler avant d'avoir les clés, ou sans réseau : une base Postgres locale et un faux
+Supabase (Auth et URL signées de Storage) qui ne sert qu'en local, jamais déployé.
+
+```bash
+cd web
+ADMIN_DATABASE_URL=postgres://postgres:postgres@localhost:5432/postgres npx tsx scripts/dev/dev-db.ts sawti_dev
+DEV_DATABASE_URL=postgres://postgres:postgres@localhost:5432/sawti_dev npx tsx scripts/dev/fake-supabase.ts
+```
+
+Puis, dans un autre terminal, avec ces valeurs factices (aucun secret) :
+
+```bash
+export DATABASE_URL=postgres://postgres:postgres@localhost:5432/sawti_dev
+export SUPABASE_URL=http://localhost:54321 SUPABASE_SECRET_KEY=factice
+export VITE_BACKEND=1 VITE_SUPABASE_URL=http://localhost:54321 VITE_SUPABASE_PUBLISHABLE_KEY=factice
+export DEMO_EMAILS=nour=equipe+nour@exemple.tn,lina=equipe+lina@exemple.tn DEMO_PASSWORD=demo-sawti-2026
+npx tsx scripts/seed.ts && npm run dev
+```
+
+Le faux Supabase écrit dans sa console le lien de « mot de passe oublié ».
+
 ## 8. Vérifier que tout est branché
 
 ```bash

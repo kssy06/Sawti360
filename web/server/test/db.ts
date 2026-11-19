@@ -16,9 +16,9 @@ import postgres, { type Sql } from "postgres";
 export const TEST_DATABASE_URL = process.env.TEST_DATABASE_URL;
 export const hasTestDb = Boolean(TEST_DATABASE_URL);
 
-const SCHEMA = resolve(dirname(fileURLToPath(import.meta.url)), "../../../docs/backend/schema.sql");
+export const SCHEMA = resolve(dirname(fileURLToPath(import.meta.url)), "../../../docs/backend/schema.sql");
 
-const SUPABASE_STANDINS = `
+export const SUPABASE_STANDINS = `
 do $$ begin
   if not exists (select 1 from pg_roles where rolname = 'anon') then create role anon nologin; end if;
   if not exists (select 1 from pg_roles where rolname = 'authenticated') then create role authenticated nologin; end if;
