@@ -30,6 +30,7 @@ puis le code, dans la même PR.
 | 429 | `TROP_DE_REQUETES` | limite d'une route publique |
 | 502 | `FOURNISSEUR_IA` | tous les fournisseurs d'une chaîne ont échoué |
 | 503 | `NON_CONFIGURE` | clé absente (ex. synthèse sans `ELEVENLABS_API_KEY`) |
+| 500 | `ERREUR_SERVEUR` | erreur inattendue (détail dans les journaux Vercel, jamais dans la réponse) |
 
 ## 2. Types nouveaux
 
@@ -47,6 +48,12 @@ export interface Health {
     tts: string | null;                 // ex. "eleven_multilingual_v2" ; null si non configuré
     ttsMock: boolean;
     mail: boolean;
+  };
+  services: {                           // socle : sans eux, le front reste en mode simulé
+    database: boolean;                  // DATABASE_URL
+    auth: boolean;                      // SUPABASE_URL + SUPABASE_SECRET_KEY
+    storage: boolean;                   // idem
+    signing: boolean;                   // SAWTI_SIGNING_SEED (sinon clé publique de démonstration)
   };
 }
 

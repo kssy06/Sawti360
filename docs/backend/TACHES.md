@@ -46,9 +46,9 @@ Fichiers : `web/api/index.ts`, `web/server/{app,env,db,errors}.ts`, `web/server/
    `PATCH`, `PUT`, `DELETE`. Supprimer `api/tts.ts` quand la route Hono répond.
 5. `vercel.json` et plugin Vite (ARCHITECTURE.md § 2) ; `loadEnv` dans `process.env` en local.
 6. Vérifier que `server/` et `api/` sont couverts par `npm run typecheck`.
-- [ ] `GET /api/health` répond en local et sur l'aperçu
-- [ ] `POST /api/tts` se comporte comme avant (refus `THEME_INTERDIT_PAR_TITULAIRE` sur un texte politique avec la voix de Lina)
-- [ ] `GET /api/projects/x` renvoie un 401 JSON, pas la page HTML (la réécriture fonctionne)
+- [x] `GET /api/health` répond en local et sur l'aperçu (local vérifié le 19/11 ; aperçu Vercel à contrôler au premier déploiement)
+- [x] `POST /api/tts` se comporte comme avant (refus `THEME_INTERDIT_PAR_TITULAIRE` sur un texte politique avec la voix de Lina)
+- [x] `GET /api/projects/x` renvoie un 401 JSON, pas la page HTML (la réécriture fonctionne ; `__path` testé, aperçu à contrôler)
 
 ### A2. Connexion (P0, 1 h 30) · dépend de A1
 Fichiers : `src/lib/supabase.ts`, `src/state/remote/session.ts`, `src/pages/Auth.tsx` (branche back-end),

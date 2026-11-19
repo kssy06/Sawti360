@@ -1,34 +1,32 @@
 /**
- * The only server code of the prototype (Vercel function, Node runtime).
- * It holds the ElevenLabs key and re-runs the consent gate itself, so calling this
- * endpoint directly cannot bypass the Voice Passport or the content filter.
+ * POST /api/tts and GET /api/tts: the contract of the former api/tts.ts, kept during the transition
+ * (simulated mode and the library samples still call it). Same behaviour, moved into the Hono app.
  *
+ * It holds the ElevenLabs key and re-runs the consent gate itself, so calling this endpoint
+ * directly cannot bypass the Voice Passport or the content filter.
  * Trust model of the demo: the licence registry below is the server's own copy.
  * The browser may only ADD restrictions (a revocation, extra forbidden themes), never remove one.
  */
-import { MAX_TTS_CHARS, PROJECT, SEED_LICENSES, voiceById } from "../src/core/catalog.js";
-import { signLicense } from "../src/core/crypto.js";
-import { runGate } from "../src/core/gate.js";
-import { THEMES } from "../src/core/safety.js";
-import type { Lang, Theme, Use, VoiceLicense } from "../src/core/types.js";
+import { Hono } from "hono";
+import { MAX_TTS_CHARS, PROJECT, SEED_LICENSES, voiceById } from "../../src/core/catalog.js";
+import { signLicense } from "../../src/core/crypto.js";
+import { runGate } from "../../src/core/gate.js";
+import { THEMES } from "../../src/core/safety.js";
+import type { Lang, Theme, Use, VoiceLicense } from "../../src/core/types.js";
+import { silentWav } from "../audio.js";
+import { env } from "../env.js";
+import { json } from "../errors.js";
 
 const REGISTRY: VoiceLicense[] = SEED_LICENSES.map(signLicense);
 const USES: Use[] = ["doublage_film", "doublage_video_en_ligne", "bande_annonce", "publicite", "contenu_politique", "contenu_intime"];
 const LANGS: Lang[] = ["fr", "ar", "en"];
-const MODEL = "eleven_multilingual_v2";
-
-function json(status: number, body: unknown): Response {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" },
-  });
-}
 
 export function GET(): Response {
+  const e = env();
   return json(200, {
-    configured: Boolean(process.env.ELEVENLABS_API_KEY),
-    mock: process.env.SAWTI_TTS_MOCK === "1",
-    model: MODEL,
+    configured: Boolean(e.ELEVENLABS_API_KEY),
+    mock: e.SAWTI_TTS_MOCK,
+    model: e.models.tts,
   });
 }
 
@@ -94,10 +92,11 @@ export async function POST(request: Request): Promise<Response> {
     "x-sawti-license": gate.decision.license_id ?? "",
   };
 
-  if (process.env.SAWTI_TTS_MOCK === "1") {
+  const e = env();
+  if (e.SAWTI_TTS_MOCK) {
     return new Response(silentWav(0.6), { status: 200, headers: { ...headers, "content-type": "audio/wav", "x-sawti-mock": "1" } });
   }
-  const key = process.env.ELEVENLABS_API_KEY;
+  const key = e.ELEVENLABS_API_KEY;
   if (!key) {
     return json(503, {
       decision: gate.decision,
@@ -111,7 +110,7 @@ export async function POST(request: Request): Promise<Response> {
     {
       method: "POST",
       headers: { "xi-api-key": key, "content-type": "application/json", accept: "audio/mpeg" },
-      body: JSON.stringify({ text, model_id: MODEL, voice_settings: { stability: 0.55, similarity_boost: 0.75 } }),
+      body: JSON.stringify({ text, model_id: e.models.tts, voice_settings: { stability: 0.55, similarity_boost: 0.75 } }),
     },
   );
   if (!upstream.ok) {
@@ -126,24 +125,4 @@ export async function POST(request: Request): Promise<Response> {
   return new Response(upstream.body, { status: 200, headers });
 }
 
-/** A short silent WAV, used only when SAWTI_TTS_MOCK=1 for local interface tests. */
-function silentWav(seconds: number): ArrayBuffer {
-  const rate = 16000;
-  const n = Math.round(rate * seconds);
-  const buf = new ArrayBuffer(44 + n * 2);
-  const v = new DataView(buf);
-  const w = (o: number, s: string) => [...s].forEach((c, i) => v.setUint8(o + i, c.charCodeAt(0)));
-  w(0, "RIFF");
-  v.setUint32(4, 36 + n * 2, true);
-  w(8, "WAVEfmt ");
-  v.setUint32(16, 16, true);
-  v.setUint16(20, 1, true);
-  v.setUint16(22, 1, true);
-  v.setUint32(24, rate, true);
-  v.setUint32(28, rate * 2, true);
-  v.setUint16(32, 2, true);
-  v.setUint16(34, 16, true);
-  w(36, "data");
-  v.setUint32(40, n * 2, true);
-  return buf;
-}
+export const tts = new Hono().get("/tts", () => GET()).post("/tts", (c) => POST(c.req.raw));

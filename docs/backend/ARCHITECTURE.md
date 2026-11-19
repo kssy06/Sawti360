@@ -82,16 +82,17 @@ web/
   "framework": "vite",
   "functions": { "api/index.ts": { "maxDuration": 300 } },
   "rewrites": [
-    { "source": "/api/:path*", "destination": "/api" },
+    { "source": "/api/:path*", "destination": "/api?__path=:path*" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]
 }
 ```
 
-Vercel transmet l'URL d'origine à la fonction : Hono route donc `/api/projects/…` normalement.
-À vérifier dès A1 avec `/api/health` et une route à paramètre. En local, le plugin Vite
-`localApi()` de `vite.config.ts` passe toute requête `/api/*` à `app.fetch()` (au lieu
-du seul `/api/tts`).
+Vercel transmet normalement l'URL d'origine à la fonction ; par sécurité, la réécriture passe
+aussi le chemin dans `__path`, et `server/vercel.ts` reconstruit `/api/<chemin>` avant le
+routage Hono (testé dans `server/app.test.ts`). À vérifier sur l'aperçu avec `/api/health` et
+une route à paramètre. En local, le plugin Vite `localApi()` de `vite.config.ts` passe toute
+requête `/api/*` au même point d'entrée `api/index.ts` (au lieu du seul `/api/tts`).
 
 ## 3. Données
 

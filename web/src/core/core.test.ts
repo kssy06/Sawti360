@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { POST } from "../../api/tts.js";
+import { POST } from "../../server/routes/tts.js";
 import { appendEntry, verifyChain } from "./audit.js";
 import { SEED_LICENSES, SEED_SEGMENTS } from "./catalog.js";
 import { signLicense, verifyLicense } from "./crypto.js";
