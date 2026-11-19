@@ -47,7 +47,7 @@ web/
 │  │                           analysis, review, consents, dossiers, voices, licences, payments,
 │  │                           generation, passports, owner, journal, notifications, jobs, tts
 │  └─ ai/
-│     ├─ groq.ts            ← transcription Whisper ; LLM texte de repli
+│     ├─ groq.ts            ← découpage par Whisper ; texte lu en français ; LLM texte de repli
 │     ├─ gemini.ts          ← analyse multimodale ; lecture du dossier ; transcription de repli
 │     ├─ claude.ts          ← relecture LLM 2 (si ANTHROPIC_API_KEY)
 │     ├─ elevenlabs.ts      ← synthèse (repris de api/tts.ts)
@@ -181,8 +181,8 @@ Les routes citées sont détaillées dans [API.md](API.md).
 | Étape (`ANALYSIS_STEPS` d'Ahmed) | Travail réel | Fournisseur |
 | --- | --- | --- |
 | 0 `audio` | vérifie les fichiers ; si la même empreinte audio a déjà été analysée pour ce compte, reprend le résultat | — |
-| 1 `speakers` | transcription horodatée par segments, confiance = exp(avg_logprob) | Groq Whisper large-v3 |
-| 2 `names` | intervenants, personnages proposés, transcription corrigée | Gemini (audio + images + segments) |
+| 1 `speakers` | découpage des prises de parole (bornes horodatées) ; les mots de Whisper ne servent que d'indice | Groq Whisper large-v3 |
+| 2 `names` | transcription derja écrite en écoutant l'audio, intervenants, personnages proposés | Gemini (audio + images + bornes) |
 | 3 `assoc` | chaque segment reçoit son intervenant ; traduction LLM 1 et note de contexte ; `fits` calculé (14 caractères/s) | Gemini (même appel) |
 | 4 `checks` | relecture LLM 2 + vérificateur de fidélité ; aucune identification automatique d'une personne (« la détection ne prouve pas l'identité ») | Claude ou Groq |
 

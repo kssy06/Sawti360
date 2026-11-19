@@ -40,7 +40,7 @@ export interface Health {
   backend: true;
   publicKey: string;                    // clé publique Ed25519 (hex) des passeports et licences
   providers: {
-    asr: string | null;                 // ex. "whisper-large-v3 (Groq)"
+    asr: string | null;                 // ex. "gemini-3.8-flash, bornes whisper-large-v3 (Groq)"
     llm1: string | null;                // ex. "gemini-3.8-flash"
     llm2: string | null;                // ex. "claude-opus-5-5" ou "openai/gpt-oss-120b (Groq)"
     dossier: string | null;

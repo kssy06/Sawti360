@@ -39,9 +39,9 @@ Navigateur (React 19 + Vite, interface d'Ahmed)
 Vercel : UNE fonction Node (Hono), web/api/index.ts, 300 s max
  ├─ Supabase Postgres .. projets, autorisations, licences, jetons, journal, passeports
  ├─ Supabase Storage ... audio, images, dossiers familiaux, échantillons de voix, répliques
- ├─ Groq ............... Whisper large-v3 : transcription derja horodatée (gratuit)
- ├─ Gemini ............. voit les images, entend l'audio : intervenants, personnages,
- │                       traduction LLM 1, lecture du dossier familial (gratuit)
+ ├─ Groq ............... Whisper : découpe les prises de parole ; contrôle du texte lu (gratuit)
+ ├─ Gemini ............. voit les images, entend l'audio : écrit la derja, intervenants,
+ │                       personnages, traduction LLM 1, dossier familial (gratuit)
  ├─ Claude ou Groq ..... relecture LLM 2 (Claude si une clé API existe, sinon Groq)
  ├─ ElevenLabs ......... voix françaises (déjà branché dans api/tts.ts)
  └─ Gmail SMTP ......... e-mails des liens sécurisés (consentement, licence)
@@ -59,7 +59,7 @@ aucune vidéo ne transite par Vercel, dont les requêtes sont limitées à 4,5 M
 | --- | --- | --- | --- |
 | Comptes, connexion, mot de passe oublié (01) | localStorage | Supabase Auth | P0 |
 | Données partagées entre appareils (02) | localStorage | Postgres : un lien de consentement s'ouvre sur un téléphone | P0 |
-| Analyse : transcription, intervenants, personnages (04, 05) | exemples préparés | Groq Whisper + Gemini sur la vraie vidéo | P0 |
+| Analyse : transcription, intervenants, personnages (04, 05) | exemples préparés | Gemini écrit la derja en écoutant la vraie vidéo ; Whisper donne les bornes | P0 |
 | Consentement d'une personne vivante (06) | simulé, même navigateur | e-mail réel + page publique + Passeport de voix créé par la personne | P0 |
 | Dossier familial d'une personne décédée (06) | recouvrement de mots-clés | Gemini lit le document et compare le rôle avec la vidéo, 3 résultats | P0 |
 | Bibliothèque, demande de licence 72 h (07, 08) | simulé | e-mail au titulaire, réponse sans connexion, expiration réelle | P0 |
@@ -97,7 +97,7 @@ serveur (`web/server/ai/*`, `web/src/media/*`) en parallèle dès jeudi soir, te
 | Créneau | A. Socle | B. IA | C. Voix et export | D. Autorisations, QA |
 | --- | --- | --- | --- | --- |
 | Jeu. 21 h – 22 h | **SETUP.md** : Supabase, clés, variables Vercel (Amine + Koussay) | clés Groq et Gemini, premiers appels à la main | essai mediabunny sur une vraie vidéo | prépare la vidéo de démo, le PDF familial, le texte des e-mails |
-| Jeu. 22 h – 2 h | A1 squelette, A2 connexion, A3 données | B1 extraction, B2 Whisper, B3 Gemini (testés hors interface) | C3 export MP4 (isolé) | D1 e-mails (module seul) |
+| Jeu. 22 h – 2 h | A1 squelette, A2 connexion, A3 données | B0 test express sur nos extraits, B1 extraction, B2 découpage, B3 Gemini (testés hors interface) | C3 export MP4 (isolé) | D1 e-mails (module seul) ; enregistrer les extraits de B0 |
 | Ven. 9 h – 13 h | A4 journal, A5 fichiers, A6 tâches, A7 licences et paiements | B5 analyse de bout en bout, B4 LLM 2 | C1 génération, C5 aperçus | D2 consentement, D3 dossier familial |
 | Ven. 13 h – 17 h | A8 passeports, A9 notifications, A10 espace titulaire | B7 échantillon de voix, B8 Sawti-Bench | C2 débit, C4 label IA et QR | D4 centre de confiance |
 | Ven. 17 h – 19 h | données de démo en production, correctifs | correctifs | correctifs | **recette complète** (§ 8) |
@@ -132,6 +132,14 @@ arabizi). Mais l'API de Claude ne prend ni audio ni vidéo : elle intervient don
 relecture (LLM 2) et pour lire le dossier familial (PDF ou photo), là où elle apporte le
 plus. Gemini, qui entend l'audio et voit les images, fait la traduction LLM 1.
 
+**« Ces IA sont-elles les meilleures pour la derja ? »** Ce sont les meilleures **gratuites et
+prêtes pour vendredi**, pas des meilleures prouvées : aucune étude ne les compare sur la derja.
+Whisper, tel quel, écrit mal la derja (85 % de mots faux sur le test tunisien de NADI 2026) :
+il ne sert qu'à découper le temps, et c'est Gemini qui écrit les mots. Le meilleur absolu
+serait un Whisper affiné sur le tunisien (14 à 22 % d'erreurs), qui demande notre propre
+serveur : après le hackathon. Détail et sources : [IA.md § 1 bis](IA.md#1-bis-est-ce-le-meilleur-pour-la-derja-) ;
+la preuve sur nos extraits : test express B0.
+
 ## 7. Règles de travail
 
 1. **Ne jamais casser la démo.** `VITE_BACKEND=1` active le back-end ; à `0`, l'interface
@@ -147,7 +155,7 @@ plus. Gemini, qui entend l'audio et voit les images, fait la traduction LLM 1.
 5. **Ne pas reformater les fichiers d'Ahmed.** Les actions branchées vont dans
    `src/state/remote/*.ts` ; `store.ts` ne reçoit qu'une ligne d'aiguillage par action.
 6. **Dire ce qui est réel.** Une étiquette `Simulé` ne passe à `Réel` que si le chemin réel
-   s'est exécuté, avec le nom du modèle (ex. « Whisper large-v3 via Groq »).
+   s'est exécuté, avec le nom du modèle (ex. « Transcription : gemini-3.8-flash »).
 7. **Imports relatifs côté serveur avec l'extension `.js`** (`../src/core/rules.js`) :
    Node ESM sur Vercel l'exige. C'est ce qui a fait planter `api/tts.ts` le 19 novembre.
 

@@ -11,7 +11,8 @@ les confirmer dans chaque console en créant les clés.
 
 | Tâche | Principal | Repli 1 | Repli 2 | Coût |
 | --- | --- | --- | --- | --- |
-| Transcription derja horodatée | **Groq** `whisper-large-v3` | Gemini (transcription horodatée, § 4.6) | — | gratuit |
+| Transcription derja (les mots) | **Gemini**, depuis l'audio, dans l'appel d'analyse | `gemini-3.5-transcribe` s'il prend l'arabe (à départager en B0) | — | gratuit |
+| Découpage temporel (bornes des prises de parole) | **Groq** `whisper-large-v3` : on garde ses horodatages, pas ses mots | Gemini seul (horodatage par Gemini, § 4.6) | — | gratuit |
 | Intervenants, personnages, transcription corrigée, **traduction LLM 1** avec contexte visuel | **Gemini** Flash (audio + images + segments, un seul appel) | Groq LLM, texte seul (contexte « sans image ») | exemple simulé, étiqueté | gratuit |
 | **Relecture LLM 2** | **Claude** si `ANTHROPIC_API_KEY` | Groq LLM (gros modèle ouvert) | règles seules (`checkFidelity`) | Claude payant, Groq gratuit |
 | Dossier familial : lire le document, comparer le rôle | **Gemini** (PDF et images en entrée) | Claude (PDF natif) si clé | « Vérification nécessaire » | gratuit |
@@ -20,10 +21,12 @@ les confirmer dans chaque console en créant les clés.
 | Clonage d'une voix consentie (P2) | ElevenLabs IVC (plan Starter, ~5–6 $) | — | — | payant |
 
 Pourquoi ce partage :
-- **Groq Whisper** est gratuit, rapide, accepte une URL (pas d'envoi de fichier par Vercel) et
-  donne des horodatages fiables. Sur un corpus tunisien publié en 2026, Whisper large obtient
-  le meilleur WER de l'étude (24,7 % pour large-v2) ; d'autres jeux de test montrent des
-  WER bien plus hauts : seul Sawti-Bench (§ 8) dira ce qu'il vaut sur nos extraits.
+- **Whisper, tel quel, écrit mal la derja** : 85 % de mots faux pour `whisper-large-v3` sur le
+  test tunisien de NADI 2026 (21,6 % après adaptation), de 50 % à plus de 100 % dans l'étude
+  LinTO, et il perd les mots français. On ne garde donc de Groq Whisper que ses **bornes
+  temporelles** (gratuit, rapide, accepte une URL). C'est **Gemini**, meilleur système d'une
+  comparaison de 2026 sur l'arabe dialectal (27,6 % de WER, pas spécifique au tunisien), qui
+  écrit les mots en écoutant l'audio. Le choix final se fait sur nos extraits (B0, § 8.0).
 - **Gemini** est le seul gratuit qui **entend l'audio et voit les images** dans le même appel :
   c'est ce qui permet de savoir qui parle à qui, de choisir tutoiement ou vouvoiement et de
   repérer un prénom écrit à l'écran (« l'IA voit la vidéo »).
@@ -42,8 +45,23 @@ Variables (valeurs par défaut) :
 | `GROQ_LLM_MODEL` | `openai/gpt-oss-120b` | à confirmer dans la liste des modèles de la console Groq |
 | `GEMINI_MODEL` | `gemini-3.8-flash` | identifiant cité par le SDK `@google/genai` 3.6.1 ; confirmer dans AI Studio |
 | `GEMINI_MODEL_DEV` | un modèle Flash-Lite (ex. `gemini-3.5-flash-lite`, cité par le SDK) | quotas gratuits plus larges : à utiliser pendant le développement |
+| `GEMINI_ASR_MODEL` | vide (= `GEMINI_MODEL`, transcription dans l'appel d'analyse) | `gemini-3.5-transcribe` si B0 le désigne : diarisation et horodatages par mot ; son mode d'appel est à lire sur sa page de documentation |
 | `CLAUDE_MODEL` | `claude-opus-5-5` | 4 $ / 20 $ par million de jetons (entrée / sortie) ; `claude-haiku-5-5` coûte 0,10 $ / 0,50 $ : choix de l'équipe |
 | `TTS_MODEL` | `eleven_multilingual_v2` | modèle déjà utilisé par `api/tts.ts` |
+
+## 1 bis. Est-ce le meilleur pour la derja ?
+
+Réponse honnête : ce sont les meilleurs choix **gratuits et prêts pour vendredi**, pas des
+meilleurs absolus prouvés. Aucune étude publiée ne compare Gemini, Whisper, ElevenLabs et
+Claude sur la derja ; la seule preuve sera le test B0 sur nos propres extraits.
+
+| Tâche | Notre choix | Ce que disent les études | Mieux, avec du temps ou un budget |
+| --- | --- | --- | --- |
+| Transcription derja | Gemini écrit les mots, Whisper donne les bornes | Gemini 3.5 Flash en tête d'une comparaison de 2026 sur l'arabe dialectal (27,6 % de WER, pas spécifique au tunisien). Whisper large-v3 tel quel : 85 % de WER sur le tunisien. | Un Whisper **affiné sur le tunisien** : 14 à 22 % de WER à NADI 2026 après adaptation. Modèles ouverts : FarukSTT (large-v3 tunisien), `TuniSpeech-AI/whisper-tunisian-dialect` (large-v2, 21 h de tunisien), `whisper-small-tunisian-derja` (mots français compris, 30 % de WER, tourne sur CPU). Demande notre propre serveur (B9). |
+| Traduction derja → français | Gemini (LLM 1), Claude ou Groq (LLM 2) | Seule étude trouvée (2025, tunisien → anglais) : Gemini et GPT en tête ; Claude non évalué. TounsiBench : la plupart des LLM peinent sur le tunisien. | Gemini Pro (payant) plutôt que Flash ; comparer Gemini et Claude sur 20 répliques notées à l'aveugle par deux locuteurs natifs (B0). |
+| Qui parle (intervenants) | Gemini | Pas de mesure sur la derja ; séparer les voix dépend peu de la langue. | `gemini-3.5-transcribe` (diarisation, horodatages par mot) ou ElevenLabs Scribe v3 (diarisation, langue secondaire français), à départager en B0. |
+| Voix françaises | ElevenLabs | Le français n'est pas la difficulté ; ElevenLabs est une référence. | — |
+| Voix en derja (sens inverse, hors prototype) | — | Peu de modèles | `f5-tts-tn` (F5-TTS affiné sur le tunisien, licence à vérifier), voix Azure ar-TN. |
 
 ## 2. Quotas gratuits : tactique
 
@@ -66,17 +84,20 @@ Ordre de grandeur pour la relecture d'un extrait de 30 répliques par Claude Opu
 Entrées envoyées par le navigateur (ARCHITECTURE.md § 4.2) : audio Ogg/Opus mono 16 kHz,
 60 images JPEG au plus avec leur instant, durée, format, titre.
 
-1. **Groq** transcrit (`verbose_json`, segments). Pour chaque segment Whisper :
-   `id = "s" + (index + 1)`, `start`, `end` arrondis à 0,01 s,
-   `confidence = exp(avg_logprob)` borné à [0, 1] (même règle que `sawti/asr.py`) ;
-   on écarte les segments avec `no_speech_prob > 0,6` et on fusionne ceux de moins de 0,6 s
-   avec leur voisin.
-2. **Gemini** reçoit l'audio, les images (chacune précédée de « Image à 12,0 s : ») et la liste
-   des segments ; il renvoie `AnalysisOut` (§ 4.2).
+1. **Groq Whisper découpe** (`verbose_json`, segments) et on garde ses bornes : pour chaque
+   segment, `id = "s" + (index + 1)`, `start`, `end` arrondis à 0,01 s ; on écarte ceux dont
+   `no_speech_prob > 0,6` et on fusionne ceux de moins de 0,6 s avec leur voisin. Le texte de
+   Whisper n'est transmis qu'à titre d'indice : il est souvent faux en derja.
+2. **Gemini écrit** : il reçoit l'audio, les images (chacune précédée de « Image à 12,0 s : »)
+   et les bornes ; il transcrit lui-même chaque intervalle, attribue l'intervenant, traduit et
+   renvoie `AnalysisOut` (§ 4.2). Un intervalle sans parole (Whisper en invente parfois)
+   revient avec `source = "[silence]"` et est retiré.
 3. **Contrôles du code** sur la sortie :
    - on garde exactement les identifiants et les horodatages de Whisper : un segment absent de
      la réponse garde le texte de Whisper avec une traduction vide et la note « non traduit » ;
    - un intervenant inconnu est rattaché à `p1` avec une note ;
+   - `confidence = certainty` de Gemini, bornée à [0, 1] : un indicateur estimé par le modèle,
+     non calibré, présenté comme tel dans l'interface ;
    - `fits = traduction.length / 14 ≤ (end − start) + 0,2` (`FR_CHARS_PER_SECOND`) ;
    - personnages : `{ key, proposedName, proposedDescription, name: proposedName,
      description: proposedDescription, confirmed: false, useOriginal: false, lifeStatus: "a_renseigner" }`.
@@ -121,10 +142,12 @@ courte : rôle apparent, ton, à qui la voix s'adresse. N'identifie jamais une p
 réelle d'après son visage ou sa voix.
 
 B. Segments. Garde EXACTEMENT les identifiants et les horodatages fournis ; ne crée,
-ne fusionne et ne supprime aucun segment. Pour chacun : speaker (clé), source (la
-transcription corrigée en graphie arabe ; les mots français restent en lettres latines),
-translation (français), context (une phrase : qui parle à qui, ce qu'on voit, pourquoi
-ce choix de traduction).
+ne fusionne et ne supprime aucun segment. Le texte de Whisper est souvent faux en derja :
+ne le corrige pas, écoute et transcris toi-même ce qui est dit dans chaque intervalle.
+Pour chacun : speaker (clé), source (ta transcription en graphie arabe ; les mots
+français restent en lettres latines), certainty (de 0 à 1, ta certitude sur cette
+transcription), translation (français), context (une phrase : qui parle à qui, ce qu'on
+voit, pourquoi ce choix de traduction). Intervalle sans parole : source « [silence] ».
 
 C. Traduction. Français oral et naturel, jamais mot à mot. Garde le sens, le registre
 (tutoiement entre proches, vouvoiement de politesse), l'équivalent français des
@@ -149,7 +172,8 @@ export const AnalysisOut = z.object({
   segments: z.array(z.object({
     id: z.string(),
     speaker: z.string(),
-    source: z.string(),
+    source: z.string(),                    // « [silence] » si l'intervalle ne contient pas de parole
+    certainty: z.number(),                 // 0 à 1, estimée par le modèle
     translation: z.string(),
     context: z.string(),
   })),
@@ -348,7 +372,22 @@ Injecté dans les prompts § 4.2 et § 4.3. **À relire par un locuteur natif de
   français) et une liste de termes (`keyterms`) ; à comparer à Whisper dans Sawti-Bench si
   l'équipe prend le plan Starter.
 
-## 8. Sawti-Bench minimal (P1)
+## 8. Mesurer sur nos extraits
+
+### 8.0 Test express B0 (P0, 1 h, avant de figer B3)
+
+Cinq à dix extraits de 10 à 30 s, tournés par l'équipe jeudi soir (deux voix, mots français
+compris), avec une transcription de référence écrite à la main en graphie arabe.
+
+- **Transcription** : Gemini Flash (prompt § 4.6), `gemini-3.5-transcribe` si l'arabe figure
+  dans sa liste de langues, Groq Whisper ; en option, `whisper-small-tunisian-derja-ct2` en local
+  avec faster-whisper (CPU). WER et CER par `sawti/bench.py`, et coup d'œil aux bornes temporelles.
+- **Traduction** : 20 répliques traduites par Gemini et par Claude, présentées sans le nom du
+  modèle à deux membres natifs, notées de 1 à 5 sur le sens, le naturel et le registre.
+- On retient la meilleure configuration (variables d'IA.md § 1) et on range les chiffres, avec
+  la date et l'effectif, dans `results/sawti-bench.json`.
+
+### 8.1 Sawti-Bench minimal (P1)
 
 Objectif : remplacer « à mesurer » par une mesure honnête, même défavorable.
 
@@ -365,7 +404,7 @@ Objectif : remplacer « à mesurer » par une mesure honnête, même défavorabl
 ## 9. Code de référence
 
 ```ts
-// Groq : transcription derja (server/ai/groq.ts)
+// Groq : découpage temporel (server/ai/groq.ts) ; on garde start/end, le texte n'est qu'un indice
 import Groq from "groq-sdk";
 const groq = new Groq({ apiKey: env.GROQ_API_KEY });
 const tr = await groq.audio.transcriptions.create({
@@ -449,7 +488,10 @@ const reviews = ReviewOut.parse(JSON.parse(chat.choices[0].message.content ?? "{
 
 ## 10. Sources (consultées le 19 novembre 2026)
 
-- Corpus et banc d'essai tunisiens (WER de Whisper large-v2 à 24,7 %) : [ICAART 2026](https://www.scitepress.org/Papers/2026/144577/144577.pdf) ; tâche partagée [NADI 2026](https://arxiv.org/html/2609.27086)
+- Corpus et banc d'essai tunisiens : [ICAART 2026](https://www.scitepress.org/Papers/2026/144577/144577.pdf) (24,7 % pour large-v2 sur leur corpus) ; tâche partagée [NADI 2026](https://arxiv.org/html/2609.27086) (meilleurs systèmes adaptés : 14 à 17 % de WER)
+- Whisper tel quel sur le tunisien : [Itgan, NADI 2026](https://arxiv.org/pdf/2610.09934) (large-v3 : 85 % sans adaptation, 21,6 % avec), [LinTO](https://arxiv.org/pdf/2504.02604) (50 % à plus de 100 %), [Casablanca](https://arxiv.org/pdf/2410.04527) (mots français perdus), [Deepgram](https://deepgram.com/learn/whisper-v3-results) (v3 hallucine plus que v2, hors arabe)
+- Gemini sur l'arabe dialectal : [ArabicNLP 2026](https://aclanthology.org/2026.arabicnlp-main.8.pdf) (Gemini 3.5 Flash : 27,6 % de WER) ; [Gemini 3.5 Transcribe](https://ai.google.dev/gemini-api/docs/models/gemini-3.5-transcribe) (diarisation, horodatages par mot) ; [jeu de données Bulbul](https://arxiv.org/pdf/2608.21950) (11 pays dont la Tunisie)
+- Modèle tunisien large-v3 FarukSTT, cité dans [MeetScribe](https://github.com/AmineChr54/MeetScribe/pull/75) ; voix tunisienne [f5-tts-tn](https://huggingface.co/montachouig/f5-tts-tn)
 - Modèles Whisper affinés sur la derja : [TheBiggyBang/whisper-small-tunisian-derja](https://huggingface.co/TheBiggyBang/whisper-small-tunisian-derja), [version CTranslate2](https://huggingface.co/TheBiggyBang/whisper-small-tunisian-derja-ct2), [dépôt](https://github.com/TheBiggyBang1/whisper-tn-ct2), [TuniSpeech-AI/whisper-tunisian-dialect](https://huggingface.co/TuniSpeech-AI/whisper-tunisian-dialect)
 - Les LLM et le tunisien : [TounsiBench (EMNLP 2025)](https://aclanthology.org/2025.emnlp-main.1756/), [How Well Do LLMs Understand Tunisian Arabic?](https://arxiv.org/pdf/2511.16683)
 - Quotas gratuits de Gemini (relevés tiers, oct. 2026) : [imisofts](https://imisofts.com/blog/gemini-api-free-tier-limits/), [usagebox](https://usagebox.com/articles/gemini-3-8-flash-pricing-free-tier-2026) ; usage des données : [Google, journalisation](https://ai.google.dev/gemini-api/docs/logs-policy)

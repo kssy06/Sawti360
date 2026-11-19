@@ -17,7 +17,7 @@ flowchart LR
   A1 --> A2[A2 connexion] --> A3[A3 données]
   A1 --> A4[A4 journal] & A6[A6 tâches] & D1[D1 e-mails]
   A2 --> A5[A5 fichiers]
-  B1[B1 extraction] & B2[B2 Whisper] --> B3[B3 Gemini] --> B4[B4 LLM 2]
+  B0[B0 test express] & B1[B1 extraction] & B2[B2 découpage] --> B3[B3 Gemini] --> B4[B4 LLM 2]
   A3 & A5 & A6 & B4 --> B5[B5 analyse de bout en bout]
   A3 & A6 --> A7[A7 licences et paiements] --> C1[C1 génération]
   A3 & A5 & D1 --> D2[D2 consentement]
@@ -126,19 +126,26 @@ Fichiers : `server/routes/owner.ts`, `src/state/remote/owner.ts`, `pages/Owner.t
 
 ## Piste B : IA (Youssef pour la parole, Koussay pour la langue, compte Claude 2)
 
+### B0. Test express sur nos extraits (P0, 1 h, Youssef + Koussay) · dépend de A0 (clés)
+Protocole d'IA.md § 8.0. Cinq à dix extraits enregistrés par l'équipe jeudi soir, avec leur
+transcription écrite à la main. À faire avant de figer B3.
+- [ ] WER et CER de chaque transcripteur sur nos extraits ; notes à l'aveugle Gemini / Claude pour la traduction
+- [ ] configuration retenue écrite dans IA.md § 1 (`GEMINI_ASR_MODEL`, `GEMINI_MODEL`, `CLAUDE_MODEL`)
+
 ### B1. Extraction dans le navigateur (P0, 1 h 30) · sans dépendance
 Fichier : `src/media/extract.ts` (ARCHITECTURE.md § 4.2).
 - [ ] sur un MP4 H.264/AAC et un WebM de 2 min : audio Ogg/Opus de moins de 1 Mo, lisible ; 60 images au plus
 - [ ] moins de 20 s sur un portable ; Chrome et Firefox ; repli WAV si Opus n'est pas encodable
 
-### B2. Transcription Groq (P0, 1 h) · sans dépendance
+### B2. Découpage par Groq Whisper (P0, 1 h) · sans dépendance
 Fichiers : `server/ai/groq.ts`, `server/ai/prompts.ts` (`ASR_PROMPT`), `scripts/try-asr.ts`.
-- [ ] segments `s1, s2…` avec `start`, `end`, `source`, `confidence` ; silences écartés ; segments trop courts fusionnés
+- [ ] segments `s1, s2…` avec `start` et `end` ; texte de Whisper gardé comme simple indice ; silences écartés ; segments trop courts fusionnés
 - [ ] une erreur du fournisseur remonte typée, pour la chaîne de repli
 
 ### B3. Analyse Gemini (P0, 2 h) · dépend de B2
 Fichiers : `server/ai/gemini.ts`, `server/ai/schemas.ts`, `server/ai/prompts.ts` (prompt § 4.2 et glossaire), `scripts/try-analysis.ts`.
 - [ ] sur l'extrait de démo : deux intervenants, prénom proposé seulement s'il est entendu ou écrit
+- [ ] la derja est écrite par Gemini en écoutant l'audio (pas une retouche du texte de Whisper) ; intervalles sans parole retirés
 - [ ] identifiants et horodatages inchangés ; nombres et négations conservés ; `fits` calculé
 - [ ] replis : Gemini seul (IA.md § 4.6) ; Groq texte seul
 
@@ -163,9 +170,12 @@ Fichiers : `server/ai/voicecheck.ts`, `server/ai/wer.ts` (+ tests).
 Protocole d'IA.md § 8 ; affichage avec D4.
 - [ ] WER et CER réels par fournisseur, avec date et effectif ; chiffres défavorables publiés aussi
 
-### B9. Transcription auto-hébergée (P2)
-`whisper-small-tunisian-derja-ct2` avec faster-whisper (`sawti/asr.py`) sur un Space Hugging Face,
-comparé dans Sawti-Bench.
+### B9. Transcription auto-hébergée (P2) : la meilleure qualité pour la derja
+Un Whisper affiné sur le tunisien atteint 14 à 22 % d'erreurs à NADI 2026, contre 85 % sans
+adaptation (IA.md § 1 bis). Candidats ouverts : FarukSTT (large-v3 tunisien, GPU conseillé),
+`TuniSpeech-AI/whisper-tunisian-dialect` (large-v2), `whisper-small-tunisian-derja-ct2`
+(faster-whisper sur CPU, via `sawti/asr.py`). Hébergement sur un Space Hugging Face, comparé
+dans Sawti-Bench ; licence de chaque modèle vérifiée avant usage.
 
 ## Piste C : voix, génération, export (Ghayth, compte Claude 3)
 
