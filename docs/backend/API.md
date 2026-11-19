@@ -77,7 +77,8 @@ export interface UploadTicket {
 }
 
 export interface Bootstrap {
-  account: { id: string; name: string; email: string; org: string; initials: string; plan: PlanId; isDemo: boolean };
+  account: { id: string; name: string; email: string; org: string; initials: string; plan: PlanId; isDemo: boolean;
+             demoKey: string | null };  // "nour", "lina" si l'adresse figure dans DEMO_EMAILS
   balance: number;                      // jetons ; le store pose spent = PLANS[plan].monthly − balance
   projects: Record<string, Project>;    // projets du compte, composés (living et dossier inclus)
   order: string[];                      // du plus récent au plus ancien
@@ -106,7 +107,8 @@ pour savoir ce qui est configuré.
 Uniquement pour les adresses de démonstration de `DEMO_EMAILS`. Le navigateur termine avec
 `supabase.auth.verifyOtp({ token_hash, type: "magiclink" })`. Remplace `login(accountId)`.
 
-**`GET /api/me`** → `Bootstrap["account"] & { balance }`.
+**`GET /api/me`** → `Bootstrap["account"] & { balance }`. Une ligne `accounts` manquante (utilisateur
+créé avant le schéma) est recréée avec ses 100 000 jetons.
 
 **`PATCH /api/me`** `{ name?, org? }` → idem.
 

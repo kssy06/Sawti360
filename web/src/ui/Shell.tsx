@@ -19,10 +19,12 @@ import {
 } from "lucide-react";
 import { createContext, Suspense, useContext, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { Link, Navigate, NavLink, Outlet, useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { messageOf } from "../api/client";
+import { BACKEND } from "../lib/backend";
 import { accountOf, statusOf, useStore, type Persona } from "../state/store";
 import { requestStatus } from "../state/workflow";
 import { Brand } from "./brand";
-import { PageLoader } from "./Loader";
+import { FullLoader, PageLoader } from "./Loader";
 import { Popover, relTime, toast, Toasts } from "./kit";
 
 /* ------------------------------------------------------------------ breadcrumbs */
@@ -219,11 +221,15 @@ function AccountMenu() {
               key={a.id}
               type="button"
               aria-pressed={a.id === account.id}
-              onClick={() => {
-                login(a.id);
+              onClick={async () => {
                 setOpen(false);
-                navigate("/tableau-de-bord");
-                toast(`Connecté en tant que ${a.name}`);
+                try {
+                  await login(a.id);
+                  navigate("/tableau-de-bord");
+                  toast(`Connecté en tant que ${a.name}`);
+                } catch (err) {
+                  toast(messageOf(err), "bad");
+                }
               }}
             >
               <span className="avatar avatar-sm">{a.initials}</span>
@@ -234,21 +240,23 @@ function AccountMenu() {
             </button>
           ))}
           <div className="menu-sep" />
+          {!BACKEND && (
+            <button
+              type="button"
+              onClick={() => {
+                reset();
+                setOpen(false);
+                toast("Démonstration réinitialisée");
+              }}
+            >
+              <RotateCcw aria-hidden />
+              Réinitialiser les données de démonstration
+            </button>
+          )}
           <button
             type="button"
-            onClick={() => {
-              reset();
-              setOpen(false);
-              toast("Démonstration réinitialisée");
-            }}
-          >
-            <RotateCcw aria-hidden />
-            Réinitialiser les données de démonstration
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              logout();
+            onClick={async () => {
+              await logout();
               navigate("/connexion");
             }}
           >
@@ -329,6 +337,7 @@ function Notifications() {
 
 export function Shell() {
   const session = useStore((s) => s.session);
+  const booting = useStore((s) => s.server.status === "booting");
   const persona = useStore((s) => s.persona);
   const { pathname, search } = useLocation();
   const [navOpen, setNavOpen] = useState(false);
@@ -345,6 +354,7 @@ export function Shell() {
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, [navOpen]);
+  if (booting) return <FullLoader label="Connexion" />;
   if (!session) return <Navigate to="/connexion" replace state={{ from: pathname + search }} />;
   const wide = pathname.includes("/timeline");
   const routeKey = pathname.startsWith("/projet/") ? pathname.split("/").slice(0, 3).join("/") : pathname;
@@ -362,7 +372,11 @@ export function Shell() {
           )}
           {persona === "creator" ? <CreatorNav /> : <OwnerNav />}
           <div className="side-foot">
-            <p className="side-note">Prototype : comptes fictifs, paiements et e-mails simulés. Les étiquettes Réel, Simulé et Exemple indiquent la nature de chaque donnée.</p>
+            <p className="side-note">
+              {BACKEND
+                ? "Prototype : comptes réels, paiements gratuits sans argent réel. Les étiquettes Réel, Simulé et Exemple indiquent la nature de chaque donnée."
+                : "Prototype : comptes fictifs, paiements et e-mails simulés. Les étiquettes Réel, Simulé et Exemple indiquent la nature de chaque donnée."}
+            </p>
             <AccountMenu />
           </div>
         </aside>

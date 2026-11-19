@@ -1,6 +1,10 @@
 import { ArrowLeft, ArrowRight, Eye, EyeOff, Loader2, MailCheck } from "lucide-react";
 import { useEffect, useId, useState, type FormEvent, type ReactNode } from "react";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
+import { messageOf } from "../api/client";
+import { BACKEND, RECOVERY_LINK } from "../lib/backend";
+import { supabase } from "../lib/supabase";
+import * as remoteSession from "../state/remote/session";
 import { useStore } from "../state/store";
 import { Brand } from "../ui/brand";
 import { Callout, Prov } from "../ui/kit";
@@ -24,9 +28,15 @@ function AuthLayout({ children }: { children: ReactNode }) {
           <Motto compact />
         </div>
         <div className="auth-form">{children}</div>
-        <p className="hint">
-          Prototype <Prov kind="sim">authentification locale</Prov> · aucun compte n’est créé sur un serveur.
-        </p>
+        {BACKEND ? (
+          <p className="hint">
+            <Prov kind="real">Supabase Auth</Prov> · comptes et sessions gérés par le serveur d’authentification.
+          </p>
+        ) : (
+          <p className="hint">
+            Prototype <Prov kind="sim">authentification locale</Prov> · aucun compte n’est créé sur un serveur.
+          </p>
+        )}
       </div>
       <aside className="auth-aside" aria-label="Principes de Sawti 360">
         <Motto />
@@ -67,6 +77,20 @@ export function Login() {
   const submit = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
+    if (BACKEND) {
+      if (!/^\S+@\S+\.\S+$/.test(email.trim())) return setError("Adresse e-mail invalide.");
+      if (!password) return setError("Saisissez votre mot de passe.");
+      setBusy(true);
+      try {
+        await remoteSession.signIn(useStore.setState, email, password);
+        navigate(state?.from ?? "/tableau-de-bord", { replace: true });
+      } catch (err) {
+        setError(messageOf(err));
+      } finally {
+        setBusy(false);
+      }
+      return;
+    }
     const acc = accounts.find((a) => a.email.toLowerCase() === email.trim().toLowerCase());
     if (!acc) return setError("Aucun compte de démonstration avec cette adresse. Créez un compte ou utilisez un compte ci-dessous.");
     if (!password) return setError("Saisissez votre mot de passe.");
@@ -111,9 +135,18 @@ export function Login() {
             key={a.id}
             type="button"
             className="demo-account"
-            onClick={() => {
-              login(a.id);
-              navigate(state?.from ?? "/tableau-de-bord", { replace: true });
+            disabled={busy}
+            onClick={async () => {
+              setError("");
+              setBusy(true);
+              try {
+                await login(a.id);
+                navigate(state?.from ?? "/tableau-de-bord", { replace: true });
+              } catch (err) {
+                setError(messageOf(err));
+              } finally {
+                setBusy(false);
+              }
             }}
           >
             <span className="avatar">{a.initials}</span>
@@ -145,17 +178,33 @@ export function Signup() {
   const [password, setPassword] = useState("");
   const [terms, setTerms] = useState(false);
   const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [confirm, setConfirm] = useState(false);
   const ids = { name: useId(), email: useId() };
   if (session) return <Navigate to="/tableau-de-bord" replace />;
   const weak = password.length > 0 && password.length < 8;
 
-  const submit = (e: FormEvent) => {
+  const submit = async (e: FormEvent) => {
     e.preventDefault();
+    setError("");
     if (!name.trim()) return setError("Indiquez votre nom ou celui de votre structure.");
     if (!/^\S+@\S+\.\S+$/.test(email.trim())) return setError("Adresse e-mail invalide.");
-    if (accounts.some((a) => a.email.toLowerCase() === email.trim().toLowerCase())) return setError("Un compte existe déjà avec cette adresse.");
+    if (!BACKEND && accounts.some((a) => a.email.toLowerCase() === email.trim().toLowerCase())) return setError("Un compte existe déjà avec cette adresse.");
     if (password.length < 8) return setError("Le mot de passe doit contenir au moins 8 caractères.");
     if (!terms) return setError("Acceptez les conditions pour continuer.");
+    if (BACKEND) {
+      setBusy(true);
+      try {
+        const result = await signup(name.trim(), email.trim(), password);
+        if (result === "confirm") setConfirm(true);
+        else navigate("/tableau-de-bord", { replace: true });
+      } catch (err) {
+        setError(messageOf(err));
+      } finally {
+        setBusy(false);
+      }
+      return;
+    }
     signup(name.trim(), email.trim());
     navigate("/tableau-de-bord", { replace: true });
   };
@@ -186,7 +235,15 @@ export function Signup() {
             {error}
           </Callout>
         )}
-        <button className="btn btn-primary btn-lg btn-block">Créer le compte</button>
+        {confirm && (
+          <Callout tone="info" icon={MailCheck} title="Compte créé">
+            Ouvrez le lien envoyé à <b>{email.trim()}</b> pour activer le compte, puis connectez-vous.
+          </Callout>
+        )}
+        <button className="btn btn-primary btn-lg btn-block" disabled={busy}>
+          {busy ? <Loader2 className="spin" /> : null}
+          Créer le compte
+        </button>
       </form>
       <p className="muted" style={{ fontSize: 13 }}>
         Déjà inscrit ?{" "}
@@ -198,10 +255,71 @@ export function Signup() {
   );
 }
 
+/** Back-end mode: arriving from the e-mailed recovery link, the person chooses a new password. */
+function NewPassword() {
+  const navigate = useNavigate();
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  const submit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (password.length < 8) return setError("Le mot de passe doit contenir au moins 8 caractères.");
+    setBusy(true);
+    setError("");
+    try {
+      await remoteSession.updatePassword(useStore.setState, password);
+      navigate("/tableau-de-bord", { replace: true });
+    } catch (err) {
+      setError(messageOf(err));
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <>
+      <div className="stack-sm">
+        <h1>Nouveau mot de passe</h1>
+        <p className="muted">Choisissez le nouveau mot de passe de votre compte.</p>
+      </div>
+      <form className="stack" onSubmit={submit} noValidate>
+        <Password value={password} onChange={setPassword} autoComplete="new-password" invalid={password.length > 0 && password.length < 8} />
+        <p className="hint">8 caractères au minimum.</p>
+        {error && (
+          <Callout tone="bad" role="alert">
+            {error}
+          </Callout>
+        )}
+        <button className="btn btn-primary btn-lg btn-block" disabled={busy}>
+          {busy ? <Loader2 className="spin" /> : null}
+          Enregistrer le mot de passe
+        </button>
+      </form>
+    </>
+  );
+}
+
 export function Forgot() {
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const [recovery, setRecovery] = useState(BACKEND && RECOVERY_LINK);
+  useEffect(() => {
+    if (!BACKEND) return;
+    let off: (() => void) | undefined;
+    void supabase().then((sb) => {
+      const { data } = sb.auth.onAuthStateChange((event) => event === "PASSWORD_RECOVERY" && setRecovery(true));
+      off = () => data.subscription.unsubscribe();
+    });
+    return () => off?.();
+  }, []);
   const id = useId();
+  if (recovery)
+    return (
+      <AuthLayout>
+        <NewPassword />
+      </AuthLayout>
+    );
   return (
     <AuthLayout>
       <Link to="/connexion" className="link row" style={{ fontSize: 13, gap: 6 }}>
@@ -213,22 +331,48 @@ export function Forgot() {
         <p className="muted">Saisissez l’adresse de votre compte. Un lien de réinitialisation valable une heure vous sera envoyé.</p>
       </div>
       {sent ? (
-        <Callout tone="info" icon={MailCheck} title="Demande enregistrée">
-          Si un compte existe pour <b>{email}</b>, un lien de réinitialisation lui serait envoyé. <b>Dans ce prototype, aucun e-mail n’est réellement envoyé.</b>
-        </Callout>
+        BACKEND ? (
+          <Callout tone="info" icon={MailCheck} title="Demande envoyée">
+            Si un compte existe pour <b>{email}</b>, un lien de réinitialisation valable une heure vient de lui être envoyé. Ouvrez-le pour choisir un nouveau mot de passe.
+          </Callout>
+        ) : (
+          <Callout tone="info" icon={MailCheck} title="Demande enregistrée">
+            Si un compte existe pour <b>{email}</b>, un lien de réinitialisation lui serait envoyé. <b>Dans ce prototype, aucun e-mail n’est réellement envoyé.</b>
+          </Callout>
+        )
       ) : (
         <form
           className="stack"
-          onSubmit={(e) => {
+          onSubmit={async (e) => {
             e.preventDefault();
-            if (/^\S+@\S+\.\S+$/.test(email.trim())) setSent(true);
+            if (!/^\S+@\S+\.\S+$/.test(email.trim())) return;
+            if (BACKEND) {
+              setBusy(true);
+              setError("");
+              try {
+                await remoteSession.sendPasswordReset(email);
+                setSent(true);
+              } catch (err) {
+                setError(messageOf(err));
+              } finally {
+                setBusy(false);
+              }
+              return;
+            }
+            setSent(true);
           }}
         >
           <div className="field">
             <label htmlFor={id}>Adresse e-mail</label>
             <input id={id} className="input" type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" required />
           </div>
-          <button className="btn btn-primary btn-lg btn-block" disabled={!/^\S+@\S+\.\S+$/.test(email.trim())}>
+          {error && (
+            <Callout tone="bad" role="alert">
+              {error}
+            </Callout>
+          )}
+          <button className="btn btn-primary btn-lg btn-block" disabled={busy || !/^\S+@\S+\.\S+$/.test(email.trim())}>
+            {busy ? <Loader2 className="spin" /> : null}
             Envoyer le lien
           </button>
         </form>

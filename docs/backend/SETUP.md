@@ -126,6 +126,10 @@ Remarques :
 - Données de démonstration (une fois, puis après chaque remise à zéro) :
   `npm run seed` (= `tsx --env-file=.env.local scripts/seed.ts`).
 - Sans back-end : `VITE_BACKEND=0 npm run dev:demo`, comme aujourd'hui.
+- Tests sur une vraie base Postgres (le schéma est appliqué tel quel dans une base temporaire par
+  fichier de test, avec des substituts d'`auth.users` et `storage.buckets`) :
+  `TEST_DATABASE_URL=postgres://postgres:postgres@localhost:5432/postgres npm test`.
+  Sans cette variable, ces tests sont sautés et les autres tournent.
 
 ## 8. Vérifier que tout est branché
 

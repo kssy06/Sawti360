@@ -53,10 +53,10 @@ Fichiers : `web/api/index.ts`, `web/server/{app,env,db,errors}.ts`, `web/server/
 ### A2. Connexion (P0, 1 h 30) · dépend de A1
 Fichiers : `src/lib/supabase.ts`, `src/state/remote/session.ts`, `src/pages/Auth.tsx` (branche back-end),
 `server/auth.ts`, `server/routes/{demo,me}.ts`, `store.ts` (aiguillage de `login`, `signup`, `logout`), `ui/Shell.tsx`.
-- [ ] inscription : ligne `accounts` et 100 000 jetons créés par le déclencheur
-- [ ] connexion, déconnexion, et boutons des comptes de démo (`/api/demo/session` + `verifyOtp`)
-- [ ] mot de passe oublié : e-mail reçu, nouveau mot de passe accepté
-- [ ] toute route protégée sans jeton → 401
+- [x] inscription : ligne `accounts` et 100 000 jetons créés par le déclencheur (testé sur Postgres avec `schema.sql` ; à revoir sur Supabase)
+- [ ] connexion, déconnexion, et boutons des comptes de démo (`/api/demo/session` + `verifyOtp`) — code prêt et route testée ; à vérifier avec les clés Supabase
+- [ ] mot de passe oublié : e-mail reçu, nouveau mot de passe accepté — code prêt ; demande le SMTP Gmail dans Supabase (SETUP.md § 2.5)
+- [x] toute route protégée sans jeton → 401
 
 ### A3. Données partagées (P0, 2 h 30) · dépend de A2
 Fichiers : `src/state/seed.ts`, `scripts/seed.ts` (+ script npm `seed`, SETUP.md § 7), `server/compose.ts`,

@@ -7,7 +7,10 @@
 import { Hono } from "hono";
 import { authGate, type AppEnv } from "./auth.js";
 import { ApiError, errorBody, json } from "./errors.js";
+import { rateLimit } from "./ratelimit.js";
+import { demo } from "./routes/demo.js";
 import { health } from "./routes/health.js";
+import { me } from "./routes/me.js";
 import { tts } from "./routes/tts.js";
 
 export function createApp() {
@@ -18,9 +21,12 @@ export function createApp() {
     if (!c.res.headers.has("cache-control")) c.res.headers.set("cache-control", "no-store");
   });
   app.use("*", authGate);
+  app.use("/public/*", rateLimit(20));
 
   app.route("/", health);
   app.route("/", tts);
+  app.route("/", demo);
+  app.route("/", me);
 
   app.notFound(() => json(404, { error: "INTROUVABLE", message: "Route inconnue." }));
   app.onError((err) => {

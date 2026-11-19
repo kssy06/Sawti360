@@ -13,6 +13,8 @@ import { lazy, Suspense, type ComponentType, type LazyExoticComponent } from "re
 import { Forgot, Login, Signup } from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Projects from "./pages/Projects";
+import { BACKEND } from "./lib/backend";
+import * as remoteSession from "./state/remote/session";
 import { useStore } from "./state/store";
 import { FullLoader } from "./ui/Loader";
 import { installPressRipple } from "./ui/motion";
@@ -50,6 +52,9 @@ const Public = ({ page: Page }: { page: LazyExoticComponent<ComponentType> }) =>
 );
 
 installPressRipple();
+
+/* Back-end mode: restore the Supabase session (if any) and load the account's data. */
+if (BACKEND) void remoteSession.restore(useStore.setState);
 
 /** Public consent and licence pages may be answered in another tab: keep every tab in sync. */
 window.addEventListener("storage", (e) => {

@@ -11,6 +11,9 @@ import { REASONS_FR } from "../core/rules";
 import type { AuditEntry, Decision, Segment, Theme, Use, VoiceLicense } from "../core/types";
 import { DEMO_ACCOUNTS, profileOf, type DemoAccount, type VoiceProfile } from "../mock/registry";
 import { GEN_STAGES, reviewSegment, simulateFamilyCheck, wait, type Review } from "../mock/simulate";
+import { BACKEND } from "../lib/backend";
+import * as remote from "./remote";
+import { emptyData, type RemoteState } from "./remote/state";
 import {
   dossierReference,
   EXPIRY_MS,
@@ -150,7 +153,7 @@ export interface Session {
   accountId: string;
 }
 
-interface Data {
+export interface Data {
   session: Session | null;
   accounts: DemoAccount[];
   persona: Persona;
@@ -176,9 +179,9 @@ export interface NewProjectInput {
 }
 
 interface Actions {
-  login: (accountId: string) => void;
-  signup: (name: string, email: string) => void;
-  logout: () => void;
+  login: (accountId: string) => void | Promise<void>;
+  signup: (name: string, email: string, password?: string) => void | Promise<"ok" | "confirm">;
+  logout: () => void | Promise<void>;
   setPersona: (p: Persona) => void;
   setPlan: (p: PlanId) => void;
   openProject: (id: string) => void;
@@ -228,7 +231,7 @@ interface Actions {
   updateProfile: (patch: Partial<VoiceProfile>) => void;
 }
 
-export type Store = Data & Actions;
+export type Store = Data & Actions & { server: RemoteState };
 
 export const audioUrls = new Map<string, string>();
 export const audioKey = (projectId: string, segId: string) => `${projectId}/${segId}`;
@@ -691,17 +694,20 @@ export const useStore = create<Store>()(
       };
 
       return {
-        ...seed(),
+        ...(BACKEND ? emptyData() : seed()),
+        server: { status: BACKEND ? "booting" : "off" },
         login: (accountId) => {
+          if (BACKEND) return remote.session.demoLogin(set, get, accountId);
           set({ session: { accountId }, persona: "creator" });
           log(accountOf(get())?.name ?? accountId, "CONNEXION", { compte: accountId }, "DEMO");
         },
-        signup: (name, email) => {
+        signup: (name, email, password) => {
+          if (BACKEND) return remote.session.signUp(set, name, email, password ?? "");
           const acc: DemoAccount = { id: `u_${id()}`, name, email, org: "Compte de démonstration", initials: name.split(/\s+/).map((w) => w[0]).join("").slice(0, 2).toUpperCase() || "U" };
           set((s) => ({ accounts: [...s.accounts, acc], session: { accountId: acc.id }, persona: "creator" }));
           log(name, "COMPTE_CREE", { email_hash: sha256Hex(email) }, "DEMO");
         },
-        logout: () => set({ session: null }),
+        logout: () => (BACKEND ? remote.session.logout(set) : void set({ session: null })),
         setPersona: (persona) => set({ persona }),
         setPlan: (plan) => set({ plan }),
         openProject: (pid) => set((s) => (s.projects[pid] ? { currentId: pid } : {})),
@@ -780,6 +786,7 @@ export const useStore = create<Store>()(
         logExport: (kind, detail) => log(get().validator, "EXPORT", { type: kind, ...detail }, "OK"),
         markRead: () => set((s) => ({ notifications: s.notifications.map((n) => (n.to === meId() && n.space === s.persona ? { ...n, read: true } : n)) })),
         reset: () => {
+          if (BACKEND) return;
           audioUrls.forEach((u) => URL.revokeObjectURL(u));
           audioUrls.clear();
           const session = get().session;
@@ -966,11 +973,12 @@ export const useStore = create<Store>()(
       };
     },
     {
-      name: "sawti360-demo",
+      name: BACKEND ? "sawti360-backend" : "sawti360-demo",
       version: 3,
       storage: createJSONStorage(safeStorage),
-      migrate: () => seed() as unknown as Store,
+      migrate: () => (BACKEND ? emptyData() : seed()) as unknown as Store,
       partialize: (s) => {
+        if (BACKEND) return { persona: s.persona, currentId: s.currentId } as unknown as Store;
         const projects = Object.fromEntries(
           Object.entries(s.projects).map(([pid, p]) => {
             const gens = Object.fromEntries(
