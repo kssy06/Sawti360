@@ -27,7 +27,11 @@ function localApi(): Plugin {
   };
 }
 
-export default defineConfig({
+export default defineConfig(({ mode }) => {
+  // `npm run dev:demo`: the voice engine answers with short silent test audio, clearly flagged as such.
+  if (mode === "demo") process.env.SAWTI_TTS_MOCK = "1";
+  return {
   plugins: [react(), localApi()],
   test: { environment: "node", include: ["src/**/*.test.ts"] },
+  };
 });

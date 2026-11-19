@@ -15,6 +15,8 @@ export interface Passport360 {
     nature: string;
     titulaire: string;
     licence: { license_id: string; usages: string[]; statut: string; valide_jusqu_au: string; entrainement_interdit: boolean } | null;
+    /** Project licence (UX Spec V2): permanent for this project only. */
+    licence_projet?: { reference: string; statut: string; tarif: string };
   }[];
   langues: { source: string; cible: string; qualite: string };
   transparence: { label: string; generique: string[]; repliques_generees: number };
@@ -27,6 +29,12 @@ export interface Passport360 {
   };
   securite: { traitement: string; modele_voix: string };
   durabilite: { caracteres_synthetises: number; energie: string };
+  /* Additive V2 fields (UX Specification V2). Optional, covered by the same signature. */
+  identifiant?: string;
+  source?: { nom: string; type: string; format: string; langue_originale: string; langue_cible: string; empreinte_sha256?: string };
+  /** Original speakers and their authorization path. Never contains the private family document. */
+  intervenants?: { personnage: string; voix_originale: boolean; statut_vie: string; autorisation: string; statut: string; reference?: string; controle_ia?: string }[];
+  doublage_ia?: { transcription: string; traduction: string; verification: string; validation_humaine: string; synthese: string; label_ia: string; qr: string };
   signature?: { algorithme: "Ed25519"; cle_publique: string; valeur: string };
 }
 
