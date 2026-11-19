@@ -103,6 +103,14 @@ function Row({ p, s }: { p: Project; s: Segment }) {
   );
 }
 
+/** « LLM 1 et LLM 2 », or the models that really ran (back-end mode). */
+function modelsLabel(p: Project): string {
+  const llm1 = p.pipeline?.simulated === false ? p.pipeline.providers?.llm1 : undefined;
+  const llm2 = Object.values(p.reviews).find((r) => !r.simulated && r.provider)?.provider;
+  if (!llm1 && !llm2) return "LLM 1 et LLM 2";
+  return [llm1 ? `LLM 1 : ${llm1}` : "LLM 1", llm2 ? `LLM 2 : ${llm2}` : "LLM 2"].join(" · ");
+}
+
 export default function Translation({ p }: { p: Project }) {
   const reviewAll = useStore((s) => s.reviewAll);
   const [filter, setFilter] = useState<"all" | "todo" | "flag">("all");
@@ -116,7 +124,7 @@ export default function Translation({ p }: { p: Project }) {
       <div className="stack">
         <div className="row-between">
           <div className="row">
-            <Prov kind={p.example ? "example" : "sim"}>LLM 1 et LLM 2</Prov>
+            <Prov kind={p.example ? "example" : p.pipeline?.simulated === false ? "real" : "sim"}>{modelsLabel(p)}</Prov>
             <Prov kind="real">vérificateur de fidélité, approbations au journal</Prov>
           </div>
           <div className="row">

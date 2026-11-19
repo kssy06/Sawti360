@@ -24,7 +24,9 @@ export interface Review {
   verdict: "ok" | "correction";
   note: string;
   suggestion?: string;
-  simulated: true;
+  /** false when a real model (or the fidelity rules) produced it, with its name in `provider`. */
+  simulated: boolean;
+  provider?: string;
 }
 
 /** Prepared second-model reviews for the example clips, keyed by derja source. */

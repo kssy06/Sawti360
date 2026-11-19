@@ -94,9 +94,14 @@ export interface VideoMeta {
 }
 
 export interface Pipeline {
-  status: "running" | "done";
+  status: "running" | "done" | "error";
   step: number;
-  simulated: true;
+  /** false once a real analysis ran; the models used are in `providers` (labels « Réel »). */
+  simulated: boolean;
+  providers?: Record<string, string>;
+  /** Back-end mode: the analysis task being followed, and its error message if it failed. */
+  jobId?: string;
+  error?: string;
 }
 
 export interface Speaker {
@@ -621,6 +626,7 @@ export const useStore = create<Store>()(
 
         /* ---------------------------------------------- translation & generation */
         applySuggestion: (pid, segId) => {
+          if (BACKEND) return void remote.review.applySuggestion(set, get, pid, segId);
           const p = get().projects[pid];
           const sug = p?.reviews[segId]?.suggestion;
           if (!sug) return;
@@ -629,7 +635,7 @@ export const useStore = create<Store>()(
             reviews: { ...pp.reviews, [segId]: { verdict: "ok", note: "Correction du LLM 2 appliquée. À approuver.", simulated: true } },
           }));
         },
-        reviewAll: (pid) => patch(pid, (p) => ({ reviews: Object.fromEntries(p.segments.map((x) => [x.id, reviewSegment(x)])) })),
+        reviewAll: (pid) => (BACKEND ? void remote.review.reviewAll(set, pid) : patch(pid, (p) => ({ reviews: Object.fromEntries(p.segments.map((x) => [x.id, reviewSegment(x)])) }))),
         startGeneration: async (pid) => {
           const p0 = get().projects[pid];
           if (!p0 || p0.generation.status === "running") return;

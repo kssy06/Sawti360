@@ -16,6 +16,7 @@ import { jobs } from "./routes/jobs.js";
 import { journal } from "./routes/journal.js";
 import { me } from "./routes/me.js";
 import { projects } from "./routes/projects.js";
+import { review } from "./routes/review.js";
 import { tts } from "./routes/tts.js";
 import { uploads } from "./routes/uploads.js";
 
@@ -39,6 +40,7 @@ export function createApp() {
   app.route("/", journal);
   app.route("/", uploads);
   app.route("/", jobs);
+  app.route("/", review);
 
   app.notFound(() => json(404, { error: "INTROUVABLE", message: "Route inconnue." }));
   app.onError((err) => {

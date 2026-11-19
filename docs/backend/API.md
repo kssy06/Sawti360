@@ -169,7 +169,9 @@ Applique `reviews[segId].suggestion`, retire l'approbation. Remplace `applySugge
 409 `EN_COURS` si une analyse tourne déjà. Remplace `runAnalysis` (`media/pipeline.ts`).
 
 **`POST /api/projects/:id/review`** `{ segmentIds?: string[] }` → `202 { jobId }`.
-Tâche `review` (LLM 2 + vérificateur de fidélité). Remplace `reviewAll`.
+Tâche `review` (LLM 2 + vérificateur de fidélité). Remplace `reviewAll`. Chaque `Review` porte
+`simulated: false` et `provider` (modèle réel, ou « règles (vérificateur de fidélité) ») ; une ligne
+modifiée pendant la relecture garde son ancien verdict. Journal `RELECTURE_LLM2`.
 
 ### Personnages et autorisations
 

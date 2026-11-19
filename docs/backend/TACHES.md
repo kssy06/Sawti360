@@ -152,8 +152,8 @@ Fichiers : `server/ai/gemini.ts`, `server/ai/schemas.ts`, `server/ai/prompts.ts`
 ### B4. Relecture LLM 2 (P0, 1 h) · dépend de B3
 Fichiers : `server/ai/{review,claude}.ts`, `server/routes/review.ts`, `src/state/remote/review.ts`,
 `src/mock/simulate.ts` (type `Review` : `simulated: boolean`, `provider?`), `pages/project/Translation.tsx`.
-- [ ] chaîne Claude → Groq → règles vérifiée en retirant les clés une à une
-- [ ] erreurs injectées (30 dinars au lieu de 300, négation perdue) signalées ; « Appliquer » marche
+- [x] chaîne Claude → Groq → règles vérifiée en retirant les clés une à une (faux fournisseurs ; refus de Claude → Groq)
+- [x] erreurs injectées (30 dinars au lieu de 300, négation perdue) signalées ; « Appliquer » marche (route testée sur Postgres)
 
 ### B5. Analyse de bout en bout (P0, 1 h 30) · dépend de A3, A5, A6, B1 à B4
 Fichiers : `server/routes/analysis.ts`, `src/media/pipeline.ts` (branche back-end), `pages/project/Analysis.tsx`, `pages/NewProject.tsx`.
