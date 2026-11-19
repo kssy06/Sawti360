@@ -1,62 +1,24 @@
-import { CircleAlert, CircleCheck, CircleSlash, Clock3, Pause, Play, ShieldCheck, ShieldX, type LucideIcon } from "lucide-react";
-import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
+import { Check, CircleAlert, CircleCheck, CircleSlash, Clock3, Copy, Info, Pause, Play, ShieldCheck, ShieldX, TriangleAlert, X, type LucideIcon } from "lucide-react";
+import { useEffect, useId, useLayoutEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import type { VoiceLicense } from "../core/types";
 
-/** Voice identity: a soft two-hue orb, deterministic per voice (the reference's signature). */
-export function Orb({ hue, size = 32, neutral = false }: { hue: [number, number]; size?: number; neutral?: boolean }) {
-  const [a, b] = hue;
-  const k = neutral ? 0 : 1;
-  return (
-    <span
-      className="orb"
-      aria-hidden
-      style={{
-        width: size,
-        height: size,
-        background: `radial-gradient(circle at 32% 28%, hsl(${a} ${90 * k}% 92%) 0%, transparent 46%),
-          radial-gradient(circle at 70% 75%, hsl(${b} ${56 * k}% 58%) 0%, transparent 62%),
-          linear-gradient(135deg, hsl(${a} ${50 * k}% 62%), hsl(${b} ${46 * k}% 46%))`,
-      }}
-    />
-  );
-}
-
-export function licenseState(lic: VoiceLicense | undefined, now = new Date()) {
-  const today = now.toISOString().slice(0, 10);
-  if (!lic) return { key: "none", label: "Sans passeport", tone: "red" as const, Icon: ShieldX };
-  if (lic.status === "revoked" || lic.revoked_at) return { key: "revoked", label: "Révoquée", tone: "red" as const, Icon: CircleSlash };
-  if (today < lic.valid_from) return { key: "future", label: `Valide dès le ${frDate(lic.valid_from)}`, tone: "warn" as const, Icon: Clock3 };
-  if (today > lic.valid_until) return { key: "expired", label: "Expirée", tone: "red" as const, Icon: CircleSlash };
-  return { key: "valid", label: "Valide", tone: "ok" as const, Icon: ShieldCheck };
-}
-
-export type Tone = "ok" | "red" | "warn" | "muted" | "plain";
-
-/**
- * Status as typography: a small icon and a word, no pill and no tinted fill.
- * Colour appears only on what needs attention (refused, revoked, to fix) or confirms consent.
- */
-export function Status({ tone = "plain", icon: Icon, children, title, className = "" }: { tone?: Tone; icon?: LucideIcon; children: ReactNode; title?: string; className?: string }) {
-  return (
-    <span className={`status status-${tone} ${className}`} title={title}>
-      {Icon && <Icon aria-hidden />}
-      {children}
-    </span>
-  );
-}
-
-export function LicenseStatus({ lic }: { lic: VoiceLicense | undefined }) {
-  const st = licenseState(lic);
-  return (
-    <Status tone={st.tone} icon={st.Icon}>
-      {st.label}
-    </Status>
-  );
-}
+/* ================================================================== formatting */
 
 export function frDate(iso: string, withTime = false): string {
   const d = new Date(iso.length === 10 ? `${iso}T12:00:00Z` : iso);
   return d.toLocaleString("fr-FR", withTime ? { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" } : { day: "numeric", month: "long", year: "numeric" });
+}
+
+export function relTime(iso: string, now = Date.now()): string {
+  const s = Math.round((new Date(iso).getTime() - now) / 1000);
+  const abs = Math.abs(s);
+  const rtf = new Intl.RelativeTimeFormat("fr", { numeric: "auto" });
+  if (abs < 60) return rtf.format(Math.round(s), "second");
+  if (abs < 3600) return rtf.format(Math.round(s / 60), "minute");
+  if (abs < 86400) return rtf.format(Math.round(s / 3600), "hour");
+  if (abs < 86400 * 30) return rtf.format(Math.round(s / 86400), "day");
+  return frDate(iso);
 }
 
 export function timecode(s: number): string {
@@ -65,12 +27,290 @@ export function timecode(s: number): string {
   return `${String(m).padStart(2, "0")}:${r}`;
 }
 
-/* ---------- toasts ---------- */
-type Toast = { id: number; text: string; tone: "ok" | "red" | "plain"; leaving?: boolean };
-let toasts: Toast[] = [];
+export const fmtFr = new Intl.NumberFormat("fr-FR");
+export const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n > 1 ? many : one}`;
+export const reduceMotion = () => typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+
+/* ================================================================== status */
+
+export type Tone = "ok" | "warn" | "bad" | "info" | "muted" | "plain";
+
+/** Status as a word preceded by a small square: colour carries meaning, never decoration. */
+export function Status({ tone = "plain", icon: Icon, children, title, className = "" }: { tone?: Tone; icon?: LucideIcon; children: ReactNode; title?: string; className?: string }) {
+  return (
+    <span className={`st st-${tone} ${Icon ? "st-icon" : ""} ${className}`} title={title}>
+      {Icon && <Icon aria-hidden />}
+      {children}
+    </span>
+  );
+}
+
+export function licenseState(lic: VoiceLicense | undefined, now = new Date()) {
+  const today = now.toISOString().slice(0, 10);
+  if (!lic) return { key: "none", label: "Sans passeport", tone: "bad" as const, Icon: ShieldX };
+  if (lic.status === "revoked" || lic.revoked_at) return { key: "revoked", label: "Révoquée", tone: "bad" as const, Icon: CircleSlash };
+  if (today < lic.valid_from) return { key: "future", label: `Valide dès le ${frDate(lic.valid_from)}`, tone: "warn" as const, Icon: Clock3 };
+  if (today > lic.valid_until) return { key: "expired", label: "Expirée", tone: "bad" as const, Icon: CircleSlash };
+  return { key: "valid", label: "Valide", tone: "ok" as const, Icon: ShieldCheck };
+}
+
+export function LicenseStatus({ lic }: { lic: VoiceLicense | undefined }) {
+  const st = licenseState(lic);
+  return <Status tone={st.tone}>{st.label}</Status>;
+}
+
+/* ================================================================== provenance */
+
+export type ProvKind = "real" | "sim" | "example" | "planned";
+const PROV: Record<ProvKind, { label: string; title: string }> = {
+  real: { label: "Réel", title: "Calcul réel effectué dans ce prototype." },
+  sim: { label: "Simulé", title: "Simulation : le modèle ou le service n’est pas encore branché." },
+  example: { label: "Exemple", title: "Données d’exemple, profils fictifs." },
+  planned: { label: "Prévu", title: "Fonction prévue, pas encore disponible." },
+};
+
+/** Provenance tag. Every screen says what is computed, simulated or illustrative. */
+export function Prov({ kind, children }: { kind: ProvKind; children?: ReactNode }) {
+  return (
+    <span className={`prov prov-${kind}`} title={PROV[kind].title}>
+      {PROV[kind].label}
+      {children ? <span className="prov-detail">{children}</span> : null}
+    </span>
+  );
+}
+
+/* ================================================================== voice mark */
+
+/**
+ * A voice's mark. Solid border: a person's voice used with authorization.
+ * Dashed border: generated by AI, imitates nobody. Double border: the original speaker's voice.
+ */
+export function VoiceMark({ name, kind, size = 32 }: { name: string; kind: "licensed" | "ai" | "original" | "none"; size?: number }) {
+  const initials = name
+    .replace(/^Intervenante? /, "")
+    .replace(/[^\p{L}\s]/gu, "")
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((w) => w[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+  return (
+    <span className={`vmark vmark-${kind}`} style={{ width: size, height: size, fontSize: Math.round(size * 0.36) }} aria-hidden>
+      {kind === "none" ? "" : initials || "·"}
+    </span>
+  );
+}
+
+/* ================================================================== proposal / decision */
+
+/** What the AI proposes: dashed hairline. Becomes a solid decision once a human confirms it. */
+export function Proposal({ decided, by, label = "Proposé par l’IA", children, className = "" }: { decided?: boolean; by?: string; label?: string; children: ReactNode; className?: string }) {
+  return (
+    <div className={`proposal ${decided ? "decided" : ""} ${className}`}>
+      <span className="proposal-tag">
+        {decided ? <Check aria-hidden /> : null}
+        {decided ? `Confirmé${by ? ` par ${by}` : ""}` : label}
+      </span>
+      {children}
+    </div>
+  );
+}
+
+/* ================================================================== callout */
+
+export function Callout({ tone = "plain", icon, title, children, action, role }: { tone?: Tone; icon?: LucideIcon; title?: ReactNode; children?: ReactNode; action?: ReactNode; role?: "alert" | "status" }) {
+  const Icon = icon ?? (tone === "ok" ? CircleCheck : tone === "bad" ? CircleAlert : tone === "warn" ? TriangleAlert : Info);
+  return (
+    <div className={`callout callout-${tone}`} role={role}>
+      <Icon className="callout-icon" aria-hidden />
+      <div className="callout-body">
+        {title && <b className="callout-title">{title}</b>}
+        {children && <div className="callout-text">{children}</div>}
+      </div>
+      {action && <div className="callout-action">{action}</div>}
+    </div>
+  );
+}
+
+/* ================================================================== layout bits */
+
+export function PageHead({ title, lead, actions, children }: { title: ReactNode; lead?: ReactNode; actions?: ReactNode; children?: ReactNode }) {
+  return (
+    <header className="phead">
+      <div className="phead-main">
+        <h1>{title}</h1>
+        {lead && <p className="lead">{lead}</p>}
+        {children}
+      </div>
+      {actions && <div className="phead-actions">{actions}</div>}
+    </header>
+  );
+}
+
+export function Empty({ title, children, action, icon: Icon }: { title: string; children?: ReactNode; action?: ReactNode; icon?: LucideIcon }) {
+  return (
+    <div className="empty">
+      {Icon && <Icon className="empty-icon" aria-hidden />}
+      <b>{title}</b>
+      {children && <p>{children}</p>}
+      {action}
+    </div>
+  );
+}
+
+export function KV({ rows, className = "" }: { rows: [ReactNode, ReactNode][]; className?: string }) {
+  return (
+    <dl className={`kv ${className}`}>
+      {rows.map(([k, v], i) => (
+        <div key={i} className="kv-row">
+          <dt>{k}</dt>
+          <dd>{v}</dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
+export function Progress({ value, label, indeterminate = false, tone = "info" }: { value?: number; label: string; indeterminate?: boolean; tone?: "info" | "ok" | "bad" }) {
+  const v = Math.max(0, Math.min(1, value ?? 0));
+  return (
+    <span
+      className={`progress progress-${tone} ${indeterminate ? "indeterminate" : ""}`}
+      role="progressbar"
+      aria-label={label}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-valuenow={indeterminate ? undefined : Math.round(v * 100)}
+    >
+      <span style={indeterminate ? undefined : { transform: `scaleX(${v})` }} />
+    </span>
+  );
+}
+
+export type StepState = "todo" | "active" | "done" | "skip" | "error";
+
+/** Vertical list of processing steps with their own state (analysis, generation). */
+export function ProcessList({ steps, label }: { steps: { key: string; label: ReactNode; detail?: ReactNode; state: StepState; extra?: ReactNode; prov?: ProvKind }[]; label: string }) {
+  return (
+    <ol className="plist" aria-label={label}>
+      {steps.map((s, i) => (
+        <li key={s.key} className={`plist-item ${s.state}`} aria-current={s.state === "active" ? "step" : undefined}>
+          <span className="plist-mark" aria-hidden>
+            {s.state === "done" ? <DrawCheck size={18} /> : s.state === "active" ? <span className="spinner" /> : s.state === "error" ? <X /> : <span className="plist-num num">{String(i + 1).padStart(2, "0")}</span>}
+          </span>
+          <span className="plist-body">
+            <span className="plist-title">
+              <b>{s.label}</b>
+              {s.prov && <Prov kind={s.prov} />}
+              <span className="plist-state">{s.state === "done" ? "Terminée" : s.state === "active" ? "En cours" : s.state === "skip" ? "Ignorée" : s.state === "error" ? "Erreur" : "En attente"}</span>
+            </span>
+            {s.detail && <span className="plist-detail">{s.detail}</span>}
+            {s.extra}
+          </span>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+export function Segmented<T extends string>({ value, onChange, options, label, size = "md" }: { value: T; onChange: (v: T) => void; options: { value: T; label: ReactNode; count?: number }[]; label: string; size?: "sm" | "md" }) {
+  return (
+    <div className={`segmented segmented-${size}`} role="radiogroup" aria-label={label}>
+      {options.map((o) => (
+        <button key={o.value} type="button" role="radio" aria-checked={value === o.value} onClick={() => onChange(o.value)}>
+          {o.label}
+          {o.count !== undefined && <span className="seg-count num">{o.count}</span>}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+export function Tabs<T extends string>({ value, onChange, tabs, label }: { value: T; onChange: (v: T) => void; tabs: { value: T; label: ReactNode; count?: number }[]; label: string }) {
+  const refs = useRef<(HTMLButtonElement | null)[]>([]);
+  const [ink, setInk] = useState<{ x: number; w: number } | null>(null);
+  const activeIndex = tabs.findIndex((t) => t.value === value);
+  // The underline slides from the previous tab to the selected one.
+  useLayoutEffect(() => {
+    const el = refs.current[activeIndex];
+    if (el) setInk({ x: el.offsetLeft, w: el.offsetWidth });
+  }, [activeIndex, tabs.length]);
+  const onKey = (e: React.KeyboardEvent, i: number) => {
+    const d = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
+    if (!d) return;
+    const n = (i + d + tabs.length) % tabs.length;
+    refs.current[n]?.focus();
+    onChange(tabs[n].value);
+  };
+  return (
+    <div className="tabs" role="tablist" aria-label={label}>
+      {ink && <span className="tab-ink" aria-hidden style={{ transform: `translateX(${ink.x}px)`, width: ink.w }} />}
+      {tabs.map((t, i) => (
+        <button
+          key={t.value}
+          ref={(el) => {
+            refs.current[i] = el;
+          }}
+          role="tab"
+          type="button"
+          aria-selected={value === t.value}
+          tabIndex={value === t.value ? 0 : -1}
+          onClick={() => onChange(t.value)}
+          onKeyDown={(e) => onKey(e, i)}
+        >
+          {t.label}
+          {t.count !== undefined && <span className="tab-count num">{t.count}</span>}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+export function CopyField({ value, label }: { value: string; label: string }) {
+  const [copied, setCopied] = useState(false);
+  const fid = useId();
+  return (
+    <div className="copyfield">
+      <label htmlFor={fid} className="sr-only">
+        {label}
+      </label>
+      <input id={fid} className="input mono" readOnly value={value} onFocus={(e) => e.currentTarget.select()} />
+      <button
+        type="button"
+        className="btn btn-secondary btn-sm"
+        onClick={async () => {
+          try {
+            await navigator.clipboard.writeText(value);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 1600);
+          } catch {
+            toast("Copie impossible : sélectionnez le texte", "bad");
+          }
+        }}
+      >
+        {copied ? <Check /> : <Copy />}
+        {copied ? "Copié" : "Copier"}
+      </button>
+    </div>
+  );
+}
+
+export function Hash({ value, n = 12 }: { value: string; n?: number }) {
+  return (
+    <span className="mono hash" title={value}>
+      {value.length > n * 2 ? `${value.slice(0, n)}…${value.slice(-4)}` : value}
+    </span>
+  );
+}
+
+/* ================================================================== toasts */
+
+type ToastT = { id: number; text: string; tone: "ok" | "bad" | "plain"; leaving?: boolean };
+let toasts: ToastT[] = [];
 const listeners = new Set<() => void>();
 const emit = () => listeners.forEach((l) => l());
-export function toast(text: string, tone: Toast["tone"] = "plain") {
+export function toast(text: string, tone: ToastT["tone"] = "plain") {
   const t = { id: Date.now() + Math.random(), text, tone };
   toasts = [...toasts, t].slice(-3);
   emit();
@@ -81,7 +321,7 @@ export function toast(text: string, tone: Toast["tone"] = "plain") {
   setTimeout(() => {
     toasts = toasts.filter((x) => x.id !== t.id);
     emit();
-  }, 3820);
+  }, 3800);
 }
 export function Toasts() {
   const list = useSyncExternalStore(
@@ -91,8 +331,8 @@ export function Toasts() {
   return (
     <div className="toasts" role="status" aria-live="polite">
       {list.map((t) => (
-        <div key={t.id} className={`toast ${t.leaving ? "leaving" : ""}`}>
-          {t.tone === "red" ? <CircleAlert color="#ff9aa8" /> : <CircleCheck color="#9fe2bd" />}
+        <div key={t.id} className={`toast toast-${t.tone} ${t.leaving ? "leaving" : ""}`}>
+          {t.tone === "bad" ? <CircleAlert aria-hidden /> : <CircleCheck aria-hidden />}
           {t.text}
         </div>
       ))}
@@ -100,46 +340,122 @@ export function Toasts() {
   );
 }
 
-/** Keeps an element mounted for its exit animation, so it leaves the way it arrived. */
+/* ================================================================== overlays */
+
 export function usePresence(open: boolean, exitMs = 140): { mounted: boolean; closing: boolean } {
   const [mounted, setMounted] = useState(open);
   useEffect(() => {
     if (open) return setMounted(true);
     if (!mounted) return;
-    const t = setTimeout(() => setMounted(false), reduceMotionNow() ? 0 : exitMs);
+    const t = setTimeout(() => setMounted(false), reduceMotion() ? 0 : exitMs);
     return () => clearTimeout(t);
   }, [open, exitMs, mounted]);
   return { mounted: open || mounted, closing: !open && mounted };
 }
-const reduceMotionNow = () => typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
-/* ---------- popover anchored to a button, escapes overflow via position: fixed ---------- */
-export function Popover({
-  anchor,
-  open,
-  onClose,
-  align = "left",
-  children,
-  label,
-}: {
-  anchor: React.RefObject<HTMLElement | null>;
-  open: boolean;
-  onClose: () => void;
-  align?: "left" | "right";
-  children: ReactNode;
-  label: string;
-}) {
+function useFocusTrap(ref: React.RefObject<HTMLElement | null>, active: boolean) {
+  useEffect(() => {
+    if (!active || !ref.current) return;
+    const prev = document.activeElement as HTMLElement | null;
+    const el = ref.current;
+    const focusables = () => [...el.querySelectorAll<HTMLElement>('button:not([disabled]), [href], input:not([disabled]), select, textarea, [tabindex]:not([tabindex="-1"])')];
+    (el.querySelector<HTMLElement>("[data-autofocus]") ?? focusables()[0] ?? el).focus();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Tab") return;
+      const f = focusables();
+      if (!f.length) return;
+      if (e.shiftKey && document.activeElement === f[0]) (e.preventDefault(), f[f.length - 1].focus());
+      else if (!e.shiftKey && document.activeElement === f[f.length - 1]) (e.preventDefault(), f[0].focus());
+    };
+    el.addEventListener("keydown", onKey);
+    return () => {
+      el.removeEventListener("keydown", onKey);
+      prev?.focus?.();
+    };
+  }, [ref, active]);
+}
+
+/** Modal dialog: focus trapped, Escape and scrim close it, exit animation mirrors the entrance. */
+export function Dialog({ open, onClose, title, description, children, footer, size = "md" }: { open: boolean; onClose: () => void; title: string; description?: ReactNode; children?: ReactNode; footer?: ReactNode; size?: "sm" | "md" | "lg" }) {
+  const presence = usePresence(open, 160);
   const ref = useRef<HTMLDivElement>(null);
-  const presence = usePresence(open, 130);
-  const [pos, setPos] = useState<{ top: number; left?: number; right?: number }>({ top: 0 });
+  const tid = useId();
+  useFocusTrap(ref, presence.mounted && !presence.closing);
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open, onClose]);
+  if (!presence.mounted) return null;
+  return createPortal(
+    <div className={`overlay ${presence.closing ? "closing" : ""}`} onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
+      <div ref={ref} className={`dialog dialog-${size}`} role="dialog" aria-modal="true" aria-labelledby={tid} tabIndex={-1}>
+        <div className="dialog-head">
+          <h2 id={tid}>{title}</h2>
+          <button type="button" className="btn btn-ghost btn-icon btn-sm" onClick={onClose} aria-label="Fermer">
+            <X />
+          </button>
+        </div>
+        {description && <p className="dialog-desc">{description}</p>}
+        {children && <div className="dialog-body">{children}</div>}
+        {footer && <div className="dialog-foot">{footer}</div>}
+      </div>
+    </div>,
+    document.body,
+  );
+}
+
+/** Side sheet: the list behind stays visible. */
+export function Sheet({ open, title, onClose, children, head, footer }: { open: boolean; title: string; onClose: () => void; children: ReactNode; head?: ReactNode; footer?: ReactNode }) {
+  const presence = usePresence(open, 200);
+  const ref = useRef<HTMLElement>(null);
+  useFocusTrap(ref, presence.mounted && !presence.closing);
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open, onClose]);
+  if (!presence.mounted) return null;
+  return createPortal(
+    <>
+      <div className={`scrim ${presence.closing ? "closing" : ""}`} onClick={onClose} />
+      <aside ref={ref} className={`sheet ${presence.closing ? "closing" : ""}`} role="dialog" aria-modal="true" aria-label={title} tabIndex={-1}>
+        <div className="sheet-head">
+          <div className="sheet-head-main">{head ?? <h2>{title}</h2>}</div>
+          <button type="button" className="btn btn-ghost btn-icon btn-sm" onClick={onClose} aria-label="Fermer">
+            <X />
+          </button>
+        </div>
+        <div className="sheet-body">{children}</div>
+        {footer && <div className="sheet-foot">{footer}</div>}
+      </aside>
+    </>,
+    document.body,
+  );
+}
+
+export function Popover({ anchor, open, onClose, align = "left", children, label, width }: { anchor: React.RefObject<HTMLElement | null>; open: boolean; onClose: () => void; align?: "left" | "right"; children: ReactNode; label: string; width?: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const presence = usePresence(open, 120);
+  const [pos, setPos] = useState<{ top: number; left?: number; right?: number; bottom?: number }>({ top: 0 });
   useEffect(() => {
     if (!open || !anchor.current) return;
     const r = anchor.current.getBoundingClientRect();
-    setPos(align === "left" ? { top: r.bottom + 6, left: r.left } : { top: r.bottom + 6, right: window.innerWidth - r.right });
+    const below = r.bottom + 6;
+    const flip = below + 320 > window.innerHeight && r.top > 340;
+    const vert = flip ? { top: undefined as unknown as number, bottom: window.innerHeight - r.top + 6 } : { top: below };
+    setPos(align === "left" ? { ...vert, left: Math.max(8, r.left) } : { ...vert, right: Math.max(8, window.innerWidth - r.right) });
     const onDown = (e: MouseEvent) => {
       if (!ref.current?.contains(e.target as Node) && !anchor.current?.contains(e.target as Node)) onClose();
     };
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+        anchor.current?.focus();
+      }
+    };
     document.addEventListener("mousedown", onDown);
     document.addEventListener("keydown", onKey);
     return () => {
@@ -148,114 +464,16 @@ export function Popover({
     };
   }, [open, anchor, align, onClose]);
   if (!presence.mounted) return null;
-  return (
-    <div ref={ref} className={`pop ${presence.closing ? "closing" : ""}`} role="dialog" aria-label={label} style={pos}>
+  return createPortal(
+    <div ref={ref} className={`pop ${presence.closing ? "closing" : ""}`} role="dialog" aria-label={label} style={{ ...pos, width }}>
       {children}
-    </div>
+    </div>,
+    document.body,
   );
 }
 
-/** Side sheet instead of a modal: the list stays visible, Escape closes it. */
-export function Sheet({ title, onClose, children, head }: { title: string; onClose: () => void; children: ReactNode; head?: ReactNode }) {
-  const [closing, setClosing] = useState(false);
-  const close = () => {
-    if (closing) return;
-    setClosing(true);
-    setTimeout(onClose, reduceMotionNow() ? 0 : 200);
-  };
-  const closeRef = useRef(close);
-  closeRef.current = close;
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && closeRef.current();
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, []);
-  return (
-    <>
-      <div className={`sheet-scrim ${closing ? "closing" : ""}`} onClick={close} />
-      <aside className={`sheet ${closing ? "closing" : ""}`} role="dialog" aria-modal="true" aria-label={title}>
-        <div className="sheet-head">
-          {head}
-          <button className="btn btn-ghost btn-sm" style={{ marginLeft: "auto" }} onClick={close}>
-            Fermer
-          </button>
-        </div>
-        <div className="sheet-body">{children}</div>
-      </aside>
-    </>
-  );
-}
+/* ================================================================== motion helpers */
 
-/** Audio player whose waveform is computed from the returned audio itself. */
-export function AudioClip({ url, label }: { url: string; label: string }) {
-  const audio = useRef<HTMLAudioElement>(null);
-  const [peaks, setPeaks] = useState<number[] | null>(null);
-  const [playing, setPlaying] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [duration, setDuration] = useState(0);
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const buf = await (await fetch(url)).arrayBuffer();
-        const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
-        const decoded = await ctx.decodeAudioData(buf);
-        ctx.close();
-        const data = decoded.getChannelData(0);
-        const n = 56;
-        const step = Math.max(1, Math.floor(data.length / n));
-        const out: number[] = [];
-        for (let i = 0; i < n; i++) {
-          let max = 0;
-          for (let j = i * step; j < Math.min(data.length, (i + 1) * step); j++) max = Math.max(max, Math.abs(data[j]));
-          out.push(max);
-        }
-        const top = Math.max(...out, 0.0001);
-        if (!cancelled) {
-          setPeaks(out.map((v) => v / top));
-          setDuration(decoded.duration);
-        }
-      } catch {
-        if (!cancelled) setPeaks([]);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [url]);
-  const toggle = () => {
-    const a = audio.current;
-    if (!a) return;
-    if (a.paused) void a.play();
-    else a.pause();
-  };
-  return (
-    <div className="clip">
-      <button className="btn btn-secondary btn-sm btn-icon" onClick={toggle} aria-label={playing ? `Pause : ${label}` : `Écouter : ${label}`}>
-        {playing ? <Pause /> : <Play />}
-      </button>
-      <span className="wave" aria-hidden>
-        {peaks === null
-          ? Array.from({ length: 56 }, (_, i) => <i key={i} className="skeleton" style={{ height: "30%" }} />)
-          : peaks.map((v, i) => <i key={i} style={{ height: `${Math.max(6, Math.round(v * 100))}%`, opacity: i / peaks.length <= progress ? 1 : 0.3 }} />)}
-      </span>
-      <span className="num muted clip-time">{duration ? `${duration.toFixed(1)} s` : ""}</span>
-      <audio
-        ref={audio}
-        src={url}
-        preload="auto"
-        onPlay={() => setPlaying(true)}
-        onPause={() => setPlaying(false)}
-        onEnded={() => (setPlaying(false), setProgress(0))}
-        onTimeUpdate={(e) => setProgress(e.currentTarget.currentTime / (e.currentTarget.duration || 1))}
-      />
-    </div>
-  );
-}
-
-const reduceMotion = () => typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-
-/** Counts to a new value with an exponential ease-out, so a debit or a payout is felt, not just read. */
 export function AnimatedNumber({ value, format = (n: number) => fmtFr.format(n) }: { value: number; format?: (n: number) => string }) {
   const [shown, setShown] = useState(value);
   const from = useRef(value);
@@ -267,10 +485,9 @@ export function AnimatedNumber({ value, format = (n: number) => fmtFr.format(n) 
     }
     const start = performance.now();
     const a = from.current;
-    const dur = 650;
     let raf = 0;
     const tick = (now: number) => {
-      const k = Math.min(1, (now - start) / dur);
+      const k = Math.min(1, (now - start) / 600);
       const e = k === 1 ? 1 : 1 - Math.pow(2, -10 * k);
       setShown(Math.round(a + (value - a) * e));
       if (k < 1) raf = requestAnimationFrame(tick);
@@ -284,23 +501,89 @@ export function AnimatedNumber({ value, format = (n: number) => fmtFr.format(n) 
   }, [value]);
   return <span className="num">{format(shown)}</span>;
 }
-const fmtFr = new Intl.NumberFormat("fr-FR");
 
-/** Height-animated reveal (grid rows 0fr → 1fr): content slides open instead of popping in. */
-export function Reveal({ show, children, nudge = false }: { show: boolean; children: ReactNode; nudge?: boolean }) {
+export function Reveal({ show, children }: { show: boolean; children: ReactNode }) {
   return (
     <div className={`reveal ${show ? "open" : ""}`} aria-hidden={!show}>
-      <div className="reveal-inner">{show ? <div className={nudge ? "nudge" : undefined}>{children}</div> : null}</div>
+      <div className="reveal-inner">{show ? children : null}</div>
     </div>
   );
 }
 
-/** A check that draws itself: used when a step or a validation completes. */
 export function DrawCheck({ size = 18 }: { size?: number }) {
   return (
     <svg className="draw-check" width={size} height={size} viewBox="0 0 20 20" aria-hidden>
       <circle cx="10" cy="10" r="9" />
       <path d="M6 10.4l2.6 2.6L14.2 7.4" />
     </svg>
+  );
+}
+
+/* ================================================================== audio */
+
+/** Audio player whose waveform is computed from the audio itself. */
+export function AudioClip({ url, label, compact = false }: { url: string; label: string; compact?: boolean }) {
+  const audio = useRef<HTMLAudioElement>(null);
+  const [peaks, setPeaks] = useState<number[] | null>(null);
+  const [playing, setPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const bars = compact ? 32 : 56;
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const buf = await (await fetch(url)).arrayBuffer();
+        const ctx = new AudioContext();
+        const decoded = await ctx.decodeAudioData(buf);
+        void ctx.close();
+        const data = decoded.getChannelData(0);
+        const step = Math.max(1, Math.floor(data.length / bars));
+        const out: number[] = [];
+        for (let i = 0; i < bars; i++) {
+          let max = 0;
+          for (let j = i * step; j < Math.min(data.length, (i + 1) * step); j++) max = Math.max(max, Math.abs(data[j]));
+          out.push(max);
+        }
+        const top = Math.max(...out, 0.0001);
+        if (!cancelled) {
+          setPeaks(out.map((v) => (top < 0.001 ? 0 : v / top)));
+          setDuration(decoded.duration);
+        }
+      } catch {
+        if (!cancelled) setPeaks([]);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [url, bars]);
+  const toggle = () => {
+    const a = audio.current;
+    if (!a) return;
+    if (a.paused) void a.play();
+    else a.pause();
+  };
+  return (
+    <div className={`clip ${compact ? "clip-compact" : ""}`}>
+      <button type="button" className="btn btn-secondary btn-icon btn-sm" onClick={toggle} aria-label={playing ? `Pause : ${label}` : `Écouter : ${label}`}>
+        {playing ? <Pause /> : <Play />}
+      </button>
+      <span className="wave" aria-hidden>
+        {peaks === null
+          ? Array.from({ length: bars }, (_, i) => <i key={i} className="skeleton" style={{ height: "30%" }} />)
+          : peaks.map((v, i) => <i key={i} className={i / peaks.length <= progress ? "on" : ""} style={{ height: `${Math.max(8, Math.round(v * 100))}%` }} />)}
+      </span>
+      <span className="num clip-time">{duration ? `${duration.toFixed(1).replace(".", ",")} s` : ""}</span>
+      <audio
+        ref={audio}
+        src={url}
+        preload="auto"
+        onPlay={() => setPlaying(true)}
+        onPause={() => setPlaying(false)}
+        onEnded={() => (setPlaying(false), setProgress(0))}
+        onTimeUpdate={(e) => setProgress(e.currentTarget.currentTime / (e.currentTarget.duration || 1))}
+      />
+    </div>
   );
 }

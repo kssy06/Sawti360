@@ -84,7 +84,15 @@ export async function forgetVideo(projectId: string) {
   emit();
 }
 
+/** Remote videos imported by link (direct media URL). Not persisted: the link itself is. */
+const remote = new Map<string, string>();
+export function setRemoteVideo(projectId: string, url: string) {
+  remote.set(projectId, url);
+  emit();
+}
+
 export function videoUrl(projectId: string): string | null {
+  if (remote.has(projectId)) return remote.get(projectId)!;
   const f = files.get(projectId);
   if (!f) return null;
   if (!urls.has(projectId)) urls.set(projectId, URL.createObjectURL(f));
@@ -125,7 +133,56 @@ async function openVideo(src: string): Promise<HTMLVideoElement> {
     v.onloadeddata = () => resolve();
     v.onerror = () => reject(new Error("Format vidéo non lisible par ce navigateur."));
   });
+  // Some WebM files (browser recordings) carry no duration: seeking far forces the browser to compute it.
+  if (!Number.isFinite(v.duration)) {
+    await new Promise<void>((resolve) => {
+      const done = () => (v.removeEventListener("durationchange", check), resolve());
+      const check = () => Number.isFinite(v.duration) && done();
+      v.addEventListener("durationchange", check);
+      setTimeout(done, 4000);
+      v.currentTime = 1e101;
+    });
+    v.currentTime = 0;
+  }
   return v;
+}
+
+/** SHA-256 of a file, read in chunks so progress is real and memory stays flat. */
+export async function hashFile(file: File, onProgress: (ratio: number) => void): Promise<string> {
+  const { sha256 } = await import("@noble/hashes/sha2.js");
+  const { bytesToHex } = await import("@noble/hashes/utils.js");
+  const h = sha256.create();
+  const CHUNK = 4 * 1024 * 1024;
+  for (let off = 0; off < file.size; off += CHUNK) {
+    const buf = new Uint8Array(await file.slice(off, off + CHUNK).arrayBuffer());
+    h.update(buf);
+    onProgress(Math.min(1, (off + buf.length) / file.size));
+    await new Promise((r) => setTimeout(r, 0));
+  }
+  onProgress(1);
+  return bytesToHex(h.digest());
+}
+
+/** Probes a direct media URL (MP4/WebM). The poster is empty when the host forbids cross-origin reads. */
+export async function probeUrl(url: string): Promise<Probe> {
+  const v = document.createElement("video");
+  v.muted = true;
+  v.preload = "metadata";
+  v.crossOrigin = "anonymous";
+  v.src = url;
+  await new Promise<void>((resolve, reject) => {
+    const t = setTimeout(() => reject(new Error("Le lien ne répond pas.")), 12000);
+    v.onloadeddata = () => (clearTimeout(t), resolve());
+    v.onerror = () => (clearTimeout(t), reject(new Error("Ce lien ne pointe pas vers une vidéo lisible (MP4, WebM).")));
+  });
+  let poster = "";
+  try {
+    await whenSeeked(v, Math.min(1, v.duration / 3));
+    poster = snapshot(v, 480);
+  } catch {
+    poster = "";
+  }
+  return { duration: v.duration, width: v.videoWidth, height: v.videoHeight, poster };
 }
 
 /** Reads duration, size and a poster frame. Rejects formats the browser cannot decode. */

@@ -1,230 +1,84 @@
-import { ArrowRight, Check, Globe2, LockKeyhole, Trash2, UploadCloud, X } from "lucide-react";
-import { useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { forgetVideo, formatDuration, formatSize, keepVideo, probeVideo, shrinkImage, type Probe } from "../media/local";
-import { runAnalysis } from "../media/pipeline";
-import { DEMO_ID, useStore, type Privacy, type Project } from "../state/store";
-import { frDate, Reveal, toast } from "../ui/kit";
+import { FolderPlus, Plus, Search } from "lucide-react";
+import { useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
+import { accountOf, statusOf, useStore } from "../state/store";
+import { Empty, PageHead, Segmented } from "../ui/kit";
+import { useCrumbs } from "../ui/Shell";
+import { ProjectRow } from "./ProjectRow";
 
-const MAX_BYTES = 4 * 1024 * 1024 * 1024;
-const plural = (n: number, word: string) => `${n} ${word}${n > 1 ? "s" : ""}`;
-
-function Uploader() {
-  const navigate = useNavigate();
-  const createVideoProject = useStore((s) => s.createVideoProject);
-  const input = useRef<HTMLInputElement>(null);
-  const [drag, setDrag] = useState(false);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
-  const [file, setFile] = useState<File | null>(null);
-  const [probe, setProbe] = useState<Probe | null>(null);
-  const [privacy, setPrivacy] = useState<Privacy>("publique");
-
-  const accept = async (f: File) => {
-    setError("");
-    if (!f.type.startsWith("video/") && !/\.(mp4|mov|m4v|webm|mkv)$/i.test(f.name)) {
-      setError("Ce fichier n’est pas une vidéo. Formats acceptés : MP4, MOV, WebM.");
-      return;
-    }
-    if (f.size > MAX_BYTES) {
-      setError("Vidéo trop lourde pour le navigateur : 4 Go au plus.");
-      return;
-    }
-    setBusy(true);
-    try {
-      const p = await probeVideo(f);
-      setFile(f);
-      setProbe(p);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Vidéo illisible.");
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const start = async () => {
-    if (!file || !probe) return;
-    const poster = await shrinkImage(probe.poster, 240);
-    const pid = createVideoProject({ name: file.name, size: file.size, type: file.type, duration: probe.duration, width: probe.width, height: probe.height, privacy, poster });
-    await keepVideo(pid, file, privacy === "publique");
-    void runAnalysis(pid);
-    navigate(`/studio/${pid}`);
-  };
-
-  const clear = () => {
-    setFile(null);
-    setProbe(null);
-    setError("");
-    if (input.current) input.current.value = "";
-  };
-
-  return (
-    <section className="uploader">
-      <Reveal show={!probe}>
-        <label
-          className={`dropzone ${drag ? "drag" : ""} ${busy ? "busy" : ""}`}
-          onDragEnter={(e) => (e.preventDefault(), setDrag(true))}
-          onDragOver={(e) => e.preventDefault()}
-          onDragLeave={(e) => e.currentTarget === e.target && setDrag(false)}
-          onDrop={(e) => {
-            e.preventDefault();
-            setDrag(false);
-            const f = e.dataTransfer.files[0];
-            if (f) void accept(f);
-          }}
-        >
-          <span className="dz-icon" aria-hidden>
-            <UploadCloud />
-          </span>
-          <span className="dz-text">
-            <b>{busy ? "Lecture de la vidéo…" : "Déposez votre vidéo entière"}</b>
-            <span className="muted">Film, épisode, vidéo YouTube, Short. L’IA regarde l’image pour doubler juste. MP4, MOV ou WebM.</span>
-          </span>
-          <span className="btn btn-secondary dz-btn">Choisir un fichier</span>
-          <input ref={input} type="file" accept="video/*" className="sr-only" onChange={(e) => e.target.files?.[0] && accept(e.target.files[0])} />
-        </label>
-      </Reveal>
-      <Reveal show={Boolean(error)} nudge>
-        <div className="line line-red" role="alert">
-          <X aria-hidden />
-          {error}
-        </div>
-      </Reveal>
-
-      <Reveal show={Boolean(probe)}>
-        {probe && file && (
-          <div className="staging">
-            <div className="stage-preview">
-              <img src={probe.poster} alt={`Aperçu de ${file.name}`} />
-              <span className="stage-dur num">{formatDuration(probe.duration)}</span>
-            </div>
-            <div className="stage-main">
-              <div className="stage-file">
-                <div>
-                  <h2 className="h-sm">{file.name}</h2>
-                  <p className="muted num">
-                    {formatDuration(probe.duration)} · {probe.width}×{probe.height} · {formatSize(file.size)}
-                  </p>
-                </div>
-                <button className="btn btn-ghost btn-sm" onClick={clear}>
-                  Changer
-                </button>
-              </div>
-
-              <fieldset className="privacy">
-                <legend>Cette vidéo est…</legend>
-                {(
-                  [
-                    ["publique", Globe2, "Déjà publique", "Sur YouTube, Instagram, TikTok… Gardée dans ce navigateur pour y revenir plus tard."],
-                    ["inedite", LockKeyhole, "Inédite", "Pas encore diffusée. Rien n’est gardé après la session, et le Passeport 360° le mentionne."],
-                  ] as const
-                ).map(([value, Icon, title, text]) => (
-                  <label key={value} className={`choice ${privacy === value ? "on" : ""}`}>
-                    <input type="radio" name="privacy" value={value} checked={privacy === value} onChange={() => setPrivacy(value)} className="sr-only" />
-                    <Icon className="choice-icon" aria-hidden />
-                    <span>
-                      <b>{title}</b>
-                      <span className="muted">{text}</span>
-                    </span>
-                    <span className="choice-tick" aria-hidden>
-                      <Check />
-                    </span>
-                  </label>
-                ))}
-              </fieldset>
-
-              <p className="leaves">
-                <b>Ce qui quitte votre ordinateur :</b> la piste audio et une ou deux images par réplique, pour la transcription et la traduction. Le fichier vidéo, lui, reste ici.
-              </p>
-
-              <div className="stage-actions">
-                <button className="btn btn-primary" onClick={start}>
-                  Lancer l’analyse
-                  <ArrowRight />
-                </button>
-                <span className="hint">Interface de démonstration : transcription et traduction simulées.</span>
-              </div>
-            </div>
-          </div>
-        )}
-      </Reveal>
-    </section>
-  );
-}
-
-function ProjectRow({ p }: { p: Project }) {
-  const navigate = useNavigate();
-  const openProject = useStore((s) => s.openProject);
-  const deleteProject = useStore((s) => s.deleteProject);
-  const validated = p.segments.filter((s) => s.validated).length;
-  const done = Object.values(p.gens).filter((g) => g.status === "ok").length;
-  const analysing = p.pipeline?.status === "running";
-  const go = () => {
-    openProject(p.id);
-    navigate(`/studio/${p.id}`);
-  };
-  return (
-    <li className="proj" tabIndex={0} onClick={go} onKeyDown={(e) => e.key === "Enter" && go()}>
-      {p.video?.poster ? (
-        <img className="proj-thumb" src={p.video.poster} alt="" />
-      ) : (
-        <span className="proj-thumb proj-card" aria-hidden>
-          {p.title}
-        </span>
-      )}
-      <span className="proj-main">
-        <b>{p.title}</b>
-        <span className="muted">
-          {p.subtitle}
-          {p.video ? ` · ${formatDuration(p.video.duration)}` : ""}
-        </span>
-      </span>
-      <span className="proj-state">
-        {analysing ? (
-          <span className="muted">Analyse en cours…</span>
-        ) : (
-          <span className="muted num">
-            {plural(p.segments.length, "réplique")} · {plural(validated, "validée")} · {plural(done, "doublée")}
-          </span>
-        )}
-      </span>
-      <span className="muted proj-date">{frDate(p.createdAt)}</span>
-      {p.id !== DEMO_ID ? (
-        <button
-          className="btn btn-ghost btn-sm btn-icon"
-          aria-label={`Supprimer ${p.title}`}
-          onClick={(e) => {
-            e.stopPropagation();
-            deleteProject(p.id);
-            void forgetVideo(p.id);
-            toast("Projet supprimé, vidéo retirée de ce navigateur");
-          }}
-        >
-          <Trash2 />
-        </button>
-      ) : (
-        <span className="muted proj-tag">Exemple</span>
-      )}
-    </li>
-  );
-}
+type View = "tous" | "en-cours" | "termines";
 
 export default function Projects() {
+  const [params, setParams] = useSearchParams();
+  const view = (params.get("vue") as View) ?? "tous";
+  const label = view === "en-cours" ? "En cours" : view === "termines" ? "Terminés" : "Mes projets";
+  useCrumbs([{ label: "Projets", to: "/projets" }, ...(view === "tous" ? [] : [{ label }])]);
+  const account = useStore(accountOf);
+  const all = useStore((s) => s.projects);
   const order = useStore((s) => s.order);
-  const projects = useStore((s) => s.projects);
+  const requests = useStore((s) => s.requests);
+  const [q, setQ] = useState("");
+  const mine = order.map((id) => all[id]).filter((p) => p && p.accountId === account?.id);
+  const done = (id: string) => statusOf({ requests }, all[id]) === "termine";
+  const counts = { tous: mine.length, "en-cours": mine.filter((p) => !done(p.id)).length, termines: mine.filter((p) => done(p.id)).length };
+  const rows = mine
+    .filter((p) => (view === "tous" ? true : view === "termines" ? done(p.id) : !done(p.id)))
+    .filter((p) => `${p.title} ${p.subtitle}`.toLowerCase().includes(q.trim().toLowerCase()));
+
   return (
-    <div className="page">
-      <div className="page-head">
-        <div>
-          <h1>Studio de doublage</h1>
-          <p className="lead">Importez la vidéo entière : l’IA écoute qui parle, regarde l’image, puis propose une version française que vous validez réplique par réplique.</p>
-        </div>
+    <>
+      <PageHead
+        title={label}
+        lead="Chaque projet suit le même parcours : analyse, personnages, autorisations, voix, traduction, timeline, génération."
+        actions={
+          <Link to="/nouveau" className="btn btn-primary">
+            <Plus />
+            Nouveau projet
+          </Link>
+        }
+      />
+      <div className="lib-toolbar">
+        <Segmented
+          label="Filtrer les projets"
+          value={view}
+          onChange={(v) => setParams(v === "tous" ? {} : { vue: v })}
+          options={[
+            { value: "tous", label: "Tous", count: counts.tous },
+            { value: "en-cours", label: "En cours", count: counts["en-cours"] },
+            { value: "termines", label: "Terminés", count: counts.termines },
+          ]}
+        />
+        <label className="input-icon">
+          <Search aria-hidden />
+          <span className="sr-only">Rechercher un projet</span>
+          <input className="input" placeholder="Rechercher un projet" value={q} onChange={(e) => setQ(e.target.value)} />
+        </label>
       </div>
-      <Uploader />
-      <h2 className="sec-title projects-title">Projets</h2>
-      <ul className="projects">
-        {order.map((pid) => projects[pid] && <ProjectRow key={pid} p={projects[pid]} />)}
-      </ul>
-    </div>
+      {rows.length === 0 ? (
+        <Empty
+          title={q ? "Aucun projet ne correspond" : view === "termines" ? "Aucun projet terminé" : "Aucun projet"}
+          icon={FolderPlus}
+          action={
+            q ? (
+              <button className="btn btn-secondary btn-sm" onClick={() => setQ("")}>
+                Effacer la recherche
+              </button>
+            ) : (
+              <Link to="/nouveau" className="btn btn-primary btn-sm">
+                Importer une vidéo
+              </Link>
+            )
+          }
+        >
+          {q ? "Essayez un autre titre." : "Les projets terminés apparaissent ici avec leur Passeport 360°."}
+        </Empty>
+      ) : (
+        <div className="card plist-projects">
+          {rows.map((p) => (
+            <ProjectRow key={p.id} p={p} />
+          ))}
+        </div>
+      )}
+    </>
   );
 }

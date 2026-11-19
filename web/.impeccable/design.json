@@ -1,0 +1,353 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-19T21:00:00Z",
+  "title": "Design System: SAWTI 360",
+  "extensions": {
+    "colorMeta": {
+      "ember-orange": {
+        "role": "primary",
+        "displayName": "Ember Orange",
+        "canonical": "#ff4500",
+        "tonalRamp": [
+          "#26120a",
+          "#4a1a06",
+          "#8a2a05",
+          "#cc3a03",
+          "#ff4500",
+          "#ff7340",
+          "#ffa27f",
+          "#ffd6c4"
+        ]
+      },
+      "night": {
+        "role": "neutral",
+        "displayName": "Night",
+        "canonical": "#0a0a0a",
+        "tonalRamp": [
+          "#000000",
+          "#070707",
+          "#0a0a0a",
+          "#111111",
+          "#1a1a1a",
+          "#232323",
+          "#333336",
+          "#5f5f66"
+        ]
+      },
+      "paper-ink": {
+        "role": "neutral",
+        "displayName": "Paper Ink",
+        "canonical": "#f4f4f5",
+        "tonalRamp": [
+          "#5f5f66",
+          "#76767e",
+          "#8f8f97",
+          "#a9a9b0",
+          "#c7c7cc",
+          "#dcdce0",
+          "#ececee",
+          "#f4f4f5"
+        ]
+      },
+      "machine-line": {
+        "role": "neutral",
+        "displayName": "Machine Line",
+        "canonical": "#6a6a72",
+        "tonalRamp": [
+          "#2e2e33",
+          "#45454c",
+          "#5a5a61",
+          "#6a6a72",
+          "#85858d",
+          "#a0a0a8",
+          "#b4b4bc",
+          "#d0d0d6"
+        ]
+      },
+      "authorized-green": {
+        "role": "status",
+        "displayName": "Authorized Green",
+        "canonical": "#3fcf8e",
+        "tonalRamp": [
+          "#0d2219",
+          "#14382a",
+          "#1f4d38",
+          "#2a7a55",
+          "#3fcf8e",
+          "#6bdcaa",
+          "#9ee8c6",
+          "#d3f6e5"
+        ]
+      },
+      "pending-amber": {
+        "role": "status",
+        "displayName": "Pending Amber",
+        "canonical": "#f0a63c",
+        "tonalRamp": [
+          "#2a1e0a",
+          "#3f2c0e",
+          "#5c4214",
+          "#a3711f",
+          "#f0a63c",
+          "#f5bf6f",
+          "#f9d6a2",
+          "#fdeed6"
+        ]
+      },
+      "blocked-rose": {
+        "role": "status",
+        "displayName": "Blocked Rose",
+        "canonical": "#ff3d5e",
+        "tonalRamp": [
+          "#2b0d14",
+          "#45131e",
+          "#64202f",
+          "#a82a42",
+          "#ff3d5e",
+          "#ff7389",
+          "#ffa3b2",
+          "#ffd6dd"
+        ]
+      },
+      "info-sky": {
+        "role": "status",
+        "displayName": "Info Sky",
+        "canonical": "#7cb3ff",
+        "tonalRamp": [
+          "#0e1726",
+          "#162540",
+          "#22344f",
+          "#3b5d8f",
+          "#7cb3ff",
+          "#9cc6ff",
+          "#c0dbff",
+          "#e3efff"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display numerals",
+        "purpose": "Stat-strip counts and the generation percentage; numerals as composition."
+      },
+      "headline": {
+        "displayName": "Page title",
+        "purpose": "One per page."
+      },
+      "title": {
+        "displayName": "Card title",
+        "purpose": "Card, panel and list-group headings."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Interface copy; intros at 15px, 68ch max."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Field labels, status words, column headers, step names."
+      },
+      "derja": {
+        "displayName": "Derja (Arabic script)",
+        "purpose": "Tunisian derja source lines, right to left, generous leading."
+      },
+      "data": {
+        "displayName": "Data",
+        "purpose": "Timecodes, hashes, signatures and identifiers only."
+      }
+    },
+    "shadows": [
+      {
+        "name": "lift",
+        "value": "0 1px 2px rgba(0, 0, 0, 0.5)",
+        "purpose": "Secondary buttons, the active nav item, the selected segment."
+      },
+      {
+        "name": "popover",
+        "value": "0 12px 32px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.06)",
+        "purpose": "Menus, notifications, toasts."
+      },
+      {
+        "name": "dialog",
+        "value": "0 24px 64px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.07)",
+        "purpose": "Modal dialogs over a 62% black scrim."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease",
+        "value": "cubic-bezier(0.2, 0.8, 0.2, 1)",
+        "purpose": "Hover, colour and border transitions."
+      },
+      {
+        "name": "ease-out",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Entrances: dialogs, sheets, reveals, progress fills."
+      },
+      {
+        "name": "dur-1",
+        "value": "120ms",
+        "purpose": "Hover and press feedback."
+      },
+      {
+        "name": "dur-2",
+        "value": "180ms",
+        "purpose": "Popovers, fades, exits."
+      },
+      {
+        "name": "dur-3",
+        "value": "260ms",
+        "purpose": "Dialogs, sheets, height reveals. Every animation drops to near-zero under prefers-reduced-motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "stack-asides",
+        "value": "1180px"
+      },
+      {
+        "name": "drawer-nav",
+        "value": "1024px"
+      },
+      {
+        "name": "single-column",
+        "value": "720px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The single main action of a view.",
+      "html": "<button class=\"ds-btn ds-btn-primary\">Lancer l’analyse</button>",
+      "css": ".ds-btn { height: 34px; padding: 0 14px; border-radius: 4px; border: 1px solid transparent; font: 500 13px/1 'IBM Plex Sans', system-ui, sans-serif; cursor: pointer; transition: background 120ms cubic-bezier(0.2,0.8,0.2,1), border-color 120ms, transform 120ms; } .ds-btn-primary { background: #ff4500; color: #0a0a0a; } .ds-btn-primary:hover { background: #ff6224; } .ds-btn:focus-visible { outline: 2px solid #ff4500; outline-offset: 2px; } .ds-btn:active { transform: translateY(0.5px) scale(0.99); }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Supporting actions beside a primary.",
+      "html": "<button class=\"ds-btn2\">Consulter</button>",
+      "css": ".ds-btn2 { height: 34px; padding: 0 14px; border-radius: 4px; border: 1px solid #333336; background: #111111; color: #f4f4f5; box-shadow: 0 1px 2px rgba(11,11,12,0.05); font: 500 13px/1 'IBM Plex Sans', system-ui, sans-serif; cursor: pointer; transition: border-color 120ms, background 120ms; } .ds-btn2:hover { border-color: #5f5f66; background: #1c1c1c; } .ds-btn2:focus-visible { outline: 2px solid #ff4500; outline-offset: 2px; }"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Single-line input with a blue focus ring.",
+      "html": "<input class=\"ds-input\" placeholder=\"prenom@exemple.tn\" />",
+      "css": ".ds-input { width: 260px; height: 36px; padding: 0 11px; border: 1px solid #333336; border-radius: 4px; background: #111111; color: #f4f4f5; font: 400 14px 'IBM Plex Sans', system-ui, sans-serif; caret-color: #ff4500; transition: border-color 120ms, box-shadow 120ms; } .ds-input::placeholder { color: #5f5f66; } .ds-input:hover { border-color: #5f5f66; } .ds-input:focus { outline: none; border-color: #ff4500; box-shadow: 0 0 0 3px rgba(255,69,0,0.25); }"
+    },
+    {
+      "name": "Sidebar Navigation",
+      "kind": "nav",
+      "refersTo": "nav-item",
+      "description": "Canvas sidebar; the active item is a white pill with lift.",
+      "html": "<nav class=\"ds-nav\"><a class=\"ds-nav-a on\" href=\"#\">Tableau de bord</a><a class=\"ds-nav-a\" href=\"#\">Mes projets</a><a class=\"ds-nav-a\" href=\"#\">Bibliothèque de voix</a></nav>",
+      "css": ".ds-nav { display: grid; gap: 1px; width: 224px; padding: 12px; background: #070707; } .ds-nav-a { display: flex; align-items: center; height: 32px; padding: 0 10px; border-radius: 4px; color: #c7c7cc; text-decoration: none; font: 500 13px 'IBM Plex Sans', system-ui, sans-serif; transition: background 120ms; } .ds-nav-a:hover { background: #1a1a1a; color: #f4f4f5; } .ds-nav-a.on { background: #111111; color: #f4f4f5; font-weight: 600; box-shadow: 0 0 0 1px #232323, 0 1px 2px rgba(11,11,12,0.05); } .ds-nav-a:focus-visible { outline: 2px solid #ff4500; outline-offset: 2px; }"
+    },
+    {
+      "name": "Status",
+      "kind": "chip",
+      "refersTo": "status",
+      "description": "A 7px square and a word; colour only for authorization meaning.",
+      "html": "<span class=\"ds-st ok\">Autorisée</span> <span class=\"ds-st warn\">En attente</span> <span class=\"ds-st bad\">Bloquée</span>",
+      "css": ".ds-st { display: inline-flex; align-items: center; gap: 6px; margin-right: 12px; font: 500 12px 'IBM Plex Sans', system-ui, sans-serif; } .ds-st::before { content: ''; width: 7px; height: 7px; border-radius: 1px; } .ds-st.ok { color: #3fcf8e; } .ds-st.ok::before { background: #3fcf8e; } .ds-st.warn { color: #f0a63c; } .ds-st.warn::before { background: #f0a63c; } .ds-st.bad { color: #ff7389; } .ds-st.bad::before { background: #ff3d5e; }"
+    },
+    {
+      "name": "Proposal and Decision",
+      "kind": "custom",
+      "refersTo": "proposal",
+      "description": "Signature: AI proposal in a dashed neutral line; human decision in solid ink.",
+      "html": "<div class=\"ds-prop\"><span class=\"ds-prop-tag\">Proposé par l’IA</span>Intervenant A · voix féminine, 3 prises de parole</div><div class=\"ds-prop done\"><span class=\"ds-prop-tag\">Confirmé par Nour Films</span>Amel · personnage principal</div>",
+      "css": ".ds-prop { position: relative; width: 320px; margin: 14px 0; padding: 22px 16px 16px; border: 1px dashed #6a6a72; border-radius: 6px; background: #111111; font: 400 14px 'IBM Plex Sans', system-ui, sans-serif; color: #f4f4f5; } .ds-prop-tag { position: absolute; top: -9px; left: 12px; padding: 0 6px; background: #111111; font-size: 11px; font-weight: 600; line-height: 18px; color: #b4b4bc; } .ds-prop.done { border: 1px solid #f4f4f5; } .ds-prop.done .ds-prop-tag { color: #f4f4f5; }"
+    },
+    {
+      "name": "Voice Mark",
+      "kind": "custom",
+      "refersTo": "voice-mark",
+      "description": "Square initials: solid = licensed person, dashed = AI voice, double = original speaker.",
+      "html": "<span class=\"ds-vm\">LM</span><span class=\"ds-vm ai\">NA</span><span class=\"ds-vm orig\">AM</span>",
+      "css": ".ds-vm { display: inline-grid; place-items: center; width: 32px; height: 32px; margin-right: 8px; border: 1.5px solid #f4f4f5; border-radius: 4px; background: #111111; font: 600 12px 'IBM Plex Sans', system-ui, sans-serif; color: #f4f4f5; } .ds-vm.ai { border-style: dashed; border-color: #6a6a72; color: #b4b4bc; } .ds-vm.orig { border: 3px double #f4f4f5; }"
+    },
+    {
+      "name": "Callout",
+      "kind": "custom",
+      "refersTo": "callout-blocked",
+      "description": "Tinted state message with a full hairline border, never a side stripe.",
+      "html": "<div class=\"ds-callout\"><b>Autorisation non validée.</b> La voix originale reste bloquée.</div>",
+      "css": ".ds-callout { max-width: 420px; padding: 12px 14px; border: 1px solid #64202f; border-radius: 6px; background: #2b0d14; color: #c7c7cc; font: 400 13px/1.5 'IBM Plex Sans', system-ui, sans-serif; } .ds-callout b { color: #f4f4f5; font-weight: 600; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Notarized Studio",
+    "overview": "SAWTI 360 is a production tool in which every decision is witnessed. The interface reads like a lit studio at night, matched to the public home page: hairline rules instead of shadows, numerals and identifiers set as facts, and the Passeport 360° seal as the one emblem. Anything a machine proposes is drawn with a neutral dashed hairline; anything a person has decided is drawn solid in paper ink. Ember Orange marks what you can act on or have selected; green, amber, rose and sky carry status.",
+    "keyCharacteristics": [
+      "Paper ink on night surfaces; hairlines carry structure, shadows only lift overlays.",
+      "Dashed neutral line = AI proposal; solid paper-ink line = human decision.",
+      "One action colour, Ember Orange; status colours only for authorization and information states.",
+      "One type family with an Arabic companion; monospace only for timecodes, hashes and identifiers.",
+      "Every piece of data says what it is: Réel, Simulé, Exemple or Prévu."
+    ],
+    "rules": [
+      {
+        "name": "The One Meaning Rule",
+        "body": "Ember Orange means \"you can act on this, or you selected it\". It never marks an AI proposal, a decoration or an inactive state.",
+        "section": "colors"
+      },
+      {
+        "name": "The Machine Is Grey Rule",
+        "body": "AI proposals are neutral and dashed. They become solid paper ink only once a person confirms them.",
+        "section": "colors"
+      },
+      {
+        "name": "The Mono Is Evidence Rule",
+        "body": "Monospace is reserved for values that are measured or verified. Never use it as a \"technical\" costume on labels, step numbers, initials or the brand.",
+        "section": "typography"
+      },
+      {
+        "name": "The Heading Speaks Alone Rule",
+        "body": "No eyebrow, kicker or label above a heading. Context goes in the breadcrumb or in the line under the title.",
+        "section": "typography"
+      },
+      {
+        "name": "The Hairline Grid Rule",
+        "body": "Structure comes from 1px rules and alignment, not from boxes. Use proximity and a rule before adding a container.",
+        "section": "layout"
+      },
+      {
+        "name": "The Flat-At-Rest Rule",
+        "body": "Nothing on the page casts a shadow except controls that need lift and layers that float.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Square Status Rule",
+        "body": "States are a small square and a word. No rounded pills, no tinted badges.",
+        "section": "shapes"
+      },
+      {
+        "name": "The Rose Is Not Orange Rule",
+        "body": "Errors and blocks use the rose red, never a red-orange that could be mistaken for the accent.",
+        "section": "colors"
+      }
+    ],
+    "dos": [
+      "Do draw every AI proposal with the dashed machine line and turn it solid ink when a person confirms it.",
+      "Do keep Ember Orange for actions, links, focus and selection only.",
+      "Do label data provenance (Réel, Simulé, Exemple, Prévu) wherever data is shown.",
+      "Do use Plex Mono for timecodes, hashes, signatures and identifiers, and tabular figures for counts and money.",
+      "Do separate groups with 1px rules and spacing before reaching for a new container.",
+      "Do keep status as a 7px square plus a word, with green, amber and red only for authorization meaning."
+    ],
+    "donts": [
+      "Don't put a kicker or eyebrow label above a heading.",
+      "Don't use a coloured border-left or border-right stripe on callouts, list items or nav items.",
+      "Don't number sections (01 / 02) unless the order itself is information, such as the project steps or a process.",
+      "Don't build page structure from same-size icon + title + text tiles.",
+      "Don't nest cards, or wrap form controls in more than one bordered layer.",
+      "Don't use monospace, gradients, glass or glows as decoration.",
+      "Don't colour an AI-generated voice or proposal in the action orange."
+    ]
+  }
+}
