@@ -166,7 +166,15 @@ Applique `reviews[segId].suggestion`, retire l'approbation. Remplace `applySugge
 ```
 → `202 { jobId }`. Tâche `analysis`, étapes = `ANALYSIS_STEPS`. Résultat : le projet rempli
 (`segments`, `speakers`, `characters`, `proposals`, `reviews`, `pipeline.status: "done"`).
-409 `EN_COURS` si une analyse tourne déjà. Remplace `runAnalysis` (`media/pipeline.ts`).
+409 `EN_COURS` si une analyse tourne déjà ; 413 au-delà de 5 minutes ; chemins hors de
+`<compte>/<projet>/` refusés (400). Chaque étape est aussi écrite dans `projects.pipeline`
+(`{ status, step, simulated: false, jobId, providers }`, `status: "error"` et `error` en cas
+d'échec). Même empreinte audio déjà analysée pour ce compte : résultat repris sans rappeler l'IA.
+Journal `ANALYSE_IA`. Remplace `runAnalysis` (`media/pipeline.ts`).
+
+**`POST /api/projects/:id/analysis/example`** → `Project`. Dernier recours après un échec : écrit
+l'exemple illustratif (`pipeline.simulated: true`, relectures `simulated: true`), étiqueté « Simulé ».
+Journal `ANALYSE_SIMULEE`.
 
 **`POST /api/projects/:id/review`** `{ segmentIds?: string[] }` → `202 { jobId }`.
 Tâche `review` (LLM 2 + vérificateur de fidélité). Remplace `reviewAll`. Chaque `Review` porte

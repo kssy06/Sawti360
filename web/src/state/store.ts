@@ -102,6 +102,8 @@ export interface Pipeline {
   /** Back-end mode: the analysis task being followed, and its error message if it failed. */
   jobId?: string;
   error?: string;
+  /** Sentence of the running step (« Transcription de 14 segments… »). */
+  detail?: string;
 }
 
 export interface Speaker {

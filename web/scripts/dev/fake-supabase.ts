@@ -203,6 +203,13 @@ async function storage(req: IncomingMessage, res: ServerResponse, url: URL, raw:
     if (!claims || claims.url !== `${m[1]}/${decodeURIComponent(m[2])}` || !existsSync(file)) return fail(res, 400, "invalid_token", "Invalid or expired signed URL");
     return send(res, 200, readFileSync(file), "application/octet-stream");
   }
+  m = /^\/object\/(media|dossiers|samples)\/(.+)$/.exec(path);
+  if (m && req.method === "GET") {
+    // Authenticated download by the server (secret key): the fake does not check the key.
+    const file = join(FILES, m[1], decodeURIComponent(m[2]));
+    if (!existsSync(file)) return fail(res, 404, "not_found", "Object not found");
+    return send(res, 200, readFileSync(file), "application/octet-stream");
+  }
   m = /^\/object\/([^/]+)$/.exec(path);
   if (m && req.method === "DELETE") return send(res, 200, []);
   return fail(res, 404, "not_found", `faux Supabase : ${req.method} ${url.pathname} non pris en charge`);

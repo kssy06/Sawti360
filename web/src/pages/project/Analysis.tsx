@@ -1,8 +1,11 @@
-import { ArrowRight, FileVideo } from "lucide-react";
+import { ArrowRight, FileVideo, RotateCcw } from "lucide-react";
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { formatDuration, getFrames } from "../../media/local";
+import { BACKEND } from "../../lib/backend";
 import { isAnalysing, runAnalysis } from "../../media/pipeline";
+import { useExampleAnalysis } from "../../state/remote/analysis";
+import { useStore } from "../../state/store";
 import { ANALYSIS_STEPS } from "../../mock/simulate";
 import type { Project } from "../../state/store";
 import { Callout, KV, ProcessList, Progress, Prov, plural } from "../../ui/kit";
@@ -13,16 +16,21 @@ export default function Analysis({ p }: { p: Project }) {
   const { src } = useVideoSrc(p);
   useMedia();
   const running = p.pipeline?.status === "running";
+  const failed = p.pipeline?.status === "error";
   const step = p.pipeline?.step ?? 5;
+  const real = p.pipeline?.simulated === false;
+  const models = real ? [p.pipeline?.providers?.asr, p.pipeline?.providers?.llm1, p.pipeline?.providers?.llm2].filter((m, i, a) => m && a.indexOf(m) === i).join(" · ") : "";
+  const resumable = BACKEND && Boolean(p.pipeline?.jobId);
 
-  // A running analysis survives navigation; restart it after a reload once the video is back.
+  // A running analysis survives navigation; restart it after a reload once the video is back
+  // (back-end mode: the server's task is simply followed again).
   useEffect(() => {
-    if (running && !isAnalysing(p.id) && src) void runAnalysis(p.id);
-  }, [p.id, running, src]);
+    if (running && !isAnalysing(p.id) && (src || resumable)) void runAnalysis(p.id);
+  }, [p.id, running, src, resumable]);
 
   const frames = p.segments.flatMap((s, n) => getFrames(p.id, s.id).map((f, i) => ({ key: `${s.id}-${i}`, f, label: i === 0 ? `Réplique ${n + 1}` : " " })));
   const translated = p.segments.filter((s) => s.translation).length;
-  const pct = running ? Math.min(0.99, (step + (step === 3 && p.segments.length ? translated / p.segments.length : 0.4)) / ANALYSIS_STEPS.length) : 1;
+  const pct = running ? Math.min(0.99, (step + (step === 3 && p.segments.length ? translated / p.segments.length : 0.4)) / ANALYSIS_STEPS.length) : failed ? Math.min(step, ANALYSIS_STEPS.length) / ANALYSIS_STEPS.length : 1;
   const chars = Object.values(p.characters);
 
   return (
@@ -69,12 +77,16 @@ export default function Analysis({ p }: { p: Project }) {
           <div className="an-overall">
             <div className="row-between">
               <span className="row">
-                <h2 style={{ fontSize: 16 }}>{running ? "Analyse en cours" : "Analyse terminée"}</h2>
-                <Prov kind={p.example ? "example" : "sim"}>{p.example ? undefined : "transcription et détection"}</Prov>
+                <h2 style={{ fontSize: 16 }}>{running ? "Analyse en cours" : failed ? "Analyse interrompue" : "Analyse terminée"}</h2>
+                {failed ? null : real ? (
+                  <Prov kind="real">{models || "transcription et détection"}</Prov>
+                ) : (
+                  <Prov kind={p.example ? "example" : "sim"}>{p.example ? undefined : "transcription et détection"}</Prov>
+                )}
               </span>
               <b className="num">{Math.round(pct * 100)} %</b>
             </div>
-            <Progress value={pct} label="Progression globale de l’analyse" tone={running ? "info" : "ok"} />
+            <Progress value={pct} label="Progression globale de l’analyse" tone={running ? "info" : failed ? "bad" : "ok"} />
           </div>
           <ProcessList
             label="Étapes de l’analyse"
@@ -82,9 +94,11 @@ export default function Analysis({ p }: { p: Project }) {
               key: s.key,
               label: s.label,
               detail: s.detail,
-              state: !running || i < step ? "done" : i === step ? "active" : "todo",
+              state: failed ? (i < step ? "done" : i === step ? "error" : "todo") : !running || i < step ? "done" : i === step ? "active" : "todo",
               extra:
-                running && i === step && i === 3 ? (
+                running && i === step && p.pipeline?.detail ? (
+                  <span className="hint">{p.pipeline.detail}</span>
+                ) : running && i === step && i === 3 ? (
                   <span className="hint num">
                     Répliques traitées : {translated} / {p.segments.length}
                   </span>
@@ -94,7 +108,24 @@ export default function Analysis({ p }: { p: Project }) {
         </div>
       </div>
 
-      {!running && (
+      {failed && (
+        <Callout tone="bad" role="alert" title="L’analyse n’a pas abouti">
+          <p>{p.pipeline?.error ?? "Erreur inconnue."}</p>
+          <div className="row" style={{ marginTop: 10 }}>
+            <button className="btn btn-primary btn-sm" onClick={() => void runAnalysis(p.id)}>
+              <RotateCcw />
+              Relancer
+            </button>
+            {BACKEND && (
+              <button className="btn btn-secondary btn-sm" onClick={() => void useExampleAnalysis(useStore.setState, p.id)}>
+                Utiliser l’exemple simulé
+              </button>
+            )}
+          </div>
+        </Callout>
+      )}
+
+      {!running && !failed && (
         <section className="section">
           <div className="section-head">
             <h2>Résultat</h2>
@@ -120,7 +151,7 @@ export default function Analysis({ p }: { p: Project }) {
       )}
 
       <StepFoot hint={running ? "Vous pouvez quitter cette page : l’analyse continue et le tableau de bord sera mis à jour." : undefined}>
-        <Link to={`/projet/${p.id}/personnages`} className={`btn btn-primary ${running ? "" : ""}`} aria-disabled={running} onClick={(e) => running && e.preventDefault()}>
+        <Link to={`/projet/${p.id}/personnages`} className={`btn btn-primary ${running ? "" : ""}`} aria-disabled={running || failed} onClick={(e) => (running || failed) && e.preventDefault()}>
           Confirmer les personnages
           <ArrowRight />
         </Link>

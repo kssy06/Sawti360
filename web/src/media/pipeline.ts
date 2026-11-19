@@ -1,8 +1,8 @@
-import { FR_CHARS_PER_SECOND, SEED_SEGMENTS } from "../core/catalog";
-import type { Segment } from "../core/types";
+import { layout, proposed } from "../mock/analysisExample";
 import { reviewSegment, wait } from "../mock/simulate";
+import { BACKEND } from "../lib/backend";
+import { isRemoteAnalysing, runRemoteAnalysis } from "../state/remote/analysis";
 import { useStore } from "../state/store";
-import type { Character } from "../state/workflow";
 import { captureFrames, setFrames, videoUrl } from "./local";
 
 /**
@@ -12,51 +12,10 @@ import { captureFrames, setFrames, videoUrl } from "./local";
  * until the speech-to-text and vision models are wired.
  */
 
-const SIMULATED: { source: string; translation: string; context: string }[] = [
-  { source: SEED_SEGMENTS[0].source, translation: "Yassine, le car part à cinq heures et demie.", context: "Elle s’adresse à quelqu’un hors champ : tutoiement, ton pressé." },
-  { source: SEED_SEGMENTS[1].source, translation: "J’ai pas le temps, je t’attends devant la maison.", context: "Il lui répond directement : registre familier, négation gardée." },
-  { source: SEED_SEGMENTS[2].source, translation: "Je l’ai payé 30 dinars, c’est pas rien !", context: "Montant dit à l’oral." },
-  { source: SEED_SEGMENTS[3].source, translation: "Ma mère m’a dit de rentrer avant la nuit.", context: "Il rapporte une parole de sa mère : discours indirect." },
-  { source: SEED_SEGMENTS[4].source, translation: "On les laissera nous faire taire.", context: "Ton déterminé, regard caméra." },
-  { source: SEED_SEGMENTS[5].source, translation: "Je veux montrer au monde ce qu’on fait ici.", context: "Plan large sur le quartier : « ici » désigne le lieu montré." },
-];
-
 const running = new Set<string>();
 
-function layout(duration: number): Segment[] {
-  const n = Math.max(2, Math.min(SIMULATED.length, Math.floor(duration / 3.5)));
-  const slot = duration / n;
-  return SIMULATED.slice(0, n).map((line, i) => {
-    const start = +(i * slot + slot * 0.12).toFixed(2);
-    const end = +(start + Math.min(slot * 0.76, 4.2)).toFixed(2);
-    const fits = line.translation.length / FR_CHARS_PER_SECOND <= end - start + 0.2;
-    return {
-      id: `s${i + 1}`,
-      start,
-      end,
-      speaker: i % 2 === 0 ? "p1" : "p2",
-      source: line.source,
-      confidence: [0.92, 0.86, 0.79, 0.94, 0.71, 0.9][i],
-      translation: line.translation,
-      validated: false,
-      context: line.context,
-      fits,
-    };
-  });
-}
-
-const proposed = (key: string, label: string, description: string): Character => ({
-  key,
-  proposedName: label,
-  proposedDescription: description,
-  name: label,
-  description,
-  confirmed: false,
-  useOriginal: false,
-  lifeStatus: "a_renseigner",
-});
-
 export async function runAnalysis(projectId: string) {
+  if (BACKEND) return runRemoteAnalysis(useStore.setState, useStore.getState, projectId);
   if (running.has(projectId)) return;
   running.add(projectId);
   const { patchProject } = useStore.getState();
@@ -121,4 +80,4 @@ export async function runAnalysis(projectId: string) {
   }
 }
 
-export const isAnalysing = (projectId: string) => running.has(projectId);
+export const isAnalysing = (projectId: string) => (BACKEND ? isRemoteAnalysing(projectId) : running.has(projectId));

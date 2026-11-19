@@ -2,9 +2,9 @@
  * MOCK PROCESSING LAYER — every function here stands in for a model or a server that is not wired yet.
  * Results are labelled « Simulé » in the interface. Nothing here claims a real verification.
  */
-import { checkFidelity } from "../core/fidelity";
+import { checkFidelity } from "../core/fidelity.js";
 import type { Segment } from "../core/types";
-import { keywords, type Character, type FamilyCheck, type FamilyDossier } from "../state/workflow";
+import { keywords, type Character, type FamilyCheck, type FamilyDossier } from "../state/workflow.js";
 
 export const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 

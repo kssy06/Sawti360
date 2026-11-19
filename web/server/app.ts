@@ -8,6 +8,7 @@ import { Hono } from "hono";
 import { authGate, type AppEnv } from "./auth.js";
 import { ApiError, errorBody, json } from "./errors.js";
 import { rateLimit } from "./ratelimit.js";
+import { analysis } from "./routes/analysis.js";
 import { bootstrap } from "./routes/bootstrap.js";
 import { characters } from "./routes/characters.js";
 import { demo } from "./routes/demo.js";
@@ -41,6 +42,7 @@ export function createApp() {
   app.route("/", uploads);
   app.route("/", jobs);
   app.route("/", review);
+  app.route("/", analysis);
 
   app.notFound(() => json(404, { error: "INTROUVABLE", message: "Route inconnue." }));
   app.onError((err) => {

@@ -157,10 +157,10 @@ Fichiers : `server/ai/{review,claude}.ts`, `server/routes/review.ts`, `src/state
 
 ### B5. Analyse de bout en bout (P0, 1 h 30) · dépend de A3, A5, A6, B1 à B4
 Fichiers : `server/routes/analysis.ts`, `src/media/pipeline.ts` (branche back-end), `pages/project/Analysis.tsx`, `pages/NewProject.tsx`.
-- [ ] sur l'aperçu déployé, l'extrait de démo donne de vrais segments, personnages, traductions et relectures en moins de 2 min
-- [ ] étapes qui avancent, étiquettes « Réel » avec les noms des modèles
-- [ ] réimport du même fichier : résultat repris sans rappeler l'IA
-- [ ] en cas d'échec : « Relancer » et « Utiliser l'exemple simulé »
+- [ ] sur l'aperçu déployé, l'extrait de démo donne de vrais segments, personnages, traductions et relectures en moins de 2 min — chaîne vérifiée de bout en bout en local (navigateur → stockage → tâche → projet, 5 s jusqu'à l'IA) ; IA réelle : clés Groq et Gemini
+- [x] étapes qui avancent, étiquettes « Réel » avec les noms des modèles (étapes écrites dans projects.pipeline, testé avec de faux fournisseurs)
+- [x] réimport du même fichier : résultat repris sans rappeler l'IA
+- [x] en cas d'échec : « Relancer » et « Utiliser l'exemple simulé » (Chromium, mode back-end)
 
 ### B7. Contrôle de l'échantillon de voix (P1, 1 h) · dépend de B2, A5, A6
 Fichiers : `server/ai/voicecheck.ts`, `server/ai/wer.ts` (+ tests).
