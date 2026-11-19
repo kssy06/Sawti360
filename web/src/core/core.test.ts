@@ -1,15 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { POST } from "../../api/tts";
-import { appendEntry, verifyChain } from "./audit";
-import { SEED_LICENSES, SEED_SEGMENTS } from "./catalog";
-import { signLicense, verifyLicense } from "./crypto";
-import { split } from "./credits";
-import { checkFidelity } from "./fidelity";
-import { runGate } from "./gate";
-import { assemblePassport, decodePassport, encodePassport, signPassport, verifyPassport } from "./passport";
-import { authorize } from "./rules";
-import { checkText } from "./safety";
-import type { GenerationRequest } from "./types";
+import { POST } from "../../api/tts.js";
+import { appendEntry, verifyChain } from "./audit.js";
+import { SEED_LICENSES, SEED_SEGMENTS } from "./catalog.js";
+import { signLicense, verifyLicense } from "./crypto.js";
+import { split } from "./credits.js";
+import { checkFidelity } from "./fidelity.js";
+import { runGate } from "./gate.js";
+import { assemblePassport, decodePassport, encodePassport, signPassport, verifyPassport } from "./passport.js";
+import { authorize } from "./rules.js";
+import { checkText } from "./safety.js";
+import type { GenerationRequest } from "./types.js";
 
 const NOW = new Date("2026-11-18T10:00:00Z");
 const LICENSES = SEED_LICENSES.map(signLicense);

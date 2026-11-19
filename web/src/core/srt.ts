@@ -1,4 +1,4 @@
-import type { Segment } from "./types";
+import type { Segment } from "./types.js";
 
 function stamp(s: number): string {
   const ms = Math.round(s * 1000);

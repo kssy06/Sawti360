@@ -1,5 +1,5 @@
-import { canonicalJson, nowIso, sha256Hex } from "./canonical";
-import type { AuditEntry } from "./types";
+import { canonicalJson, nowIso, sha256Hex } from "./canonical.js";
+import type { AuditEntry } from "./types.js";
 
 export const GENESIS = "0".repeat(64);
 

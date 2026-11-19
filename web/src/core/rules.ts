@@ -1,4 +1,4 @@
-import type { Decision, GenerationRequest, ReasonCode, VoiceLicense } from "./types";
+import type { Decision, GenerationRequest, ReasonCode, VoiceLicense } from "./types.js";
 
 /** Port of sawti/models.py REASONS_FR, plus the two content-safety refusals. */
 export const REASONS_FR: Record<ReasonCode, string> = {

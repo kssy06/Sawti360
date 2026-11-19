@@ -1,9 +1,9 @@
-import { MAX_TTS_CHARS } from "./catalog";
-import { sha256Hex } from "./canonical";
-import { verifyLicense } from "./crypto";
-import { authorize, decision } from "./rules";
-import { checkText, type SafetyResult } from "./safety";
-import type { Decision, Lang, Theme, Use, VoiceLicense } from "./types";
+import { MAX_TTS_CHARS } from "./catalog.js";
+import { sha256Hex } from "./canonical.js";
+import { verifyLicense } from "./crypto.js";
+import { authorize, decision } from "./rules.js";
+import { checkText, type SafetyResult } from "./safety.js";
+import type { Decision, Lang, Theme, Use, VoiceLicense } from "./types.js";
 
 export interface GateInput {
   voice_id: string;

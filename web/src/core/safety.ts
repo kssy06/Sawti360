@@ -1,4 +1,4 @@
-import type { Theme } from "./types";
+import type { Theme } from "./types.js";
 
 /**
  * Two layers, both checked before any synthesis (in the browser for instant feedback,

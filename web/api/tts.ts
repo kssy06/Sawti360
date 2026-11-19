@@ -6,11 +6,11 @@
  * Trust model of the demo: the licence registry below is the server's own copy.
  * The browser may only ADD restrictions (a revocation, extra forbidden themes), never remove one.
  */
-import { MAX_TTS_CHARS, PROJECT, SEED_LICENSES, voiceById } from "../src/core/catalog";
-import { signLicense } from "../src/core/crypto";
-import { runGate } from "../src/core/gate";
-import { THEMES } from "../src/core/safety";
-import type { Lang, Theme, Use, VoiceLicense } from "../src/core/types";
+import { MAX_TTS_CHARS, PROJECT, SEED_LICENSES, voiceById } from "../src/core/catalog.js";
+import { signLicense } from "../src/core/crypto.js";
+import { runGate } from "../src/core/gate.js";
+import { THEMES } from "../src/core/safety.js";
+import type { Lang, Theme, Use, VoiceLicense } from "../src/core/types.js";
 
 const REGISTRY: VoiceLicense[] = SEED_LICENSES.map(signLicense);
 const USES: Use[] = ["doublage_film", "doublage_video_en_ligne", "bande_annonce", "publicite", "contenu_politique", "contenu_intime"];

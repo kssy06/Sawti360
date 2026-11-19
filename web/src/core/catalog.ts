@@ -1,5 +1,5 @@
-import { sha256Hex } from "./canonical";
-import type { Segment, Use, Voice, VoiceLicense } from "./types";
+import { sha256Hex } from "./canonical.js";
+import type { Segment, Use, Voice, VoiceLicense } from "./types.js";
 
 /** Stand-in for the SHA-256 of a signed consent form (only the hash enters the licence). */
 const consentHash = (holder: string) => sha256Hex(`formulaire de consentement de démonstration · ${holder}`);

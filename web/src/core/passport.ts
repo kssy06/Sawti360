@@ -1,8 +1,8 @@
 import { deflateSync, inflateSync, strFromU8, strToU8 } from "fflate";
-import { headHash, verifyChain } from "./audit";
-import { canonicalJson, nowIso, sha256Hex } from "./canonical";
-import { PLATFORM_PUBLIC_KEY, signText, verifyText } from "./crypto";
-import type { AuditEntry, VoiceLicense } from "./types";
+import { headHash, verifyChain } from "./audit.js";
+import { canonicalJson, nowIso, sha256Hex } from "./canonical.js";
+import { PLATFORM_PUBLIC_KEY, signText, verifyText } from "./crypto.js";
+import type { AuditEntry, VoiceLicense } from "./types.js";
 
 /** Passeport 360°: the signed dossier that travels with every export.
  * Field names follow sawti/passport.py (schema sawti-passeport-360/0.1). */

@@ -1,8 +1,8 @@
 import * as ed from "@noble/ed25519";
 import { sha512 } from "@noble/hashes/sha2.js";
 import { bytesToHex, hexToBytes, utf8ToBytes } from "@noble/hashes/utils.js";
-import { canonicalJson, sha256Hex } from "./canonical";
-import type { VoiceLicense } from "./types";
+import { canonicalJson, sha256Hex } from "./canonical.js";
+import type { VoiceLicense } from "./types.js";
 
 ed.hashes.sha512 = sha512;
 
