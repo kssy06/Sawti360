@@ -1,11 +1,13 @@
 import { Check, CircleCheck, CircleX, FlaskConical, RotateCcw } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { verifyChain } from "../core/audit";
 import { voiceById } from "../core/catalog";
 import { fmt } from "../core/credits";
 import { PLATFORM_PUBLIC_KEY } from "../core/crypto";
 import type { AuditEntry } from "../core/types";
+import { BACKEND } from "../lib/backend";
+import { loadJournal } from "../state/remote/journal";
 import { useStore } from "../state/store";
 import { ENGINE_TEXT, useEngineStatus } from "../ui/engine";
 import { Callout, Empty, frDate, Hash, KV, PageHead, Prov, Tabs, toast, type ProvKind } from "../ui/kit";
@@ -76,6 +78,9 @@ const RED = /REFUS|REVOQU|INCOHERENCE|ECHOU|VERIFICATION$/;
 
 function Journal() {
   const journal = useStore((s) => s.journal);
+  useEffect(() => {
+    if (BACKEND) void loadJournal(useStore.setState, true);
+  }, []);
   const [tampered, setTampered] = useState<AuditEntry[] | null>(null);
   const [check, setCheck] = useState<ReturnType<typeof verifyChain> | null>(null);
   const [limit, setLimit] = useState(40);

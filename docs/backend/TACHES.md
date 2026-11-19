@@ -79,8 +79,8 @@ Fichiers : `src/state/seed.ts`, `scripts/seed.ts` (+ script npm `seed`, SETUP.md
 
 ### A4. Journal côté serveur (P0, 1 h) · dépend de A1
 Fichiers : `server/audit.ts` (ARCHITECTURE.md § 3), `server/routes/journal.ts`, `src/state/remote/journal.ts`, `pages/Trust.tsx`.
-- [ ] test : 10 ajouts en parallèle donnent une chaîne liée ; `verifyChain()` du navigateur la valide
-- [ ] le centre de confiance affiche le journal de la base ; la falsification simulée est détectée
+- [x] test : 10 ajouts en parallèle donnent une chaîne liée ; `verifyChain()` du navigateur la valide
+- [x] le centre de confiance affiche le journal de la base ; la falsification simulée est détectée (Chromium, mode back-end)
 
 ### A5. Fichiers (P0, 45 min) · dépend de A2
 Fichiers : `server/storage.ts`, `server/routes/uploads.ts`, `src/api/upload.ts`.
