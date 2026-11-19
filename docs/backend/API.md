@@ -299,7 +299,11 @@ utilisent la voix. Remplacent `revoke` et `reinstate`.
 
 **`POST /api/notifications/read`** `{ space }` → `204`. Remplace `markRead`.
 
-**`GET /api/jobs/:id`** → `Job`. Interrogé toutes les 1,5 s par `useJob`.
+**`GET /api/jobs/:id`** → `Job`. Interrogé toutes les 1,5 s par `useJob`. Une tâche silencieuse
+depuis plus de 300 s est lue (et enregistrée) en `error` : « relancez-la ».
+
+**`GET /api/public/jobs/:id`** (public) → `Job` sans `result`. Seulement pour les tâches lancées
+depuis un lien public (Passeport de voix d'une personne invitée, `account_id` nul).
 
 ## 4. Correspondance avec le store
 

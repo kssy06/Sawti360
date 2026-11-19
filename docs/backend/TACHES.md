@@ -90,8 +90,8 @@ Fichiers : `server/storage.ts`, `server/routes/uploads.ts`, `src/api/upload.ts`.
 
 ### A6. Tâches longues (P0, 45 min) · dépend de A1
 Fichiers : `server/jobs.ts`, `server/routes/jobs.ts`, `src/api/useJob.ts`.
-- [ ] une tâche de test passe de `queued` à `running` puis `done`, étapes visibles par interrogation
-- [ ] une tâche bloquée depuis plus de 300 s est lue comme `error` et peut être relancée
+- [x] une tâche de test passe de `queued` à `running` puis `done`, étapes visibles par interrogation
+- [x] une tâche bloquée depuis plus de 300 s est lue comme `error` et peut être relancée
 
 ### A7. Licences et paiements (P0, 2 h) · dépend de A3, A6 (et D1 pour l'e-mail)
 Fichiers : `server/routes/{voices,licences,payments}.ts`, `server/ledger.ts`,

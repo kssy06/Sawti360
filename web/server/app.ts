@@ -12,6 +12,7 @@ import { bootstrap } from "./routes/bootstrap.js";
 import { characters } from "./routes/characters.js";
 import { demo } from "./routes/demo.js";
 import { health } from "./routes/health.js";
+import { jobs } from "./routes/jobs.js";
 import { journal } from "./routes/journal.js";
 import { me } from "./routes/me.js";
 import { projects } from "./routes/projects.js";
@@ -37,6 +38,7 @@ export function createApp() {
   app.route("/", characters);
   app.route("/", journal);
   app.route("/", uploads);
+  app.route("/", jobs);
 
   app.notFound(() => json(404, { error: "INTROUVABLE", message: "Route inconnue." }));
   app.onError((err) => {

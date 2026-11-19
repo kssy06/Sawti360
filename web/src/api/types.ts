@@ -51,3 +51,15 @@ export interface Bootstrap {
   passports: Record<string, Passport360>;
   journalHead: { count: number; head: string };
 }
+
+export interface Job {
+  id: string;
+  kind: "analysis" | "review" | "dossier_check" | "voice_check" | "generation";
+  status: "queued" | "running" | "done" | "error";
+  step: number;
+  detail?: string;
+  result?: unknown;
+  error?: string;
+  providers?: Record<string, string>;
+  projectId?: string;
+}
