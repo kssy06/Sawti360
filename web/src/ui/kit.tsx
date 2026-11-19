@@ -215,10 +215,28 @@ export function ProcessList({ steps, label }: { steps: { key: string; label: Rea
 }
 
 export function Segmented<T extends string>({ value, onChange, options, label, size = "md" }: { value: T; onChange: (v: T) => void; options: { value: T; label: ReactNode; count?: number }[]; label: string; size?: "sm" | "md" }) {
+  const refs = useRef<(HTMLButtonElement | null)[]>([]);
+  const [pill, setPill] = useState<{ x: number; w: number } | null>(null);
+  const active = options.findIndex((o) => o.value === value);
+  // The selected background slides to the chosen option.
+  useLayoutEffect(() => {
+    const el = refs.current[active];
+    if (el) setPill({ x: el.offsetLeft, w: el.offsetWidth });
+  }, [active, options.length]);
   return (
     <div className={`segmented segmented-${size}`} role="radiogroup" aria-label={label}>
-      {options.map((o) => (
-        <button key={o.value} type="button" role="radio" aria-checked={value === o.value} onClick={() => onChange(o.value)}>
+      {pill && <span className="seg-pill" aria-hidden style={{ transform: `translateX(${pill.x}px)`, width: pill.w }} />}
+      {options.map((o, i) => (
+        <button
+          key={o.value}
+          ref={(el) => {
+            refs.current[i] = el;
+          }}
+          type="button"
+          role="radio"
+          aria-checked={value === o.value}
+          onClick={() => onChange(o.value)}
+        >
           {o.label}
           {o.count !== undefined && <span className="seg-count num">{o.count}</span>}
         </button>

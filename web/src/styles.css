@@ -1211,3 +1211,104 @@ input, textarea { caret-color: var(--accent); }
 
 .brand-word { font-family: "Playfair Display", Georgia, serif; font-size: 22px; font-weight: 700; letter-spacing: -0.05em; color: var(--ink); transition: color 300ms var(--ease); }
 .brand-word:hover { color: var(--accent); }
+
+/* ================================================================== motion: navigation, hover, press */
+/* gliding highlights (sidebar, segmented controls, workspace switch) */
+.nav { position: relative; }
+.nav > a { position: relative; z-index: 1; }
+.nav a.active { background: transparent; box-shadow: none; }
+.nav-pill { position: absolute; top: 0; left: 0; right: 0; z-index: 0; border-radius: var(--r-sm); background: var(--raised); box-shadow: 0 0 0 1px var(--rule-strong), var(--sh-1); transition: transform 380ms var(--ease-out), height 380ms var(--ease-out), opacity 200ms var(--ease); pointer-events: none; }
+.nav-pill::before { content: ""; position: absolute; left: 0; top: 9px; bottom: 9px; width: 2px; border-radius: 2px; background: var(--accent); }
+.nav-pill.hidden { opacity: 0; }
+.nav a svg { transition: transform 220ms var(--ease-out), color 160ms var(--ease); }
+.nav a:hover svg { transform: translateX(2px); }
+.nav a:hover { background: transparent; }
+.nav a:not(.active):hover { color: var(--ink); }
+
+.segmented { position: relative; }
+.segmented button { position: relative; z-index: 1; }
+.segmented button[aria-checked="true"] { background: transparent; box-shadow: none; }
+.seg-pill { position: absolute; top: 2px; bottom: 2px; left: 0; z-index: 0; border-radius: var(--r-sm); background: var(--raised); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.07); transition: transform 340ms var(--ease-out), width 340ms var(--ease-out); pointer-events: none; }
+.space-switch { position: relative; }
+.space-switch button { position: relative; z-index: 1; }
+.space-switch button[aria-pressed="true"] { background: transparent; box-shadow: none; }
+.space-pill { position: absolute; top: 2px; bottom: 2px; left: 2px; width: calc(50% - 3px); border-radius: var(--r-sm); background: var(--raised); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.07); transition: transform 380ms var(--ease-out); pointer-events: none; }
+.space-switch.is-owner .space-pill { transform: translateX(calc(100% + 2px)); }
+
+/* entering a screen: blocks rise out of a light blur, one after another */
+.route-view { animation: none; }
+.route-view > * { animation: route-rise 520ms var(--ease-out) backwards; }
+.route-view > :nth-child(2) { animation-delay: 50ms; }
+.route-view > :nth-child(3) { animation-delay: 100ms; }
+.route-view > :nth-child(4) { animation-delay: 150ms; }
+.route-view > :nth-child(n + 5) { animation-delay: 200ms; }
+@keyframes route-rise { from { opacity: 0; transform: translateY(12px); filter: blur(6px); } }
+.step-view[data-dir="fwd"] { animation: step-fwd 420ms var(--ease-out); }
+.step-view[data-dir="back"] { animation: step-back 420ms var(--ease-out); }
+@keyframes step-fwd { from { opacity: 0; transform: translateX(24px); filter: blur(4px); } }
+@keyframes step-back { from { opacity: 0; transform: translateX(-24px); filter: blur(4px); } }
+.tab-panel { animation: tab-in 320ms var(--ease-out); }
+@keyframes tab-in { from { opacity: 0; transform: translateY(6px); filter: blur(3px); } }
+
+/* hover: buttons lift a pixel and the primary takes a warm glow; arrows lean forward */
+.btn { position: relative; overflow: hidden; isolation: isolate; transition: background var(--dur-1) var(--ease), border-color var(--dur-1) var(--ease), color var(--dur-1) var(--ease), transform 260ms var(--ease-out), box-shadow 260ms var(--ease-out); }
+.btn:hover:not(:disabled):not(.btn-link) { transform: translateY(-1px); }
+.btn-primary:hover:not(:disabled) { box-shadow: 0 6px 20px -6px rgba(255, 69, 0, 0.55), 0 0 0 1px rgba(255, 120, 60, 0.35) inset; }
+.btn-secondary:hover:not(:disabled) { box-shadow: 0 6px 18px -8px rgba(0, 0, 0, 0.7); border-color: var(--ink-4); }
+.btn svg.lucide-arrow-right, .btn svg.lucide-chevron-right, .btn svg.lucide-external-link { transition: transform 260ms var(--ease-out); }
+.btn:hover svg.lucide-arrow-right, .btn:hover svg.lucide-chevron-right { transform: translateX(3px); }
+.btn:hover svg.lucide-external-link { transform: translate(2px, -2px); }
+
+/* press: quick squeeze, springy release, ink ripple from the pointer */
+.btn:active:not(:disabled):not(.btn-link) { transform: translateY(0) scale(0.965); transition-duration: 90ms; }
+.btn::after, .demo-account::after, .vopt::after { content: ""; position: absolute; left: var(--rx, 50%); top: var(--ry, 50%); width: var(--rs, 120px); height: var(--rs, 120px); margin: calc(var(--rs, 120px) / -2) 0 0 calc(var(--rs, 120px) / -2); border-radius: 50%; background: radial-gradient(circle, rgba(255, 255, 255, 0.28) 0%, rgba(255, 255, 255, 0) 70%); transform: scale(0); opacity: 0; pointer-events: none; z-index: -1; }
+.btn-primary::after, .btn-danger-solid::after, .btn-ok::after, .btn-dark::after { background: radial-gradient(circle, rgba(0, 0, 0, 0.22) 0%, rgba(0, 0, 0, 0) 70%); }
+.rippling::after { animation: press-ripple 560ms var(--ease-out); }
+@keyframes press-ripple { 0% { transform: scale(0); opacity: 1; } 100% { transform: scale(1); opacity: 0; } }
+.demo-account, .vopt { position: relative; overflow: hidden; isolation: isolate; }
+
+/* hover on clickable rows and cards */
+.proj, .quick-list a, .demo-account, .stat, .vcard, .choice, .vopt, .attn-list li, .note { transition: background 200ms var(--ease), border-color 200ms var(--ease), transform 300ms var(--ease-out), box-shadow 300ms var(--ease-out); }
+.proj:hover .proj-thumb { transform: scale(1.04); }
+.proj-thumb { transition: transform 420ms var(--ease-out); }
+.proj > svg, .quick-list .chev { transition: transform 260ms var(--ease-out), color 200ms var(--ease); }
+.proj:hover > svg, .quick-list a:hover .chev { transform: translateX(3px); color: var(--accent); }
+.stat:hover .stat-value { color: var(--accent); }
+.stat-value { transition: color 240ms var(--ease); }
+.vcard:hover { transform: translateY(-3px); border-color: var(--rule-strong); box-shadow: 0 18px 40px -20px rgba(0, 0, 0, 0.9); }
+.demo-account:hover { transform: translateY(-1px); border-color: var(--accent-line); }
+.demo-account:hover svg { color: var(--accent); }
+.vopt:hover:not(:disabled) { transform: translateY(-1px); }
+.choice:hover { border-color: var(--rule-strong); }
+.choice:active { transform: scale(0.99); }
+
+@media (prefers-reduced-motion: reduce) {
+  .btn:hover:not(:disabled), .vcard:hover, .demo-account:hover, .vopt:hover { transform: none; }
+  .route-view > * { filter: none; }
+}
+
+/* transitions slide content sideways: never let that create a horizontal scroll */
+.main { overflow-x: clip; }
+
+/* ================================================================== passport PDF (print) */
+.pp-toolbar { display: flex; justify-content: flex-end; margin-bottom: var(--s-4); }
+@media print {
+  @page { size: A4; margin: 14mm; }
+  html.print-passport, html.print-passport body { background: #fff !important; color: #0a0a0a !important; }
+  html.print-passport { --page: #fff; --surface: #fff; --raised: #fff; --canvas: #fff; --canvas-2: #f2f2f3; --rule: #dcdce0; --rule-soft: #e8e8eb; --rule-strong: #c4c4ca; --ink: #0a0a0a; --ink-2: #333338; --ink-3: #55555c; --ink-4: #8a8a92; --ai-line: #8a8a92; --ai-ink: #44444a; --ok: #0e7a46; --bad-ink: #a60c25; --warn: #9a5800; --info: #1d4ed8; color-scheme: light; }
+  html.print-passport .side, html.print-passport .top, html.print-passport .phead, html.print-passport .public-top, html.print-passport .public-foot,
+  html.print-passport .pp-toolbar, html.print-passport .toasts, html.print-passport .l-noise, html.print-passport .copyfield,
+  html.print-passport .pp-aside .btn, html.print-passport .pp-aside a.btn { display: none !important; }
+  html.print-passport .app { display: block; }
+  html.print-passport .content, html.print-passport .public-main { max-width: none; padding: 0; }
+  html.print-passport .pp-doc { grid-template-columns: minmax(0, 1fr) 200px; gap: 20px; }
+  html.print-passport .pp-aside { position: static; }
+  html.print-passport .pp-sec { grid-template-columns: 130px minmax(0, 1fr); gap: 14px; padding: 12px 0; break-inside: avoid; }
+  html.print-passport .pp-head { border-bottom-color: #0a0a0a; }
+  html.print-passport .card, html.print-passport .pp-card { box-shadow: none; break-inside: avoid; }
+  html.print-passport .pp-qr { max-width: 170px; }
+  html.print-passport *, html.print-passport *::before, html.print-passport *::after { animation: none !important; transition: none !important; filter: none !important; }
+  html.print-passport .route-view > * { opacity: 1 !important; transform: none !important; }
+  html.print-passport .kv-row { font-size: 11px; padding: 5px 0; }
+  html.print-passport .pp-title { font-size: 24px; }
+}

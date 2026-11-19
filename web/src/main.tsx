@@ -15,6 +15,7 @@ import Dashboard from "./pages/Dashboard";
 import Projects from "./pages/Projects";
 import { useStore } from "./state/store";
 import { FullLoader } from "./ui/Loader";
+import { installPressRipple } from "./ui/motion";
 import { Shell } from "./ui/Shell";
 
 /* Heavier screens are split into their own chunks and load on demand behind a loading screen. */
@@ -47,6 +48,8 @@ const Public = ({ page: Page }: { page: LazyExoticComponent<ComponentType> }) =>
     <Page />
   </Suspense>
 );
+
+installPressRipple();
 
 /** Public consent and licence pages may be answered in another tab: keep every tab in sync. */
 window.addEventListener("storage", (e) => {

@@ -1,4 +1,4 @@
-import { CircleCheck, CircleMinus, CircleX, Download, ExternalLink, FileBadge2, FileUp, RefreshCw, RotateCcw } from "lucide-react";
+import { CircleCheck, CircleMinus, CircleX, Download, FileDown, ExternalLink, FileBadge2, FileUp, RefreshCw, RotateCcw } from "lucide-react";
 import QRCode from "qrcode";
 import { useEffect, useMemo, useState } from "react";
 import { Link, Navigate, useLocation, useNavigate, useParams } from "react-router-dom";
@@ -34,6 +34,23 @@ function Sec({ no, title, children }: { no: string; title: string; children: Rea
       <div className="pp-sec-body">{children}</div>
     </section>
   );
+}
+
+/**
+ * PDF export through the browser's print engine: a dedicated print stylesheet lays the passport out
+ * as a light A4 document (QR included), and the browser saves it as PDF. The file name comes from the title.
+ */
+export function exportPassportPdf(p: Passport360) {
+  const previous = document.title;
+  document.title = `passeport-360-${slug(p.identite.titre)}-${p.identifiant ?? ""}`.replace(/-+$/, "");
+  document.documentElement.classList.add("print-passport");
+  const done = () => {
+    document.documentElement.classList.remove("print-passport");
+    document.title = previous;
+    window.removeEventListener("afterprint", done);
+  };
+  window.addEventListener("afterprint", done);
+  window.print();
 }
 
 const VERIFY_START = 380;
@@ -406,6 +423,10 @@ export function PassportView() {
                 Résultat du projet
               </Link>
             )}
+            <button className="btn btn-primary" onClick={() => exportPassportPdf(passport)}>
+              <FileDown />
+              Exporter en PDF
+            </button>
             <button
               className="btn btn-secondary"
               onClick={() => {
@@ -483,7 +504,15 @@ export function Verify() {
       </header>
       <main className="public-main">
         {p ? (
-          <PassportDocument p={p} journal={journal} publicView />
+          <>
+            <div className="pp-toolbar">
+              <button className="btn btn-secondary btn-sm" onClick={() => exportPassportPdf(p)}>
+                <FileDown />
+                Exporter en PDF
+              </button>
+            </div>
+            <PassportDocument p={p} journal={journal} publicView />
+          </>
         ) : (
           <div className="stack-lg" style={{ maxWidth: 680 }}>
             <div className="stack-sm">

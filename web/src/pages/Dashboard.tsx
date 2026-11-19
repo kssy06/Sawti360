@@ -163,10 +163,10 @@ export default function Dashboard() {
               <span>Traçabilité publique</span>
               <ChevronRight aria-hidden className="chev" />
             </Link>
-            <Link to="/proprietaire/passeport">
+            <Link to="/proprietaire">
               <Mic aria-hidden />
               <b>{owned ? "Gérer ma voix" : "Proposer ma voix"}</b>
-              <span>Passeport de voix</span>
+              <span>Espace propriétaire</span>
               <ChevronRight aria-hidden className="chev" />
             </Link>
           </nav>

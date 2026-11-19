@@ -91,3 +91,31 @@ export function usePhases(durations: number[], { paused = false, loop = true, di
   }, [phase, paused, hidden, loop, disabled, durations]);
   return { phase, cycle };
 }
+
+/**
+ * Press feedback: a soft ink ripple grows from the exact point where a button is pressed.
+ * One delegated listener for the whole app; skipped under reduced motion.
+ */
+export function installPressRipple() {
+  if (typeof document === "undefined") return;
+  const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)");
+  document.addEventListener(
+    "pointerdown",
+    (e) => {
+      if (reduce?.matches || e.button !== 0) return;
+      const el = (e.target as HTMLElement | null)?.closest<HTMLElement>(".btn:not(.btn-link):not(:disabled), .demo-account, .vopt:not(:disabled)");
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      el.style.setProperty("--rx", `${e.clientX - r.left}px`);
+      el.style.setProperty("--ry", `${e.clientY - r.top}px`);
+      el.style.setProperty("--rs", `${Math.hypot(Math.max(e.clientX - r.left, r.right - e.clientX), Math.max(e.clientY - r.top, r.bottom - e.clientY)) * 2}px`);
+      el.classList.remove("rippling");
+      void el.offsetWidth;
+      el.classList.add("rippling");
+    },
+    { passive: true },
+  );
+  document.addEventListener("animationend", (e) => {
+    if ((e as AnimationEvent).animationName === "press-ripple") (e.target as HTMLElement).classList?.remove("rippling");
+  });
+}

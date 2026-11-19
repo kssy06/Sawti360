@@ -1,6 +1,5 @@
 import {
   Bell,
-  BookUser,
   ChevronRight,
   ChevronsUpDown,
   CreditCard,
@@ -11,7 +10,6 @@ import {
   Library,
   LogOut,
   Menu,
-  Mic,
   Plus,
   RotateCcw,
   ShieldCheck,
@@ -19,7 +17,7 @@ import {
   UserRoundCog,
   Wallet,
 } from "lucide-react";
-import { createContext, Suspense, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import { createContext, Suspense, useContext, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { Link, Navigate, NavLink, Outlet, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { accountOf, statusOf, useStore, type Persona } from "../state/store";
 import { requestStatus } from "../state/workflow";
@@ -58,6 +56,23 @@ function useCounts() {
   return { all: mine.length, inProgress, done, waiting, sent, incoming, hasVoice: Boolean(owned) };
 }
 
+/**
+ * The active item's highlight is one element that glides from the previous item to the new one,
+ * instead of each item switching its own background.
+ */
+function NavPill() {
+  const ref = useRef<HTMLSpanElement>(null);
+  const { pathname, search } = useLocation();
+  const persona = useStore((s) => s.persona);
+  const [box, setBox] = useState<{ y: number; h: number } | null>(null);
+  useLayoutEffect(() => {
+    const nav = ref.current?.parentElement;
+    const active = nav?.querySelector<HTMLElement>("a.active");
+    setBox(active ? { y: active.offsetTop, h: active.offsetHeight } : null);
+  }, [pathname, search, persona]);
+  return <span ref={ref} className={`nav-pill ${box ? "" : "hidden"}`} aria-hidden style={box ? { transform: `translateY(${box.y}px)`, height: box.h } : undefined} />;
+}
+
 function CreatorNav() {
   const c = useCounts();
   const [params] = useSearchParams();
@@ -66,6 +81,7 @@ function CreatorNav() {
   const projActive = (v: string | null) => pathname === "/projets" && view === v;
   return (
     <nav className="nav" aria-label="Espace créateur">
+      <NavPill />
       <NavLink to="/tableau-de-bord">
         <LayoutDashboard aria-hidden />
         Tableau de bord
@@ -96,10 +112,6 @@ function CreatorNav() {
         Demandes de voix
         {c.sent > 0 && <span className="nav-count">{c.sent}</span>}
       </NavLink>
-      <NavLink to="/proprietaire/passeport">
-        <BookUser aria-hidden />
-        Mon Passeport de voix
-      </NavLink>
       <div className="nav-sec">Confiance</div>
       <NavLink to="/passeports">
         <FileBadge2 aria-hidden />
@@ -122,13 +134,10 @@ function OwnerNav() {
   const c = useCounts();
   return (
     <nav className="nav" aria-label="Espace propriétaire vocal">
+      <NavPill />
       <NavLink to="/proprietaire" end>
         <LayoutDashboard aria-hidden />
         Vue d’ensemble
-      </NavLink>
-      <NavLink to="/proprietaire/passeport">
-        <BookUser aria-hidden />
-        {c.hasVoice ? "Mon Passeport de voix" : "Créer mon Passeport de voix"}
       </NavLink>
       <NavLink to="/proprietaire/demandes">
         <Inbox aria-hidden />
@@ -170,7 +179,8 @@ function SpaceSwitch() {
     navigate(p === "creator" ? "/tableau-de-bord" : "/proprietaire");
   };
   return (
-    <div className="space-switch" role="group" aria-label="Espace de travail">
+    <div className={`space-switch ${persona === "owner" ? "is-owner" : ""}`} role="group" aria-label="Espace de travail">
+      <span className="space-pill" aria-hidden />
       <button type="button" aria-pressed={persona === "creator"} onClick={() => go("creator")}>
         Créateur
       </button>
@@ -348,12 +358,6 @@ export function Shell() {
             <Link to="/nouveau" className="btn btn-primary btn-block">
               <Plus />
               Nouveau projet
-            </Link>
-          )}
-          {persona === "owner" && (
-            <Link to="/proprietaire/passeport" className="btn btn-secondary btn-block">
-              <Mic />
-              Mon Passeport de voix
             </Link>
           )}
           {persona === "creator" ? <CreatorNav /> : <OwnerNav />}
