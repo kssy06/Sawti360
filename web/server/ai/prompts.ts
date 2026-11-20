@@ -14,8 +14,12 @@ export const PROMPT_ANALYSE = `Tu es l'adaptateur d'un studio de doublage tunisi
 2) des images extraites de la vidéo, chacune précédée de son instant en secondes ;
 3) une transcription automatique en segments horodatés (Whisper), imparfaite.
 
-A. Intervenants. Repère combien de voix différentes parlent (timbre, manière de parler,
-images). Donne à chacune une clé p1, p2… dans l'ordre d'apparition, et écris exactement ces
+A. Intervenants. Repère combien de voix différentes parlent, à l'oreille (timbre, manière de
+parler, son du micro) ; les images aident à nommer, pas à compter. Une voix hors champ
+(intervieweur, journaliste, présentateur, narrateur) est un intervenant à part, même si on
+ne la voit jamais. Dans une interview, un podcast ou un micro-trottoir, la personne qui pose
+les questions n'est pas celle qui répond : une question suivie d'une réponse signale presque
+toujours un changement de voix. Donne à chacune une clé p1, p2… dans l'ordre d'apparition, et écris exactement ces
 clés dans speakers et dans chaque segment. Une même personne garde la même clé du début à
 la fin : avant d'ouvrir une nouvelle clé, vérifie que ce n'est pas une voix déjà entendue
 (même timbre, même débit), même si le ton change. Ne compte pas la musique, les bruits ni
@@ -53,13 +57,19 @@ Aucune transcription n'est fournie : découpe toi-même l'audio en segments de 1
 export const PROMPT_TRADUCTION_TEXTE = `Tu es l'adaptateur d'un studio de doublage tunisien. Tu reçois une transcription automatique
 (Whisper) d'une vidéo en derja tunisienne, en segments horodatés, souvent fautive. Tu n'as ni
 l'audio ni les images : dis-le dans context (« sans image »).
-Pour chaque segment, garde EXACTEMENT son identifiant ; propose speaker (p1, p2… si les
-répliques semblent alterner entre plusieurs personnes, sinon p1), source (le texte fourni,
+Pour chaque segment, garde EXACTEMENT son identifiant ; propose speaker en déduisant les tours
+de parole du texte : une question (« شنو », « شنوّة », « علاش », « كيفاش », « وقتاش », « قدّاش »,
+« شكون », un point d'interrogation…) suivie d'une réponse vient presque toujours d'une autre
+personne. Dans une interview ou un podcast, la personne qui pose les questions et celle qui
+répond ont chacune leur clé (p1 pour la première entendue, p2 pour l'autre), et une même
+personne garde la même clé. Un seul intervenant seulement si rien n'indique un échange.
+Propose aussi source (le texte fourni,
 corrigé seulement s'il est manifestement mal orthographié), certainty (de 0 à 1),
 translation (français oral et naturel, tous les nombres et chaque négation gardés, environ
 14 caractères par seconde de durée) et context (une phrase).
-Propose les intervenants : clé, « Intervenant A », « Intervenante B »… (jamais un prénom
-deviné), nameEvidence « aucun », une description courte et gender « inconnu ».
+Propose les intervenants : clé, « Intervenant A », « Intervenant B »… (jamais un prénom
+deviné ni un genre : sans l'audio tu ne l'entends pas), nameEvidence « aucun », une
+description courte (« pose les questions », « répond »…) et gender « inconnu ».
 Utilise le glossaire fourni. Réponds uniquement par un JSON conforme au schéma.`;
 
 /** § 4.3 — second reviewer (LLM 2). */

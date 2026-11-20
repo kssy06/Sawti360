@@ -35,8 +35,42 @@ const b64 = (bytes: Uint8Array) => Buffer.from(bytes).toString("base64");
 
 export const inline = (bytes: Uint8Array, mimeType: string): Part => ({ inlineData: { mimeType, data: b64(bytes) } });
 
-/** One structured call: system prompt, parts, JSON validated by zod. */
+/**
+ * Models tried in turn when the configured one is overloaded. Free-tier Gemini answers 503 « high
+ * demand » or 429 at busy times; without these the analysis fell back to a text-only model that
+ * cannot hear the voices, and an interview came out as a single speaker.
+ */
+export const GEMINI_BACKUP_MODELS = ["gemini-flash-latest", "gemini-3.5-flash"];
+const RETRYABLE = new Set([429, 500, 503, 504]);
+let pause = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
+
+export function setPauseForTests(fn: ((ms: number) => Promise<void>) | null): void {
+  pause = fn ?? ((ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms)));
+}
+
+/**
+ * One structured call: system prompt, parts, JSON validated by zod. A busy model (429, 5xx) is
+ * retried once after a short pause, then the backup models are tried; any other error stops at once.
+ */
 export async function geminiJson<T>(schema: z.ZodType<T>, system: string, parts: Part[], model = env().models.gemini): Promise<{ data: T; model: string }> {
+  const models = [model, ...GEMINI_BACKUP_MODELS.filter((m) => m !== model)];
+  let last: unknown;
+  for (const m of models) {
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        return await geminiOnce(schema, system, parts, m);
+      } catch (err) {
+        last = err;
+        const status = err instanceof ProviderError ? err.status : undefined;
+        if (!status || !RETRYABLE.has(status)) throw err;
+        if (attempt === 0) await pause(1500);
+      }
+    }
+  }
+  throw last;
+}
+
+async function geminiOnce<T>(schema: z.ZodType<T>, system: string, parts: Part[], model: string): Promise<{ data: T; model: string }> {
   try {
     const res = await gemini().models.generateContent({
       model,

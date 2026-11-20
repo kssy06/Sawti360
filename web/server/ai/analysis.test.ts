@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { setEnvForTests } from "../env.js";
 import { analyse, assembleAnalysis, assembleTimed, fitsOnScreen } from "./analysis.js";
-import { setGeminiForTests, type AnalysisMedia, type GeminiLike } from "./gemini.js";
+import { setGeminiForTests, setPauseForTests, type AnalysisMedia, type GeminiLike } from "./gemini.js";
 import { setGroqForTests, type GroqLike, type TimedSegment } from "./groq.js";
 import type { AnalysisOut } from "./schemas.js";
 
@@ -95,6 +95,7 @@ describe("B3 · chaîne de repli de l'analyse", () => {
     setGroqForTests(null);
     setGeminiForTests(null);
     setEnvForTests(null);
+    setPauseForTests(null);
     steps.length = 0;
   });
 
@@ -123,8 +124,29 @@ describe("B3 · chaîne de repli de l'analyse", () => {
     expect(r.notes[0]).toContain("quota");
   });
 
+  it("Gemini surchargé (503) : nouvel essai, puis un modèle de secours ; on garde l'écoute de l'audio", async () => {
+    setEnvForTests({ GROQ_API_KEY: "k", GEMINI_API_KEY: "k" });
+    setPauseForTests(async () => undefined);
+    setGroqForTests(whisper());
+    const models: string[] = [];
+    setGeminiForTests({
+      models: {
+        generateContent: async (r) => {
+          models.push(String(r.model));
+          if (r.model === "gemini-3.8-flash") return Promise.reject(Object.assign(new Error("503 high demand"), { status: 503 }));
+          return { text: JSON.stringify(OUT) };
+        },
+      },
+    });
+    const r = await analyse(media, step);
+    expect(models).toEqual(["gemini-3.8-flash", "gemini-3.8-flash", "gemini-flash-latest"]);
+    expect(r.providers.llm1).toBe("gemini-flash-latest");
+    expect(r.notes).toEqual([]);
+  });
+
   it("Gemini en panne : Groq traduit le texte seul (« sans image »)", async () => {
     setEnvForTests({ GROQ_API_KEY: "k", GEMINI_API_KEY: "k" });
+    setPauseForTests(async () => undefined);
     setGroqForTests(whisper());
     setGeminiForTests({ models: { generateContent: async () => Promise.reject(Object.assign(new Error("429 RESOURCE_EXHAUSTED"), { status: 429 })) } });
     const r = await analyse(media, step);

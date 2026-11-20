@@ -88,9 +88,19 @@ Entrées envoyées par le navigateur (ARCHITECTURE.md § 4.2) : audio Ogg/Opus m
    segment, `id = "s" + (index + 1)`, `start`, `end` arrondis à 0,01 s ; on écarte ceux dont
    `no_speech_prob > 0,6` et on fusionne ceux de moins de 0,6 s avec leur voisin. Le texte de
    Whisper n'est transmis qu'à titre d'indice : il est souvent faux en derja.
+   **Tours de parole (20 nov.)** : Whisper est appelé avec les mots (`timestamp_granularities`
+   `word` et `segment`) et les lignes sont reconstruites à partir des mots (`turnsFromWords`) :
+   une pause de 0,45 s ou un point d'interrogation termine un tour, un tour s'arrête sur son
+   dernier mot (+ 0,1 s), un fragment de moins de 3 mots rejoint son voisin le plus proche
+   (sauf une question), un tour de plus de 10 s est coupé à sa plus longue pause. Les segments
+   de Whisper suivent le texte, pas les voix : une question et sa réponse pouvaient partager
+   une ligne, qui débordait en plus sur le silence.
 2. **Gemini écrit** : il reçoit l'audio, les images (chacune précédée de « Image à 12,0 s : »)
    et les bornes ; il transcrit lui-même chaque intervalle, attribue l'intervenant, traduit et
-   renvoie `AnalysisOut` (§ 4.2). Un intervalle sans parole (Whisper en invente parfois)
+   renvoie `AnalysisOut` (§ 4.2). Modèle surchargé (429, 5xx) : un nouvel essai après 1,5 s,
+   puis les modèles de secours `gemini-flash-latest` et `gemini-3.5-flash`
+   (`GEMINI_BACKUP_MODELS`) avant le repli texte seul ; sans eux, une interview passait au
+   repli texte seul, qui n'entend pas les voix, et sortait à un seul intervenant. Un intervalle sans parole (Whisper en invente parfois)
    revient avec `source = "[silence]"` et est retiré.
 3. **Contrôles du code** sur la sortie :
    - on garde exactement les identifiants et les horodatages de Whisper : un segment absent de
@@ -134,8 +144,12 @@ Tu es l'adaptateur d'un studio de doublage tunisien. Tu reçois :
 2) des images extraites de la vidéo, chacune précédée de son instant en secondes ;
 3) une transcription automatique en segments horodatés (Whisper), imparfaite.
 
-A. Intervenants. Repère combien de voix différentes parlent (timbre, manière de parler,
-images). Donne à chacune une clé p1, p2… dans l'ordre d'apparition, et écris exactement ces
+A. Intervenants. Repère combien de voix différentes parlent, à l'oreille (timbre, manière de
+parler, son du micro) ; les images aident à nommer, pas à compter. Une voix hors champ
+(intervieweur, journaliste, présentateur, narrateur) est un intervenant à part, même si on
+ne la voit jamais. Dans une interview, un podcast ou un micro-trottoir, la personne qui pose
+les questions n'est pas celle qui répond : une question suivie d'une réponse signale presque
+toujours un changement de voix. Donne à chacune une clé p1, p2… dans l'ordre d'apparition, et écris exactement ces
 clés dans speakers et dans chaque segment. Une même personne garde la même clé du début à
 la fin : avant d'ouvrir une nouvelle clé, vérifie que ce n'est pas une voix déjà entendue
 (même timbre, même débit), même si le ton change. Ne compte pas la musique, les bruits ni
