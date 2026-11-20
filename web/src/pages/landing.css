@@ -54,6 +54,8 @@ html.l-smooth { scroll-behavior: smooth; }
 .l-hero { position: relative; min-height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 128px 0 80px; background: var(--l-dark); color: var(--l-light); }
 .l-hero-bg { position: absolute; inset: 0; z-index: 0; pointer-events: none; user-select: none; }
 .l-hero-bg img { width: 100%; height: 100%; object-fit: cover; opacity: 0.48; mix-blend-mode: screen; }
+/* The hero artwork is red in the source images: recolour it to the palette (berry #853953, plum #612D53). */
+.l-hero-bg img, .l-hand img { filter: grayscale(1) sepia(1) hue-rotate(290deg) saturate(1.5) brightness(0.85); }
 .l-hero-fade { position: absolute; inset: 0; z-index: 1; background: linear-gradient(to bottom, transparent, transparent, var(--l-dark)); }
 .l-hand { position: absolute; z-index: 10; pointer-events: none; mix-blend-mode: hard-light; opacity: 0.8; }
 .l-hand img { width: 100%; height: auto; object-fit: contain; display: block; }
