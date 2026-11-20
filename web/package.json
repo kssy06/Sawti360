@@ -4,7 +4,9 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
+    "predev": "node scripts/ensure-deps.mjs",
     "dev": "vite",
+    "predev:demo": "node scripts/ensure-deps.mjs",
     "dev:demo": "vite --mode demo",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
