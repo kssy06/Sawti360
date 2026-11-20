@@ -20,6 +20,7 @@ import { jobs } from "./routes/jobs.js";
 import { journal } from "./routes/journal.js";
 import { licences } from "./routes/licences.js";
 import { notifications } from "./routes/notifications.js";
+import { owner } from "./routes/owner.js";
 import { passports } from "./routes/passports.js";
 import { me } from "./routes/me.js";
 import { payments } from "./routes/payments.js";
@@ -60,6 +61,7 @@ export function createApp() {
   app.route("/", generation);
   app.route("/", passports);
   app.route("/", notifications);
+  app.route("/", owner);
 
   app.notFound(() => json(404, { error: "INTROUVABLE", message: "Route inconnue." }));
   app.onError((err) => {

@@ -243,7 +243,7 @@ interface Actions {
   startGeneration: (pid: string) => Promise<void>;
 
   /* voice owner */
-  createOwnVoice: (profile: Omit<VoiceProfile, "voiceId" | "accountId">, sample: OwnedVoice["sample"]) => void;
+  createOwnVoice: (profile: Omit<VoiceProfile, "voiceId" | "accountId">, sample: OwnedVoice["sample"], audioUrl?: string) => void | Promise<void>;
   updateProfile: (patch: Partial<VoiceProfile>) => void;
 }
 
@@ -475,17 +475,20 @@ export const useStore = create<Store>()(
         generate: (sid) => (BACKEND ? remote.generation.generateLine(set, get, get().currentId, sid) : generateIn(currentProject(get()).id, sid)),
         tryVoice: (voiceId, text) => (BACKEND ? remote.generation.tryVoice(set, get, voiceId, text) : synthesize(voiceId, text, true, "essai de voix")),
         updateOwnLicense: (p) => {
+          if (BACKEND) return void remote.owner.updateRules(set, get, p);
           set((s) => ({ licenses: s.licenses.map((l) => (l.voice_id === OWNER_VOICE ? signLicense({ ...l, ...p }) : l)) }));
           const lic = get().licenses.find((l) => l.voice_id === OWNER_VOICE)!;
           log(OWNER.name, "PASSEPORT_MIS_A_JOUR", { license_id: lic.license_id, usages: lic.allowed_uses, themes: lic.forbidden_themes, signature: lic.signature }, "SIGNE");
         },
         revoke: (licenseId) => {
+          if (BACKEND) return void remote.owner.revoke(set, get, licenseId);
           set((s) => ({ licenses: s.licenses.map((l) => (l.license_id === licenseId ? { ...l, status: "revoked", revoked_at: new Date().toISOString() } : l)) }));
           const lic = get().licenses.find((l) => l.license_id === licenseId)!;
           log(lic.holder_name, "LICENCE_REVOQUEE", { license_id: licenseId }, "REVOQUEE");
           notify({ to: "nour", space: "creator", tone: "red", title: `${lic.holder_name} a révoqué sa licence`, body: "Les prochaines générations avec cette voix seront refusées. L’audio déjà livré reste tel quel." });
         },
         reinstate: (licenseId) => {
+          if (BACKEND) return void remote.owner.reinstate(set, get, licenseId);
           set((s) => ({ licenses: s.licenses.map((l) => (l.license_id === licenseId ? signLicense({ ...l, status: "active", revoked_at: null }) : l)) }));
           const lic = get().licenses.find((l) => l.license_id === licenseId)!;
           log(lic.holder_name, "LICENCE_RETABLIE", { license_id: licenseId, signature: lic.signature }, "SIGNE");
@@ -686,7 +689,8 @@ export const useStore = create<Store>()(
         },
 
         /* ---------------------------------------------- voice owner */
-        createOwnVoice: (profile, sample) => {
+        createOwnVoice: (profile, sample, audioUrl) => {
+          if (BACKEND) return remote.owner.createOwnVoice(set, get, profile, sample, audioUrl);
           const acc = accountOf(get());
           if (!acc) return;
           const voiceId = `v_user_${acc.id}`;
@@ -694,6 +698,7 @@ export const useStore = create<Store>()(
           log(acc.name, "PASSEPORT_DE_VOIX_CREE", { voix: voiceId, echantillon_s: sample?.duration ?? 0 }, "CREE");
         },
         updateProfile: (p) => {
+          if (BACKEND) return void remote.owner.updateProfile(set, get, p);
           const acc = accountOf(get());
           if (!acc) return;
           set((s) => {

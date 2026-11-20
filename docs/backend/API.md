@@ -321,17 +321,23 @@ licences et le passeport d'exemple avec la clé en place.
 ### Espace propriétaire vocal
 
 **`POST /api/owner/voice`** `{ profile: Omit<VoiceProfile, "voiceId" | "accountId">, samplePath, duration, peak, rms }`
-→ `202 { jobId }`. Tâche `voice_check`, puis profil publié et licence signée. Remplace `createOwnVoice`.
+→ `202 { jobId }`. Tâche `voice_check` (8 s au moins, niveau, saturation ; transcription et WER du
+paragraphe `paragraphFor(compte)` si Groq est configuré), puis profil publié (`v_user_<8 car.>`) et
+licence signée par le serveur (`VL-U-…`, 70 % au titulaire, politique et intime toujours refusés).
+Une seule voix par compte : 409. Voix de rendu : voix de synthèse de démonstration (clonage en P2).
+`samplePath` : bucket `samples`, sous le préfixe du compte. Remplace `createOwnVoice`.
 
-**`PATCH /api/owner/voice/profile`** `Partial<VoiceProfile>` → `OwnedVoice`. Journal
-`PROFIL_PUBLIC_MIS_A_JOUR`. Remplace `updateProfile`.
+**`PATCH /api/owner/voice/profile`** `Partial<VoiceProfile>` (sans `voiceId` ni `accountId`) → `OwnedVoice`.
+Journal `PROFIL_PUBLIC_MIS_A_JOUR`. 404 sans Passeport de voix. Remplace `updateProfile`.
 
 **`PATCH /api/owner/voice/rules`** `{ allowed_uses, forbidden_themes }` → `VoiceLicense` signée à nouveau.
+Les usages interdits d'office (`forbidden_uses`) sont retirés ; aucun usage restant → 400.
 Journal `PASSEPORT_MIS_A_JOUR`. Remplace `updateOwnLicense`.
 
-**`POST /api/owner/licenses/:licenseId/revoke`** et **`…/reinstate`** → `VoiceLicense`.
-Journal `LICENCE_REVOQUEE` / `LICENCE_RETABLIE` ; la révocation notifie les créateurs qui
-utilisent la voix. Remplacent `revoke` et `reinstate`.
+**`POST /api/owner/licenses/:licenseId/revoke`** et **`…/reinstate`** → `VoiceLicense` (403 si la voix
+n'est pas celle du compte). Journal `LICENCE_REVOQUEE` / `LICENCE_RETABLIE` ; la révocation notifie
+les créateurs qui utilisent la voix (personnage attribué ou licence de projet demandée) ; leur
+génération suivante est refusée (`LICENCE_REVOQUEE`). Remplacent `revoke` et `reinstate`.
 
 ### Journal, notifications, tâches
 

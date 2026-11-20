@@ -6,6 +6,7 @@ import { fmt, OWNER_SHARE } from "../core/credits";
 import { RED_LINES, THEMES } from "../core/safety";
 import type { Theme, Use } from "../core/types";
 import { messageOf } from "../api/client";
+import { BACKEND } from "../lib/backend";
 import { paragraphFor, type VoiceProfile } from "../mock/registry";
 import { accountOf, earningsOf, sampleUrls, useStore } from "../state/store";
 import { EXPIRY_HOURS, hoursLeft, PAYMENT_LABEL, requestStatus, REQUEST_LABEL, type LicenseRequest } from "../state/workflow";
@@ -113,10 +114,16 @@ function CreatePassport() {
   const qualityOk = checks.length > 0 && checks.every((c) => c.ok);
   const profileOk = Boolean(profile.publicName.trim()) && profile.languages.length > 0;
 
-  const publish = () => {
+  const publish = async () => {
     if (!rec || !account) return;
-    create({ ...profile, sampleText: para.slice(0, 80) }, { duration: rec.duration, peak: rec.peak, rms: rec.rms, recordedAt: new Date().toISOString() });
-    sampleUrls.set(`v_user_${account.id}`, rec.url);
+    try {
+      // Back-end mode: the reading is checked by the server before the Passport exists.
+      await create({ ...profile, sampleText: para.slice(0, 80) }, { duration: rec.duration, peak: rec.peak, rms: rec.rms, recordedAt: new Date().toISOString() }, rec.url);
+    } catch (err) {
+      toast(messageOf(err), "bad");
+      return;
+    }
+    sampleUrls.set(useStore.getState().ownedVoices[account.id]?.voiceId ?? `v_user_${account.id}`, rec.url);
     toast("Passeport de voix créé et publié", "ok");
     navigate("/proprietaire");
   };
@@ -191,7 +198,14 @@ function CreatePassport() {
           </>
         )}
         <Callout tone="plain">
-          Mesures de durée et de niveau <Prov kind="real" />. La comparaison avec le texte lu (correspondance) est <Prov kind="sim" /> dans ce prototype.
+          Mesures de durée et de niveau <Prov kind="real" />.{" "}
+          {BACKEND ? (
+            <>La comparaison avec le texte lu est refaite par le serveur à la publication : transcription et taux d’erreur sur les mots si la transcription est configurée, sinon les mesures seules.</>
+          ) : (
+            <>
+              La comparaison avec le texte lu (correspondance) est <Prov kind="sim" /> dans ce prototype.
+            </>
+          )}
         </Callout>
       </Step>
 
