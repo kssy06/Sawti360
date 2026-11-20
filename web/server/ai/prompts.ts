@@ -36,7 +36,10 @@ ne le corrige pas, écoute et transcris toi-même ce qui est dit dans chaque int
 Pour chacun : speaker (clé), source (ta transcription en graphie arabe ; les mots
 français restent en lettres latines), certainty (de 0 à 1, ta certitude sur cette
 transcription), translation (français), context (une phrase : qui parle à qui, ce qu'on
-voit, pourquoi ce choix de traduction). Intervalle sans parole : source « [silence] ».
+voit, pourquoi ce choix de traduction), emotion (l'émotion entendue dans la voix d'origine,
+pour que la voix française la rejoue : neutre, joie, enthousiasme, tendresse, tristesse,
+colere, peur, surprise ou ironie ; neutre en cas de doute). Intervalle sans parole : source
+« [silence] ».
 
 C. Traduction. Français oral et naturel, jamais mot à mot. Garde le sens, le registre
 (tutoiement entre proches, vouvoiement de politesse), l'équivalent français des
@@ -66,7 +69,9 @@ personne garde la même clé. Un seul intervenant seulement si rien n'indique un
 Propose aussi source (le texte fourni,
 corrigé seulement s'il est manifestement mal orthographié), certainty (de 0 à 1),
 translation (français oral et naturel, tous les nombres et chaque négation gardés, environ
-14 caractères par seconde de durée) et context (une phrase).
+14 caractères par seconde de durée), context (une phrase) et emotion (déduite du texte seul :
+neutre, joie, enthousiasme, tendresse, tristesse, colere, peur, surprise ou ironie ; neutre en
+cas de doute).
 Propose les intervenants : clé, « Intervenant A », « Intervenant B »… (jamais un prénom
 deviné ni un genre : sans l'audio tu ne l'entends pas), nameEvidence « aucun », une
 description courte (« pose les questions », « répond »…) et gender « inconnu ».

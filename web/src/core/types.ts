@@ -98,6 +98,8 @@ export interface Segment {
   context?: string;
   /** Whether the vision model judged the French line short enough for the time on screen. */
   fits?: boolean;
+  /** The feeling the line is spoken with (heard in the original by the analysis, changeable by the creator). */
+  emotion?: import("./emotion.js").Emotion;
 }
 
 export interface AuditEntry {

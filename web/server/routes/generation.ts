@@ -61,6 +61,7 @@ async function lineOf(sql: Sql, me: AccountOut, project: Project, segId: string,
     humanValidated: seg.validated,
     book,
     slot: seg.end - seg.start,
+    emotion: seg.emotion,
     keep: (speech) => files().write("media", linePath(project.accountId, project.id, seg.id, speech.mock), speech.bytes, speech.mime),
   });
   if (res.gen.fit?.tooLong) await proposeShorter(sql, project.id, seg, res.gen.fit);

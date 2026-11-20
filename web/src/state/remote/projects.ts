@@ -120,7 +120,7 @@ export function setValidated(set: Set, get: Get, segId: string, v: boolean): Pro
   return flushed.then(() => send(set, pid, () => api.patch<Project>(`/projects/${pid}/segments/${segId}`, { validated: v })));
 }
 
-const SEGMENT_FIELDS = ["translation", "validated", "source", "speaker", "start", "end"] as const;
+const SEGMENT_FIELDS = ["translation", "validated", "source", "speaker", "emotion", "start", "end"] as const;
 
 /* ------------------------------------------------------------------ projects */
 

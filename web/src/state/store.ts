@@ -1,3 +1,4 @@
+import type { Emotion } from "../core/emotion";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { appendEntry } from "../core/audit";
@@ -223,6 +224,8 @@ interface Actions {
   confirmCharacter: (pid: string, key: string, name: string, description: string) => void | Promise<void>;
   /** Corrections of the speaker detection: who says a line, a missed speaker, one person split in two. */
   setLineSpeaker: (pid: string, segId: string, key: string) => void;
+  /** The feeling a line is spoken with; its old audio is dropped. */
+  setLineEmotion: (pid: string, segId: string, emotion: Emotion) => void;
   addCharacter: (pid: string) => void | Promise<void>;
   mergeCharacter: (pid: string, key: string, into: string) => void | Promise<void>;
   setUseOriginal: (pid: string, key: string, v: boolean) => void | Promise<void>;
@@ -538,6 +541,15 @@ export const useStore = create<Store>()(
           const { [segId]: _old, ...gens } = p.gens;
           patch(pid, () => ({ segments, gens }));
           log(me(), "REPLIQUE_REATTRIBUEE", { projet: pid, segment: segId, de: seg.speaker, a: key }, "HUMAIN");
+        },
+        setLineEmotion: (pid, segId, emotion) => {
+          const p = get().projects[pid];
+          const seg = p?.segments.find((s) => s.id === segId);
+          if (!p || !seg || (seg.emotion ?? "neutre") === emotion) return;
+          const segments = p.segments.map((s) => (s.id === segId ? { ...s, emotion: emotion === "neutre" ? undefined : emotion } : s));
+          if (BACKEND) return remote.projects.patchProject(set, get, pid, { segments });
+          const { [segId]: _old, ...gens } = p.gens;
+          patch(pid, () => ({ segments, gens }));
         },
         addCharacter: (pid) => {
           if (BACKEND) return remote.characters.addCharacter(set, pid);

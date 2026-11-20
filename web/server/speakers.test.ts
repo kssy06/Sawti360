@@ -61,6 +61,15 @@ describe.skipIf(!hasTestDb)("Personnages · corriger le nombre d'intervenants", 
     expect((await readJournal(t.sql)).at(-1)).toMatchObject({ action: "PERSONNAGES_FUSIONNES", decision: "HUMAIN" });
   });
 
+  it("changer l'émotion d'une réplique retire son ancien audio ; une émotion inconnue est refusée", async () => {
+    let p = (await (await send("GET", `/projects/${PID}`, ids.nour)).json()) as Project;
+    expect(p.gens.s1).toBeDefined();
+    p = (await (await send("PATCH", `/projects/${PID}/segments/s1`, ids.nour, { emotion: "tristesse" })).json()) as Project;
+    expect(p.segments.find((s) => s.id === "s1")?.emotion).toBe("tristesse");
+    expect(p.gens.s1).toBeUndefined();
+    expect((await send("PATCH", `/projects/${PID}/segments/s1`, ids.nour, { emotion: "hurlement" })).status).toBe(400);
+  });
+
   it("refus : un personnage déjà engagé (licence demandée), lui-même, inconnu, un autre compte", async () => {
     const r = await send("POST", `/projects/${PID}/characters/selma/merge`, ids.nour, { into: "hamza" });
     expect(r.status).toBe(409);

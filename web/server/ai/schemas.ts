@@ -3,6 +3,7 @@
  * better accepted by the structured outputs of Gemini, Claude and Groq.
  */
 import { z } from "zod";
+import { EMOTION_KEYS } from "../../src/core/emotion.js";
 
 export const Speaker = z.object({
   key: z.string(),
@@ -19,6 +20,8 @@ export const AnalysisSegment = z.object({
   certainty: z.number(),
   translation: z.string(),
   context: z.string(),
+  /** The feeling heard in the original voice (absent or null: neutral). */
+  emotion: z.enum(EMOTION_KEYS).nullish(),
 });
 
 /** § 4.2 */

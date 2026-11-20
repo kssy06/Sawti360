@@ -1,3 +1,4 @@
+import { EMOTION_KEYS, EMOTIONS, type Emotion } from "../../core/emotion";
 import { ArrowRight, Check, RefreshCw, TriangleAlert, Undo2 } from "lucide-react";
 import { useId, useState } from "react";
 import { Link } from "react-router-dom";
@@ -21,6 +22,8 @@ function trState(p: Project, s: Segment): TrState {
 
 function Row({ p, s }: { p: Project; s: Segment }) {
   const edit = useStore((st) => st.editTranslation);
+  const setEmotion = useStore((st) => st.setLineEmotion);
+  const eid = useId();
   const setValidated = useStore((st) => st.setValidated);
   const apply = useStore((st) => st.applySuggestion);
   const fid = useId();
@@ -68,6 +71,18 @@ function Row({ p, s }: { p: Project; s: Segment }) {
             <b>{a.type === "CHIFFRES" ? "Chiffre modifié." : "Négation perdue."}</b> {a.message}
           </span>
         ))}
+        <span className="tr-emotion">
+          <label className="hint" htmlFor={eid}>
+            Émotion de la voix
+          </label>
+          <select id={eid} className="select" value={s.emotion ?? "neutre"} onChange={(e) => setEmotion(p.id, s.id, e.target.value as Emotion)}>
+            {EMOTION_KEYS.map((k) => (
+              <option key={k} value={k}>
+                {EMOTIONS[k].label}
+              </option>
+            ))}
+          </select>
+        </span>
         {state === "modifiee" && (
           <button className="btn btn-link" style={{ justifySelf: "start", fontSize: 12 }} onClick={() => edit(s.id, p.proposals[s.id])}>
             <Undo2 size={12} /> Revenir à la proposition du LLM 1

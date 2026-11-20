@@ -6,6 +6,7 @@ import { randomBytes } from "node:crypto";
 import { Hono } from "hono";
 import { z } from "zod";
 import { sha256Hex } from "../../src/core/canonical.js";
+import { EMOTION_KEYS } from "../../src/core/emotion.js";
 import type { Segment } from "../../src/core/types.js";
 import type { Project } from "../../src/state/store.js";
 import { FORMAT_LABEL } from "../../src/state/workflow.js";
@@ -59,6 +60,7 @@ const SegmentBody = z
     validated: z.boolean().optional(),
     source: z.string().max(2000).optional(),
     speaker: z.string().min(1).max(64).optional(),
+    emotion: z.enum(EMOTION_KEYS).optional(),
     start: z.number().min(0).optional(),
     end: z.number().min(0).optional(),
   })
@@ -140,6 +142,7 @@ export const projects = new Hono<AppEnv>()
         if (!row.characters[body.speaker] && !row.speakers[body.speaker]) throw badRequest("Intervenant inconnu dans ce projet.");
         next.speaker = body.speaker;
       }
+      if (body.emotion !== undefined) next.emotion = body.emotion === "neutre" ? undefined : body.emotion;
       if (body.start !== undefined) next.start = body.start;
       if (body.end !== undefined) next.end = body.end;
       if (next.end - next.start < 0.3) throw badRequest("La réplique doit durer au moins 0,3 s.");
@@ -148,8 +151,8 @@ export const projects = new Hono<AppEnv>()
         if (body.validated && !next.translation.trim()) throw badRequest("Une réplique vide ne peut pas être approuvée.");
         next.validated = body.validated;
       }
-      // A line given to another speaker will be said by another voice: its old audio no longer applies.
-      const gens = next.speaker !== seg.speaker && row.gens?.[segId] ? Object.fromEntries(Object.entries(row.gens).filter(([id]) => id !== segId)) : undefined;
+      // A line given to another speaker, or to be said with another feeling: its old audio no longer applies.
+      const gens = (next.speaker !== seg.speaker || next.emotion !== seg.emotion) && row.gens?.[segId] ? Object.fromEntries(Object.entries(row.gens).filter(([id]) => id !== segId)) : undefined;
       await updateProject(tx, row.id, { segments: row.segments.map((s) => (s.id === segId ? next : s)), gens });
       if (validationChanged) {
         await appendAudit(

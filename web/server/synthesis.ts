@@ -8,6 +8,7 @@
  *  5. usage row, 70 % credited to the holder, journal GENERATION_AUTORISEE, « Votre voix a été utilisée ».
  * A refusal writes GENERATION_REFUSEE, and warns the holder when one of their forbidden themes was aimed at.
  */
+import type { Emotion } from "../src/core/emotion.js";
 import { randomBytes } from "node:crypto";
 import type { Sql } from "postgres";
 import { sha256Hex } from "../src/core/canonical.js";
@@ -106,6 +107,8 @@ export interface SpeakInput {
   humanValidated: boolean;
   /** The line's place on screen in seconds (C2): a longer audio is synthesized again faster, up to ×1.15. */
   slot?: number;
+  /** The feeling the line is spoken with. */
+  emotion?: Emotion;
   /** Keeps the audio (the lines go to Storage); a failure refunds the jetons. */
   keep?: (speech: Speech) => Promise<void>;
   book?: VoiceBook;
@@ -172,8 +175,8 @@ export async function speakLine(sql: Sql, i: SpeakInput): Promise<SpeakResult> {
   let speech: Speech;
   let fit: GenState["fit"];
   try {
-    speech = await speak(render, i.text);
-    if (i.slot && i.slot > 0) ({ speech, fit } = await fitToSlot(speech, i.slot, (speed) => speak(render, i.text, { speed })));
+    speech = await speak(render, i.text, { emotion: i.emotion });
+    if (i.slot && i.slot > 0) ({ speech, fit } = await fitToSlot(speech, i.slot, (speed) => speak(render, i.text, { speed, emotion: i.emotion })));
     await i.keep?.(speech);
   } catch (err) {
     await addEntry(sql, i.me.id, cost, "remboursement", usageId);

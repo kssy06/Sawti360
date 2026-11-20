@@ -5,6 +5,7 @@
  * Fallbacks: Gemini alone (it cuts the audio itself), or Groq's text model without image.
  */
 import { FR_CHARS_PER_SECOND } from "../../src/core/catalog.js";
+import { isEmotion } from "../../src/core/emotion.js";
 import type { Segment } from "../../src/core/types.js";
 import type { Speaker } from "../../src/state/store.js";
 import type { Character } from "../../src/state/workflow.js";
@@ -125,6 +126,7 @@ export function assembleAnalysis(timeline: TimedSegment[], out: AnalysisOut, opt
       validated: false,
       context: notes.join(" "),
       fits: fitsOnScreen(translation, w.start, w.end),
+      ...(isEmotion(g.emotion) && g.emotion !== "neutre" ? { emotion: g.emotion } : {}),
     });
   }
   const used = new Set(segments.map((s) => s.speaker));

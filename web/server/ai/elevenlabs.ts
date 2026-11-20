@@ -3,6 +3,7 @@
  * SAWTI_TTS_MOCK=1 (development) returns a silent WAV as long as the line would be, flagged « mock »:
  * no credits spent, and the rest of the chain (rules, jetons, storage, journal) runs for real.
  */
+import { EMOTIONS, type Emotion } from "../../src/core/emotion.js";
 import { silentWav } from "../audio.js";
 import { env } from "../env.js";
 import { ApiError } from "../errors.js";
@@ -18,6 +19,19 @@ export interface Speech {
 export interface SpeechOptions {
   /** voice_settings.speed (0.7 to 1.2 at ElevenLabs); used by the rate adjustment (C2). */
   speed?: number;
+  /** The feeling to play (absent: neutral). */
+  emotion?: Emotion;
+}
+
+/**
+ * ElevenLabs voice settings for a line: the feeling sets stability, style and pace; the rate
+ * adjustment (C2) multiplies the pace, kept within ElevenLabs' 0.7–1.2. Pure: unit-tested.
+ */
+export function voiceSettings(opts: SpeechOptions = {}): { stability: number; similarity_boost: number; style: number; use_speaker_boost: boolean; speed?: number } {
+  const e = EMOTIONS[opts.emotion ?? "neutre"] ?? EMOTIONS.neutre;
+  const pace = (e.speed ?? 1) * (opts.speed ?? 1);
+  const speed = Math.round(Math.min(1.2, Math.max(0.7, pace)) * 100) / 100;
+  return { stability: e.stability, similarity_boost: 0.75, style: e.style, use_speaker_boost: true, ...(speed !== 1 ? { speed } : {}) };
 }
 
 export type Synthesizer = (elevenVoiceId: string, text: string, opts?: SpeechOptions) => Promise<Speech>;
@@ -28,7 +42,7 @@ export const mockSeconds = (text: string) => Math.min(12, Math.max(0.6, [...text
 const elevenlabs: Synthesizer = async (voice, text, opts = {}) => {
   const e = env();
   const t0 = performance.now();
-  if (e.SAWTI_TTS_MOCK) return { bytes: new Uint8Array(silentWav(mockSeconds(text) / (opts.speed ?? 1))), mime: "audio/wav", mock: true, ms: Math.round(performance.now() - t0) };
+  if (e.SAWTI_TTS_MOCK) return { bytes: new Uint8Array(silentWav(mockSeconds(text) / (voiceSettings(opts).speed ?? 1))), mime: "audio/wav", mock: true, ms: Math.round(performance.now() - t0) };
   if (!e.ELEVENLABS_API_KEY) throw new ApiError(503, "SYNTHESE_NON_CONFIGUREE", "Autorisé par le Passeport de voix, mais la clé ElevenLabs n’est pas configurée sur ce déploiement.");
   let res: Response;
   try {
@@ -38,7 +52,7 @@ const elevenlabs: Synthesizer = async (voice, text, opts = {}) => {
       body: JSON.stringify({
         text,
         model_id: e.models.tts,
-        voice_settings: { stability: 0.55, similarity_boost: 0.75, ...(opts.speed ? { speed: opts.speed } : {}) },
+        voice_settings: voiceSettings(opts),
       }),
       signal: AbortSignal.timeout(60_000),
     });
