@@ -118,8 +118,8 @@ html.l-smooth { scroll-behavior: smooth; }
 .l-card-icon svg { width: 24px; height: 24px; }
 .l-card-accent .l-card-icon { background: rgba(0, 0, 0, 0.1); }
 .l-card-dark .l-card-icon { background: rgba(255, 255, 255, 0.05); }
-.l-card:hover .l-card-icon.spin { transform: rotate(45deg); }
-.l-card:hover .l-card-icon.grow { transform: scale(1.1); }
+.l-card:hover .l-card-icon.l-icon-turn { transform: rotate(45deg); }
+.l-card:hover .l-card-icon.l-icon-lift { transform: scale(1.1); }
 .l-card-no { font-size: 14px; font-weight: 500; padding: 4px 12px; border-radius: 999px; }
 .l-card-accent .l-card-no { border: 1px solid rgba(0, 0, 0, 0.2); }
 .l-card-dark .l-card-no { border: 1px solid rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.5); }

@@ -95,7 +95,7 @@ export function PassportDocument({ p, journal, publicView = false }: { p: Passpo
       <article className="stack" style={{ gap: 0 }}>
         <header className="pp-head">
           <span className={`pp-seal ${done && animate ? "stamp" : ""}`} key={`${run}-${done}`}>
-            <Seal size={112} state={done ? (result.valid ? "ok" : "bad") : "pending"} label={done ? undefined : "PASSEPORT 360° · VÉRIFICATION EN COURS · "} />
+            <Seal size={112} state={done ? (result.valid ? "ok" : "bad") : "pending"} date={p.identite.date} label={done ? undefined : "PASSEPORT 360° · VÉRIFICATION EN COURS · "} />
           </span>
           <div className="stack-sm">
             <span className="pp-id">{p.identifiant ? <ScrambleText key={run} value={p.identifiant} run={animate} duration={900} alphabet="ABCDEFGHJKLMNPQRSTUVWXYZ23456789" /> : "Identifiant non attribué (schéma 0.1)"}</span>
@@ -555,7 +555,7 @@ export function Verify() {
         ) : (
           <div className="stack-lg" style={{ maxWidth: 680 }}>
             <div className="stack-sm">
-              <Seal size={88} state="pending" label="PASSEPORT 360° · VÉRIFICATION PUBLIQUE · " />
+              <Seal size={88} state="pending" word="À VÉRIFIER" label="PASSEPORT 360° · VÉRIFICATION PUBLIQUE · " />
               <h1 style={{ fontSize: 30 }}>Vérifier un Passeport 360°</h1>
               <p className="lead muted">Ouvrez le lien d’un passeport, scannez son QR code, ou déposez son fichier. La vérification de la signature se fait entièrement dans votre navigateur.</p>
             </div>

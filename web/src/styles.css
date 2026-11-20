@@ -184,6 +184,9 @@ input, textarea { caret-color: var(--accent); }
 .btn-lg { --h: 42px; padding: 0 20px; font-size: var(--t-base); }
 .btn-icon { width: var(--h); padding: 0; }
 .btn-block { width: 100%; }
+/* Sidebar children never shrink: the column scrolls instead of squashing the « Nouveau projet » button. */
+.side > * { flex-shrink: 0; }
+.side > .btn-block { min-height: 40px; }
 .btn-link { padding: 0; height: auto; color: var(--accent); background: none; border: 0; font-weight: 500; }
 .btn-link:hover { text-decoration: underline; }
 .spin { animation: spin 0.9s linear infinite; }
@@ -855,7 +858,10 @@ input, textarea { caret-color: var(--accent); }
 
 /* ================================================================== passport 360 */
 .seal { display: block; }
-.seal text { font-family: var(--mono); font-size: 7.2px; letter-spacing: 1.6px; fill: var(--ink); }
+.seal text { fill: currentColor; }
+.seal .seal-ring { font-family: var(--mono); font-size: 10.5px; letter-spacing: 2.4px; }
+.seal .seal-word { font-family: "Playfair Display", Georgia, serif; font-weight: 700; font-size: 14px; }
+.seal .seal-date { font-family: var(--mono); font-size: 8px; }
 .pp-doc { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: var(--s-8); align-items: start; }
 .pp-head { display: grid; grid-template-columns: auto 1fr; gap: var(--s-6); align-items: center; padding-bottom: var(--s-6); border-bottom: 1px solid var(--ink); }
 .pp-id { font-family: var(--mono); font-size: var(--t-sm); color: var(--ink-2); letter-spacing: 0.02em; }
