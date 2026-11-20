@@ -212,7 +212,7 @@ export default function Result({ p }: { p: Project }) {
           </div>
           <div className="card-body-tight">
             <ul className="dl-list">
-              <Mp4Item p={p} fileName={`${slug(p.title)}.vf.mp4`} />
+              <Mp4Item p={p} fileName={`${slug(p.title)}.vf.mp4`} overlay={transparencyPolicy(p.format).qrInVideo && passport && url ? { label: passport.transparence.label, qrUrl: url } : undefined} />
               <li>
                 <Captions aria-hidden />
                 <span>

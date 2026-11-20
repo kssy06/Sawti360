@@ -7,10 +7,11 @@ import { Clapperboard, Download, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { api, messageOf } from "../../api/client";
 import { BACKEND } from "../../lib/backend";
-import { exportMp4, type ExportLine, type ExportPhase } from "../../media/export";
+import { exportMp4, type ExportLine, type ExportPhase, type Overlay } from "../../media/export";
 import { formatSize, loadVideo } from "../../media/local";
 import { loadLineAudio } from "../../state/remote/generation";
 import { audioKey, audioUrls, useStore, type Project } from "../../state/store";
+import { transparencyPolicy } from "../../state/workflow";
 import { Progress, toast } from "../../ui/kit";
 
 async function sourceOf(p: Project): Promise<Blob | string> {
@@ -30,12 +31,19 @@ async function linesOf(p: Project): Promise<ExportLine[]> {
   });
 }
 
-export function Mp4Item({ p, fileName }: { p: Project; fileName: string }) {
+/** `overlay`: film and podcast with a signed passport → AI label and QR code drawn in the video (C4). */
+export function Mp4Item({ p, fileName, overlay }: { p: Project; fileName: string; overlay?: Overlay }) {
   const logExport = useStore((s) => s.logExport);
   const [work, setWork] = useState<{ phase: ExportPhase; fraction: number } | null>(null);
   const [error, setError] = useState("");
   const synthesized = Object.values(p.gens).filter((g) => g.status === "ok").length;
   const reason = !p.video ? "Projet d’exemple : il n’a pas de vidéo source." : synthesized === 0 ? "Aucune réplique synthétisée à poser sur la vidéo." : "";
+  const policy = transparencyPolicy(p.format);
+  const describe = overlay
+    ? "Assemblée dans votre navigateur : label IA 4 s au début, QR du Passeport 360° 5 s à la fin (vidéo réencodée, plus long), voix françaises à leur place, original atténué."
+    : policy.pending
+      ? "Format court : label et QR selon une règle à confirmer, rien n’est ajouté. Vidéo copiée sans réencodage, voix françaises à leur place, original atténué."
+      : "Assemblée dans votre navigateur : vidéo copiée sans réencodage, voix françaises à leur place, original atténué.";
 
   const run = async () => {
     setError("");
@@ -43,14 +51,14 @@ export function Mp4Item({ p, fileName }: { p: Project; fileName: string }) {
     try {
       const [source, lines] = await Promise.all([sourceOf(p), linesOf(p)]);
       if (!lines.length) throw new Error("Audio des répliques indisponible : rechargez la page, ou relancez la génération.");
-      const r = await exportMp4(source, lines, (fraction, phase) => setWork({ phase, fraction }));
+      const r = await exportMp4(source, lines, (fraction, phase) => setWork({ phase, fraction }), overlay);
       const a = document.createElement("a");
       a.href = URL.createObjectURL(r.blob);
       a.download = fileName;
       a.click();
       setTimeout(() => URL.revokeObjectURL(a.href), 60_000);
-      logExport("VIDEO_MP4", { projet: p.id, repliques: r.lines, duree_s: Math.round(r.duration), octets: r.blob.size, codec_audio: r.audioCodec, video_copiee: r.videoCopied, ms: r.ms });
-      toast(`MP4 prêt en ${(r.ms / 1000).toFixed(1).replace(".", ",")} s · ${formatSize(r.blob.size)}`, "ok");
+      logExport("VIDEO_MP4", { projet: p.id, repliques: r.lines, duree_s: Math.round(r.duration), octets: r.blob.size, codec_audio: r.audioCodec, video_copiee: r.videoCopied, label_et_qr: r.overlay, ms: r.ms });
+      toast(`MP4 prêt en ${(r.ms / 1000).toFixed(1).replace(".", ",")} s · ${formatSize(r.blob.size)}${r.overlay ? " · label et QR incrustés" : ""}`, "ok");
     } catch (err) {
       setError(messageOf(err));
     } finally {
@@ -68,7 +76,7 @@ export function Mp4Item({ p, fileName }: { p: Project; fileName: string }) {
             ? work.phase === "voix"
               ? "Pose des voix françaises à leur place…"
               : `Assemblage : ${Math.round(work.fraction * 100)} %`
-            : reason || "Assemblée dans votre navigateur : vidéo copiée sans réencodage, voix françaises à leur place, original atténué."}
+            : reason || describe}
         </span>
         {work && <Progress value={work.fraction} indeterminate={work.phase === "voix"} label="Export du MP4" />}
         {error && (

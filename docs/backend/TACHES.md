@@ -197,8 +197,8 @@ Fichiers : `src/media/export.ts`, `pages/project/Result.tsx`.
 - [x] vidéo source lue dans IndexedDB (et dans Storage si l'original a été envoyé)
 
 ### C4. Label IA et QR dans la vidéo (P1, 1 h 30) · dépend de C3, A8
-- [ ] film et podcast : label pendant 4 s au début, QR pendant 5 s à la fin, scanné par un téléphone → passeport vérifié
-- [ ] Reel/Short : rien d'ajouté, « règle à confirmer » affiché
+- [x] film et podcast : label pendant 4 s au début, QR pendant 5 s à la fin, scanné par un téléphone → passeport vérifié (QR décodé sur l'image à 117 s, page vérifiée sur iPhone 13 émulé ; extrait de 2 min réencodé en 3,9 s)
+- [x] Reel/Short : rien d'ajouté, « règle à confirmer » affiché
 
 ### C5. Aperçus (P0, 45 min) · dépend de C1
 Fichiers : routes `synthesize` et `preview`, `store.ts` (`generate`, `tryVoice`), `pages/project/Timeline.tsx`, `pages/Library.tsx`.
