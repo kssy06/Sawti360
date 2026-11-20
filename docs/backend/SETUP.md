@@ -22,6 +22,14 @@ tiers d'[IA.md](IA.md).
 
 ## 2. Supabase
 
+**Fait le 20 novembre** : projet `sawti360` créé dans l'organisation « Qrdigit » (plan gratuit),
+région Paris (eu-west-3), URL `https://nehtxqlaanoopaybvgzj.supabase.co`. Le schéma est appliqué
+(migrations `sawti360_schema` et `sawti360_harden_trigger_functions`) : 14 tables avec RLS sans
+policy, 3 buckets privés, déclencheur d'inscription ; conseils de sécurité sans avertissement.
+Restent à faire dans le tableau de bord : points 3 à 7 ci-dessous, et **Project Settings →
+Database → Reset database password** (le mot de passe initial n'a été remis à personne) pour
+composer `DATABASE_URL`.
+
 1. **New project** : nom `sawti360`, région **Paris (eu-west-3)** ou Francfort (eu-central-1),
    mot de passe de base fort, rangé dans le gestionnaire de l'équipe.
 2. **SQL Editor** → coller [schema.sql](schema.sql) → **Run**. Vérifier dans **Table Editor**

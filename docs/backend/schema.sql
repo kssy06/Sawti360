@@ -313,7 +313,11 @@ begin
   end loop;
 end $$;
 revoke all on public.token_balances from anon, authenticated;
-revoke execute on function public.handle_new_user() from anon, authenticated;
+-- Trigger functions are never called through the API (a trigger fires whatever the privileges
+-- of the inserting role): no EXECUTE for anyone, PUBLIC included (Supabase security advisor).
+revoke execute on function public.handle_new_user() from public, anon, authenticated;
+revoke execute on function public.touch_updated_at() from public, anon, authenticated;
+alter function public.touch_updated_at() set search_path = '';
 
 -- ------------------------------------------------- stockage : buckets privés
 -- 50 Mo par fichier : la limite globale du plan gratuit Supabase (à vérifier dans
