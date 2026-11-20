@@ -7,7 +7,7 @@ import "@fontsource/playfair-display/400-italic.css";
 import "@fontsource/playfair-display/500.css";
 import "@fontsource/playfair-display/700.css";
 import "./landing.css";
-import { ArrowRight, Fingerprint, Leaf, Lock, Sparkles, Star } from "lucide-react";
+import { ArrowRight, Fingerprint, Leaf, Lock, Star } from "lucide-react";
 import { Fragment, useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { useReducedMotion } from "../ui/motion";
@@ -18,7 +18,7 @@ import { useReducedMotion } from "../ui/motion";
  * « Connexion » and « Entrer dans l’expérience » lead to the login page.
  */
 
-const AUDIENCES = ["Créateurs Indépendants", "Comédiens Voix", "Sociétés de Production", "Festivals de Cinéma", "Documentaristes", "Studios d'Animation", "Distributeurs", "Archives & Musées"];
+const AUDIENCES = ["Créateurs indépendants", "Comédiens voix", "Sociétés de production", "Festivals de cinéma", "Documentaristes", "Studios d'animation", "Distributeurs", "Archives et musées"];
 
 /** Fades and lifts an element in the first time it enters the viewport. */
 function Reveal({ children, delay = 0, className = "" }: { children: ReactNode; delay?: number; className?: string }) {
@@ -44,8 +44,7 @@ function Reveal({ children, delay = 0, className = "" }: { children: ReactNode; 
 function Clock() {
   const fmt = () => {
     const now = new Date();
-    const h = now.getHours();
-    return `${h % 12 || 12}:${String(now.getMinutes()).padStart(2, "0")} ${h >= 12 ? "PM" : "AM"}`;
+    return `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
   };
   const [time, setTime] = useState(fmt);
   useEffect(() => {
@@ -104,10 +103,10 @@ export default function Landing() {
             Sawti 360.
           </a>
           <div className="l-nav-links">
-            <a href="#expertise">Le Concept</a>
-            <a href="#features">Les Piliers</a>
+            <a href="#expertise">Le concept</a>
+            <a href="#features">Les piliers</a>
             <a href="#works">Passeport 360°</a>
-            <a href="#process">Le Parcours</a>
+            <a href="#process">Le parcours</a>
           </div>
           <Link to="/connexion" className="l-cta">
             Connexion
@@ -142,13 +141,12 @@ export default function Landing() {
               </Reveal>
               <Reveal delay={400} className="l-hero-actions">
                 <Link to="/connexion" className="l-pill">
-                  <span className="l-pill-glow" aria-hidden />
                   <span>Entrer dans l'expérience</span>
                 </Link>
                 <div className="l-meta">
                   <Clock />
                   <span className="l-meta-sep" aria-hidden />
-                  <span>MONDE FRANCOPHONE</span>
+                  <span>Monde francophone</span>
                 </div>
               </Reveal>
             </div>
@@ -171,7 +169,7 @@ export default function Landing() {
                   {AUDIENCES.map((a) => (
                     <Fragment key={a}>
                       <span className="l-marquee-item">{a}</span>
-                      <Sparkles className="l-marquee-icon" aria-hidden />
+                      <span className="l-marquee-icon" aria-hidden />
                     </Fragment>
                   ))}
                 </div>
@@ -185,14 +183,14 @@ export default function Landing() {
         <section id="features" className="l-features">
           <div className="l-container">
             <Reveal className="l-section-head">
-              <h2>L'Écosystème de Confiance</h2>
+              <h2>L'écosystème de confiance</h2>
               <p>Des modules pensés pour l'éthique et la sécurité.</p>
             </Reveal>
             <div className="l-feature-grid">
               {[
-                { Icon: Fingerprint, title: "Journal d'Audit", body: "Chaque décision est enregistrée dans un journal à chaîne de hachage. Une transparence totale et infalsifiable pour remonter à la source de chaque validation." },
-                { Icon: Leaf, title: "Panneau Énergie", body: "L'IA a un coût. Nous mesurons et affichons les kWh et grammes de CO2 pour chaque génération, en privilégiant toujours le modèle le plus léger et efficace." },
-                { Icon: Lock, title: "Coffre Local", body: "Vos œuvres inédites ne sont jamais envoyées à une IA publique. Traitement chiffré, exécution locale des modèles et accès restreint par rôle." },
+                { Icon: Fingerprint, title: "Journal d'audit", body: "Chaque décision est enregistrée dans un journal à chaîne de hachage : toute modification se voit, et l'on remonte à la source de chaque validation." },
+                { Icon: Leaf, title: "Panneau énergie", body: "L'IA a un coût. La durée de chaque synthèse est mesurée et affichée ; l'énergie de l'inférence, calculée chez le fournisseur de voix, sera affichée quand elle pourra être mesurée, plutôt qu'estimée." },
+                { Icon: Lock, title: "Coffre local", body: "Votre vidéo reste sur votre ordinateur, sauf si vous choisissez de l'envoyer. Seul l'audio nécessaire part vers les moteurs de transcription et de voix, dont les clés restent sur le serveur." },
               ].map(({ Icon, title, body }, i) => (
                 <Reveal key={title} delay={i * 100} className="l-feature">
                   <Icon className="l-feature-icon" aria-hidden />
@@ -225,9 +223,9 @@ export default function Landing() {
                   <div>
                     <h3>
                       Doublage <br />
-                      Supervisé
+                      supervisé
                     </h3>
-                    <p>L'IA transcrit les dialogues et propose une traduction contextuelle. Le créateur et l'adaptateur valident chaque réplique. L'humain garde le contrôle à 100%.</p>
+                    <p>L'IA transcrit les dialogues et propose une traduction contextuelle. Le créateur et l'adaptateur valident chaque réplique : rien n'est doublé sans leur accord.</p>
                   </div>
                   <div className="l-card-rule" />
                 </Reveal>
@@ -243,9 +241,9 @@ export default function Landing() {
                   <div>
                     <h3>
                       Passeport <br />
-                      de Voix
+                      de voix
                     </h3>
-                    <p>Un contrat numérique signé par chaque comédien. Le moteur de règles refuse toute génération sans licence valide. Un standard pour toute l'industrie.</p>
+                    <p>Un contrat numérique signé par chaque comédien. Le moteur de règles refuse toute génération sans licence valide, et une licence révoquée bloque la suite.</p>
                   </div>
                   <div className="l-card-rule" />
                 </Reveal>
@@ -259,15 +257,15 @@ export default function Landing() {
         <section id="process" className="l-process">
           <div className="l-container l-process-inner">
             <Reveal className="l-process-head">
-              <h2>Le Parcours d'une Œuvre</h2>
+              <h2>Le parcours d'une œuvre</h2>
               <p>De l'importation locale jusqu'à la distribution internationale.</p>
             </Reveal>
             <ol className="l-steps">
               {[
-                { title: "Sécurité & Transcription", hot: true, body: <>Le créateur charge son extrait dans le <strong>Coffre local</strong>. L'IA sépare les pistes audio et génère une transcription (ex: Derja, Français) avec un score de confiance mesuré par <em>Sawti-Bench</em>.</> },
-                { title: "Validation & Traduction Contextuelle", hot: false, body: <>L'IA propose une traduction basée sur un glossaire culturel. Le créateur et l'adaptateur corrigent et valident chaque réplique. <strong>Rien ne passe sans contrôle humain.</strong></> },
-                { title: "Moteur de Consentement", hot: false, body: <>L'attribution d'une voix synthétique est soumise au <strong>Passeport de Voix</strong>. Sans licence valide ou si les droits sont révoqués, le système bloque techniquement la génération.</> },
-                { title: "Export du Passeport 360°", hot: true, body: <>L'œuvre est exportée avec la piste doublée, un filigrane audio, et son <strong>Passeport 360°</strong> vérifiable par QR Code : il contient les licences, le journal d'audit et la consommation énergétique.</> },
+                { title: "Sécurité et transcription", hot: true, body: <>Le créateur importe son extrait : la vidéo reste dans le <strong>Coffre local</strong>. L'IA repère qui parle et transcrit la derja, avec un niveau de confiance pour chaque réplique.</> },
+                { title: "Validation et traduction contextuelle", hot: false, body: <>L'IA propose une traduction basée sur un glossaire culturel. Le créateur et l'adaptateur corrigent et valident chaque réplique. <strong>Rien ne passe sans contrôle humain.</strong></> },
+                { title: "Moteur de consentement", hot: false, body: <>L'attribution d'une voix synthétique est soumise au <strong>Passeport de Voix</strong>. Sans licence valide ou si les droits sont révoqués, le système bloque techniquement la génération.</> },
+                { title: "Export du Passeport 360°", hot: true, body: <>L'œuvre est exportée avec la piste doublée, le label IA et son <strong>Passeport 360°</strong> vérifiable par QR code : il contient les voix, les licences et les validations humaines.</> },
               ].map((s, i) => (
                 <li key={s.title}>
                   <Reveal className="l-step">
