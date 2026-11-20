@@ -7,15 +7,19 @@ const NUM = /\d+(?:[.,]\d+)?/g;
 const NEG_FR = /(^|[^\p{L}])(?:(ne|pas|jamais|aucun|aucune|rien|sans)(?=$|[^\p{L}])|n['’])/iu;
 const NEG_SRC = /(^|[^\p{L}])(ma|mouch|mich|ne|pas|jamais)(?=$|[^\p{L}])|(^|\s)(ما|مش|موش|لا)(?=\s|$|[،.!?])|[؀-ۿ]+ش(\s|$|[،.!?])/iu;
 
+/** Arabic-Indic digits (٣٠٠, ۳۰۰) read as 300. */
+const latinDigits = (s: string) => s.replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 0x0660)).replace(/[۰-۹]/g, (d) => String(d.charCodeAt(0) - 0x06f0));
+
 function nums(s: string): string[] {
-  return (s.match(NUM) ?? []).sort();
+  return (latinDigits(s).match(NUM) ?? []).sort();
 }
 
 export function checkFidelity(source: string, translation: string): FidelityAlert[] {
   const alerts: FidelityAlert[] = [];
   const ns = nums(source);
   const nt = nums(translation);
-  if (ns.join("|") !== nt.join("|")) {
+  // No digit in the derja but one in the French: the number was said in words (« دي سيت » = 17), not changed.
+  if (ns.length && ns.join("|") !== nt.join("|")) {
     alerts.push({
       type: "CHIFFRES",
       message: `Chiffres différents : ${ns.join(", ") || "aucun"} dans la source, ${nt.join(", ") || "aucun"} dans la traduction.`,

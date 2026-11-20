@@ -30,11 +30,14 @@ const initialOf = (name: string) => (name.replace(/^Intervenante? /, "").trim()[
 
 const VOICE_KIND = { licensed: "Voix licenciée", ai: "Voix IA", original: "Voix originale", none: "Pas encore de voix" } as const;
 
-/** Sawti Check's note once its correction is applied: « à approuver » only while it is not. */
-function reviewNote(note: string, validated: boolean): string {
-  if (!/^Correction d.* appliquée/.test(note)) return note;
-  return `Correction de ${CHECK} appliquée.${validated ? "" : " À approuver."}`;
-}
+/** The line already says what Sawti Check proposed. */
+const applied = (p: Project, s: Segment) => Boolean(p.reviews[s.id]?.suggestion) && s.translation === p.reviews[s.id]?.suggestion;
+
+/** Sawti Check asks for a change the line does not have yet (the « Signalées » filter). */
+const needsFix = (p: Project, s: Segment) => p.reviews[s.id]?.verdict === "correction" && !applied(p, s);
+
+/** Older reviews were rewritten « Correction … appliquée » when applied: shown the same way. */
+const legacyApplied = (note: string) => /^Correction d.* appliquée/.test(note);
 
 function Row({ p, s }: { p: Project; s: Segment }) {
   const edit = useStore((st) => st.editTranslation);
@@ -56,6 +59,7 @@ function Row({ p, s }: { p: Project; s: Segment }) {
   const tone = Math.max(0, order.indexOf(s.speaker)) % 4;
   const speaker = p.characters[s.speaker]?.name ?? s.speaker;
   const f = (n: number) => n.toFixed(1).replace(".", ",");
+  const done = applied(p, s) || (review ? legacyApplied(review.note) : false);
 
   return (
     <div id={`tr-${s.id}`} className={`tr-row ${s.validated ? "approved" : ""}`}>
@@ -88,9 +92,9 @@ function Row({ p, s }: { p: Project; s: Segment }) {
         </label>
         <textarea id={fid} className="textarea" rows={2} value={s.translation} onChange={(e) => edit(s.id, e.target.value)} lang="fr" />
         <span className="tr-meta">
-          <span className={`hint num ${tooLong ? "hint-warn" : ""}`}>
-            {tooLong ? <TriangleAlert size={14} aria-hidden style={{ verticalAlign: "-2px" }} /> : null} {f(onScreen)} s à l’écran · ≈ {f(spoken)} s en français
-            {tooLong ? " : trop longue, à raccourcir" : sped ? " : légèrement accélérée à la génération" : ""}
+          <span className={`hint num ${tooLong ? "hint-warn" : ""}`} title={`${f(onScreen)} s à l’écran ; environ ${f(spoken)} s pour dire le français`}>
+            {tooLong ? <TriangleAlert size={14} aria-hidden style={{ verticalAlign: "-2px" }} /> : null}
+            {tooLong ? ` Trop longue : ${f(spoken)} s pour ${f(onScreen)} s` : sped ? `${f(spoken)} s pour ${f(onScreen)} s, un peu accélérée` : `${f(spoken)} s pour ${f(onScreen)} s`}
           </span>
           <span className="hint num tr-jetons" title="1 jeton par caractère doublé">
             <Coins size={14} aria-hidden /> {fmt.format(jetons)} jetons
@@ -122,12 +126,12 @@ function Row({ p, s }: { p: Project; s: Segment }) {
       <div className="tr-col">
         <span className="label-sm tr-label">Vérification · {CHECK}</span>
         {review ? (
-          <div className={`review ${review.verdict === "ok" ? "review-ok" : ""}`}>
+          <div className={`review ${review.verdict === "ok" || done ? "review-ok" : ""}`}>
             <span className="review-note">
-              {review.verdict === "ok" ? <CircleCheck size={16} aria-hidden className="review-icon ok" /> : <ScanSearch size={16} aria-hidden className="review-icon" />}
-              <span>{reviewNote(review.note, s.validated)}</span>
+              {review.verdict === "ok" || done ? <CircleCheck size={16} aria-hidden className="review-icon ok" /> : <ScanSearch size={16} aria-hidden className="review-icon" />}
+              <span>{done ? `Correction de ${CHECK} appliquée.${s.validated ? "" : " À approuver."}` : review.note}</span>
             </span>
-            {review.suggestion && (
+            {review.suggestion && !done && (
               <>
                 <span className="sug">« {review.suggestion} »</span>
                 <button className="btn btn-secondary btn-sm" style={{ justifySelf: "start" }} onClick={() => (apply(p.id, s.id), toast("Correction appliquée, à approuver"))}>
@@ -162,8 +166,8 @@ export default function Translation({ p }: { p: Project }) {
   const reviewAll = useStore((s) => s.reviewAll);
   const [filter, setFilter] = useState<"all" | "todo" | "flag">("all");
   const approved = p.segments.filter((s) => s.validated).length;
-  const flagged = p.segments.filter((s) => p.reviews[s.id]?.verdict === "correction" || checkFidelity(s.source, s.translation).length).length;
-  const rows = p.segments.filter((s) => (filter === "all" ? true : filter === "todo" ? !s.validated : p.reviews[s.id]?.verdict === "correction" || checkFidelity(s.source, s.translation).length > 0));
+  const flagged = p.segments.filter((s) => needsFix(p, s) || checkFidelity(s.source, s.translation).length).length;
+  const rows = p.segments.filter((s) => (filter === "all" ? true : filter === "todo" ? !s.validated : needsFix(p, s) || checkFidelity(s.source, s.translation).length > 0));
   const all = approved === p.segments.length && p.segments.length > 0;
 
   return (

@@ -131,7 +131,11 @@ describe.skipIf(!hasTestDb)("B4 · routes de relecture", () => {
     expect(p.reviews.s3).toMatchObject({ verdict: "correction", simulated: false, suggestion: "Je l’ai payé 300 dinars, ce n’est pas rien !" });
     p = await (await call("POST", "/projects/le_dernier_car_extrait/segments/s3/apply-suggestion")).json();
     expect(p.segments.find((s: Segment) => s.id === "s3")).toMatchObject({ translation: "Je l’ai payé 300 dinars, ce n’est pas rien !", validated: false });
-    expect(p.reviews.s3).toMatchObject({ verdict: "ok", note: expect.stringContaining("appliquée") });
+    // Sawti Check's review is kept: after a revert, its wording can be applied again.
+    expect(p.reviews.s3).toMatchObject({ verdict: "correction", suggestion: "Je l’ai payé 300 dinars, ce n’est pas rien !" });
     expect((await call("POST", "/projects/le_dernier_car_extrait/segments/s3/apply-suggestion")).status).toBe(409);
+    await call("PATCH", "/projects/le_dernier_car_extrait/segments/s3", { translation: "Je l’ai payé 30 dinars, ce n’est pas rien !" });
+    p = await (await call("POST", "/projects/le_dernier_car_extrait/segments/s3/apply-suggestion")).json();
+    expect(p.segments.find((s: Segment) => s.id === "s3").translation).toBe("Je l’ai payé 300 dinars, ce n’est pas rien !");
   });
 });

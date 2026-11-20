@@ -5,7 +5,6 @@
  */
 import { Hono } from "hono";
 import { z } from "zod";
-import type { Review } from "../../src/mock/simulate.js";
 import { requireAccount } from "../accounts.js";
 import { reviewSegments } from "../ai/review.js";
 import { appendAudit } from "../audit.js";
@@ -54,10 +53,10 @@ export const review = new Hono<AppEnv>()
       if (!seg) throw notFound("Réplique introuvable.");
       const current = row.reviews[segId];
       if (!current?.suggestion) throw conflict("CONFLIT", "Aucune correction à appliquer sur cette réplique.");
-      const applied: Review = { verdict: "ok", note: "Correction de Sawti Check appliquée.", simulated: current.simulated, provider: current.provider };
+      if (seg.translation === current.suggestion) throw conflict("CONFLIT", "La correction est déjà appliquée sur cette réplique.");
+      // The review stays as Sawti Check wrote it: after « Revenir à la proposition », its wording can be applied again.
       await updateProject(tx, row.id, {
         segments: row.segments.map((s) => (s.id === segId ? { ...s, translation: current.suggestion!, validated: false } : s)),
-        reviews: { ...row.reviews, [segId]: applied },
       });
     });
     return c.json(project);

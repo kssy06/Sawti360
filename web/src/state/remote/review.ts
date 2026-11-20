@@ -27,7 +27,6 @@ export async function applySuggestion(set: Set, get: Get, pid: string, segId: st
   if (!sug) return;
   patchLocal(set, pid, (p) => ({
     segments: p.segments.map((x) => (x.id === segId ? { ...x, translation: sug, validated: false } : x)),
-    reviews: { ...p.reviews, [segId]: { ...p.reviews[segId], verdict: "ok", note: "Correction de Sawti Check appliquée.", suggestion: undefined } },
   }));
   try {
     await flushEdits(set);

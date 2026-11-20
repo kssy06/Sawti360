@@ -84,6 +84,12 @@ describe("vérificateur de fidélité", () => {
   it("ne signale rien sur les répliques justes", () => {
     for (const id of ["s1", "s2", "s4", "s6"]) expect(alerts[id]).toEqual([]);
   });
+  it("un nombre dit en mots dans la derja (« آيفون دي سيت ») n’est pas un chiffre modifié", () =>
+    expect(checkFidelity("حبيبي يجيبلي آيفون دي سيت", "mon chéri m’offre l’iPhone 17")).toEqual([]));
+  it("les chiffres arabes comptent : ٣٠٠ devenus 30 est signalé, ٣٠٠ devenus 300 non", () => {
+    expect(checkFidelity("خلّصت فيه ٣٠٠ دينار", "J’ai payé 30 dinars").map((a) => a.type)).toEqual(["CHIFFRES"]);
+    expect(checkFidelity("خلّصت فيه ٣٠٠ دينار", "J’ai payé 300 dinars")).toEqual([]);
+  });
 });
 
 describe("porte de consentement complète", () => {
