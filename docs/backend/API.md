@@ -187,9 +187,10 @@ modifiée pendant la relecture garde son ancien verdict. Journal `RELECTURE_LLM2
 `confirmed: true` écrit `PERSONNAGE_CONFIRME` ; `lifeStatus` écrit `STATUT_DE_VIE_RENSEIGNE`.
 Remplace `updateCharacter`, `confirmCharacter`, `setUseOriginal`, `setLifeStatus`.
 
-**`POST /api/projects/:id/characters/:key/consent`** `{ email, registered }` → `{ project: Project, consentUrl }`.
+**`POST /api/projects/:id/characters/:key/consent`** `{ email, registered }` → `201 { project: Project, consentUrl, mail: boolean }`.
 Nouveau jeton (l'ancien est remplacé), e-mail, journal `CONSENTEMENT_DEMANDE` (e-mail haché).
-`consentUrl` n'est renvoyé qu'ici. Remplace `sendConsent`.
+`consentUrl` n'est renvoyé qu'ici (le navigateur du créateur le garde pour « Copier le lien » et
+« Envoyer par WhatsApp ») ; `mail: false` si l'e-mail n'a pas pu partir. Remplace `sendConsent`.
 
 **`POST /api/projects/:id/characters/:key/dossier`**
 `{ path, deceasedName, declaredRole, fileName, fileSize, fileType, fileHash }` → `202 { jobId, project }`.
@@ -215,16 +216,20 @@ journal `VOIX_ATTRIBUEE`. Remplace `assignVoice` et `setSpeakerVoice`.
 **`GET /api/public/consents/:token`** →
 ```ts
 { projectTitle: string; creatorName: string; characterName: string; characterDescription: string;
-  status: LivingStatus; registered: boolean; paragraph: string; voiceCreated: boolean }
+  status: LivingStatus; registered: boolean; paragraph: string; voiceCreated: boolean;
+  sentAt: string; decidedAt: string | null }
 ```
+404 si le lien est inconnu ou remplacé par un envoi plus récent.
 
 **`POST /api/public/consents/:token/voice-passport`**
 `{ samplePath, duration, peak, rms, publicName, pseudonym, languages }` → `202 { jobId }`.
-Tâche `voice_check` (IA.md § 6) ; si l'échantillon est conforme, crée le profil et la licence
-signée, `registered` passe à vrai, journal `PASSEPORT_DE_VOIX_CREE`.
+Tâche `voice_check` (IA.md § 6 : durée ≥ 3 s, niveau, saturation, puis WER si Groq est configuré) ;
+`samplePath` doit être sous `public/<consentement>/`. Si l'échantillon est conforme, crée le profil
+(non publié dans la bibliothèque) et une licence signée limitée à ce projet, `registered` passe à
+vrai, journal `PASSEPORT_DE_VOIX_CREE`. Sinon, la tâche échoue avec la raison (« trop court »…).
 
 **`POST /api/public/consents/:token/decision`** `{ accept: boolean }` → `{ status }`.
-409 `DEJA_DECIDE` si déjà répondu. Journal `CONSENTEMENT_ACCORDE` ou `CONSENTEMENT_REFUSE`,
+409 `DEJA_DECIDE` si déjà répondu ; 409 si `accept` sans Passeport de voix (personne non inscrite). Journal `CONSENTEMENT_ACCORDE` ou `CONSENTEMENT_REFUSE`,
 notification et e-mail au créateur. Remplace `respondConsent`.
 
 ### Voix, licences, paiements

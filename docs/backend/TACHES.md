@@ -164,7 +164,7 @@ Fichiers : `server/routes/analysis.ts`, `src/media/pipeline.ts` (branche back-en
 
 ### B7. Contrôle de l'échantillon de voix (P1, 1 h) · dépend de B2, A5, A6
 Fichiers : `server/ai/voicecheck.ts`, `server/ai/wer.ts` (+ tests).
-- [ ] lecture du paragraphe → WER ≤ 0,25 → « Correspondance » ; autre texte → « Non conforme »
+- [x] lecture du paragraphe → WER ≤ 0,25 → « Correspondance » ; autre texte → « Non conforme » (faux Groq ; branché sur la création du Passeport de voix depuis un lien de consentement)
 
 ### B8. Sawti-Bench minimal (P1, 2 h, Youssef) · dépend de B2, B3
 Protocole d'IA.md § 8 ; affichage avec D4.
@@ -214,15 +214,15 @@ Fichiers : routes `synthesize` et `preview`, `store.ts` (`generate`, `tryVoice`)
 ### D1. E-mails (P0, 1 h) · dépend de A1
 Fichiers : `server/mail.ts` et ses gabarits (consentement, demande de licence, décision, rendu prêt),
 composant « Copier le lien » + « Envoyer par WhatsApp ».
-- [ ] les e-mails arrivent dans Gmail avec des liens qui marchent
-- [ ] si l'envoi échoue, la route réussit quand même et renvoie le lien (`mail: false`)
+- [ ] les e-mails arrivent dans Gmail avec des liens qui marchent — gabarits et liens testés (e-mails capturés) ; envoi réel : variables SMTP_* (Gmail)
+- [x] si l'envoi échoue, la route réussit quand même et renvoie le lien (`mail: false`) (Chromium : lien, « Copier le lien », « Envoyer par WhatsApp »)
 
 ### D2. Consentement d'une personne vivante (P0, 1 h 30) · dépend de A3, A5, D1 (B7 en P1)
 Fichiers : `server/routes/consents.ts`, `src/state/remote/consents.ts`,
 `pages/project/Authorizations.tsx` (partie vivante), `pages/PublicResponses.tsx` (`ConsentPage`).
-- [ ] le lien s'ouvre sur un autre appareil ; une personne non inscrite enregistre et crée son Passeport de voix
-- [ ] accord → « Autorisée » sur l'écran du créateur en 15 s au plus ; refus → bloquée
-- [ ] lien déjà utilisé → 409 ; un nouvel envoi remplace l'ancien lien
+- [x] le lien s'ouvre sur un autre appareil ; une personne non inscrite enregistre et crée son Passeport de voix (Chromium, second navigateur sans compte)
+- [x] accord → « Autorisée » sur l'écran du créateur en 15 s au plus ; refus → bloquée (4,8 s mesurées)
+- [x] lien déjà utilisé → 409 ; un nouvel envoi remplace l'ancien lien
 
 ### D3. Dossier familial (P0, 2 h) · dépend de A3, A5, A6, B3
 Fichiers : `server/ai/dossier.ts` (IA.md § 4.4), `server/routes/dossiers.ts`, `src/state/remote/dossiers.ts`,
@@ -230,9 +230,9 @@ Fichiers : `server/ai/dossier.ts` (IA.md § 4.4), `server/routes/dossiers.ts`, `
 Préparer jeudi soir trois documents écrits par l'équipe (PDF ou photo) :
 (1) « J'autorise l'utilisation de la voix de feu Mohamed B., le conteur de l'épisode (le grand-père) » ;
 (2) le même avec le rôle de la narratrice ; (3) une page sans rôle, ou une photo floue.
-- [ ] (1) → Correspondance détectée → validation ; (2) → Incohérence détectée ; (3) → Vérification nécessaire
-- [ ] tests unitaires des règles déterministes
-- [ ] le document n'apparaît nulle part en public ; le passeport ne montre que la référence et le statut
+- [ ] (1) → Correspondance détectée → validation ; (2) → Incohérence détectée ; (3) → Vérification nécessaire — règles et route testées avec un faux Gemini ; à refaire avec les trois documents de l'équipe et la clé Gemini
+- [x] tests unitaires des règles déterministes
+- [x] le document n'apparaît nulle part en public ; le passeport ne montre que la référence et le statut
 
 ### D4. Centre de confiance (P1, 1 h) · dépend de A1, A4, B8
 Fichier : `pages/Trust.tsx`.

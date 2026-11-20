@@ -19,6 +19,10 @@ describe("A5 · règles d'envoi (pures)", () => {
     expect(planUpload({ kind: "dossier", accountId: ACC, projectId: "v_abc", characterKey: "jeddi", contentType: "application/pdf", size: 100, sha256: "a".repeat(64) })).toMatchObject({ bucket: "dossiers", path: `${ACC}/v_abc/jeddi/${"a".repeat(64)}.pdf` });
     expect(planUpload({ kind: "sample", accountId: ACC, contentType: "audio/webm;codecs=opus", size: 100, now })).toEqual({ bucket: "samples", path: `${ACC}/sample-${now.getTime()}.webm`, contentType: "audio/webm" });
     expect(planUpload({ kind: "sample", accountId: "public", consentId: "c1", contentType: "audio/wav", size: 100, now }).path).toBe(`public/c1/sample-${now.getTime()}.wav`);
+    // An imported .webm is labelled « video/webm » by the browser: same container, relabelled for the bucket.
+    expect(planUpload({ kind: "sample", accountId: "public", consentId: "c1", contentType: "video/webm", size: 100, now })).toMatchObject({ contentType: "audio/webm", path: `public/c1/sample-${now.getTime()}.webm` });
+    expect(planUpload({ kind: "sample", accountId: ACC, contentType: "audio/x-wav", size: 100, now }).contentType).toBe("audio/wav");
+    expect(() => planUpload({ kind: "frame", accountId: ACC, projectId: "v_abc", contentType: "video/webm", size: 100, t: 0 })).toThrow(/Type de fichier refusé/);
   });
   it("mauvais type → 400 ; trop gros → 413", () => {
     expect(() => planUpload({ kind: "audio", accountId: ACC, projectId: "v_abc", contentType: "application/x-msdownload", size: 10 })).toThrow(/Type de fichier refusé/);

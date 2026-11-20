@@ -1,9 +1,10 @@
-import { CircleCheck, CircleX, Hourglass, LockKeyhole } from "lucide-react";
+import { CircleCheck, CircleX, Hourglass, Loader2, LockKeyhole } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { useParams } from "react-router-dom";
 import { messageOf } from "../api/client";
 import { BACKEND } from "../lib/backend";
 import { paragraphFor, profileOf } from "../mock/registry";
+import { usePublicConsent } from "../state/remote/consents";
 import { usePublicLicence } from "../state/remote/licensing";
 import { useStore } from "../state/store";
 import { EXPIRY_HOURS, hoursLeft, requestStatus } from "../state/workflow";
@@ -29,9 +30,15 @@ function PublicFrame({ title, children }: { title: string; children: ReactNode }
         <span>
           <LockKeyhole size={12} aria-hidden style={{ verticalAlign: "-2px" }} /> Votre réponse est inscrite au journal d’audit de Sawti 360.
         </span>
-        <span>
-          Prototype : ce lien n’est lisible que dans le navigateur qui l’a créé. <Prov kind="sim">e-mail</Prov>
-        </span>
+        {BACKEND ? (
+          <span>
+            Lien sécurisé : une seule réponse possible, depuis n’importe quel appareil. <Prov kind="real">e-mail</Prov>
+          </span>
+        ) : (
+          <span>
+            Prototype : ce lien n’est lisible que dans le navigateur qui l’a créé. <Prov kind="sim">e-mail</Prov>
+          </span>
+        )}
       </footer>
       <Toasts />
     </div>
@@ -52,23 +59,68 @@ export function ConsentPage() {
   const { token = "" } = useParams();
   const projects = useStore((s) => s.projects);
   const accounts = useStore((s) => s.accounts);
-  const respond = useStore((s) => s.respondConsent);
+  const localRespond = useStore((s) => s.respondConsent);
   const [rec, setRec] = useState<Recording | null>(null);
   const [confirm, setConfirm] = useState(false);
-  const found = Object.values(projects)
+  const [creating, setCreating] = useState(false);
+  // Back-end mode: the request is read from the server by the link's token (any device, no account).
+  const remote = usePublicConsent(token, BACKEND);
+  const respond = (_t: string, accept: boolean) => {
+    if (!BACKEND) return localRespond(token, accept);
+    void remote.respond(accept).catch((err) => toast(messageOf(err), "bad"));
+  };
+  const local = Object.values(projects)
     .flatMap((p) => Object.values(p.characters).map((c) => ({ p, c })))
     .find(({ c }) => c.living?.token === token);
+  const found = BACKEND
+    ? remote.data && {
+        p: { title: remote.data.projectTitle },
+        c: { name: remote.data.characterName, description: remote.data.characterDescription },
+        living: { status: remote.data.status, registered: remote.data.registered || remote.data.voiceCreated, sentAt: remote.data.sentAt, decidedAt: remote.data.decidedAt ?? undefined },
+        creator: remote.data.creatorName,
+        paragraph: remote.data.paragraph,
+      }
+    : local?.c.living && {
+        p: local.p,
+        c: local.c,
+        living: local.c.living,
+        creator: accounts.find((a) => a.id === local.p.accountId)?.name ?? "Un créateur",
+        paragraph: paragraphFor(token),
+      };
 
-  if (!found || !found.c.living) {
+  if (BACKEND && remote.loading) {
     return (
       <PublicFrame title="Demande de consentement">
-        <NotFound />
+        <p className="muted">Chargement de la demande…</p>
       </PublicFrame>
     );
   }
-  const { p, c } = found;
-  const living = c.living!;
-  const creator = accounts.find((a) => a.id === p.accountId)?.name ?? "Un créateur";
+  if (!found) {
+    return (
+      <PublicFrame title="Demande de consentement">
+        {BACKEND && remote.error ? (
+          <Callout tone="warn" title="Lien introuvable">
+            {remote.error}
+          </Callout>
+        ) : (
+          <NotFound />
+        )}
+      </PublicFrame>
+    );
+  }
+  const { p, c, living, creator } = found;
+  const createPassport = async () => {
+    if (!rec) return;
+    setCreating(true);
+    try {
+      await remote.createPassport(rec);
+      toast("Passeport de voix créé", "ok");
+    } catch (err) {
+      toast(messageOf(err), "bad");
+    } finally {
+      setCreating(false);
+    }
+  };
   const answer = confirm ? (
     <Callout
       tone="info"
@@ -126,10 +178,15 @@ export function ConsentPage() {
           </Callout>
         ) : (
           !living.registered ? (
-            <AnimatedStepper width={680} onStepChange={(n) => n === 2 && toast("Passeport de voix créé", "ok")}>
-              <Step title="Créez votre Passeport de voix" label="Passeport de voix" canContinue={Boolean(rec && rec.duration >= 3)} hint="Enregistrez au moins 3 secondes de lecture.">
+            <AnimatedStepper width={680} onStepChange={(n) => n === 2 && !BACKEND && toast("Passeport de voix créé", "ok")}>
+              <Step
+                title="Créez votre Passeport de voix"
+                label="Passeport de voix"
+                canContinue={BACKEND ? false : Boolean(rec && rec.duration >= 3)}
+                hint={BACKEND ? "Enregistrez votre lecture, puis créez votre Passeport de voix." : "Enregistrez au moins 3 secondes de lecture."}
+              >
                 <p>Vous n’êtes pas encore inscrit·e. Votre Passeport de voix ne peut être créé que par vous. Lisez ce paragraphe à voix haute : il sert à vérifier la correspondance et la qualité de votre voix.</p>
-                <p className="read-para">{paragraphFor(token)}</p>
+                <p className="read-para">{found.paragraph}</p>
                 {rec ? (
                   <div className="recorder">
                     <AudioClip url={rec.url} label="votre enregistrement" />
@@ -143,8 +200,20 @@ export function ConsentPage() {
                 ) : (
                   <Recorder onDone={setRec} />
                 )}
+                {BACKEND && rec && (
+                  <div>
+                    <button type="button" className="btn btn-primary" disabled={creating || rec.duration < 3} onClick={() => void createPassport()}>
+                      {creating ? <Loader2 className="spin" /> : null}
+                      Créer mon Passeport de voix
+                    </button>
+                  </div>
+                )}
                 <p className="hint">
-                  Aucune pièce d’identité n’est demandée. Le contrôle de correspondance est simulé dans ce prototype. Vous pouvez aussi{" "}
+                  Aucune pièce d’identité n’est demandée.{" "}
+                  {BACKEND
+                    ? "Le serveur contrôle la durée et le niveau de l’enregistrement et, quand la transcription est disponible, la lecture du texte. Il ne prouve pas votre identité."
+                    : "Le contrôle de correspondance est simulé dans ce prototype."}{" "}
+                  Vous pouvez aussi{" "}
                   <button type="button" className="btn-link" onClick={() => respond(token, false)}>
                     refuser sans créer de passeport
                   </button>

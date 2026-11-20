@@ -78,7 +78,13 @@ export const analysis = new Hono<AppEnv>()
         await step(n, detail);
       };
       const meta = { projectId: project.id, accountId: user.id };
-      const video = { ...(project.video ?? { name: "", size: 0, type: "", duration: body.audio.duration, width: 0, height: 0, privacy: "inedite" as const }), audioPath: body.audio.path, ...(body.originalPath ? { originalPath: body.originalPath } : {}) };
+      const video = {
+        ...(project.video ?? { name: "", size: 0, type: "", duration: body.audio.duration, width: 0, height: 0, privacy: "inedite" as const }),
+        audioPath: body.audio.path,
+        // Kept so the family-dossier check can show the model frames where a character speaks.
+        framePaths: body.frames,
+        ...(body.originalPath ? { originalPath: body.originalPath } : {}),
+      };
 
       try {
         await track(0, "Lecture de l’audio et des images envoyées…");

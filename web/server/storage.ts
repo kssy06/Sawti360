@@ -77,6 +77,25 @@ export const RULES: Record<UploadKind, { bucket: Bucket; mimes: string[]; max: n
 /** "audio/webm;codecs=opus" → "audio/webm" (the buckets' allowed types have no parameters). */
 export const cleanMime = (t: string) => t.split(";")[0].trim().toLowerCase();
 
+/**
+ * Same audio container, other names: browsers label an imported .webm « video/webm », a .wav
+ * « audio/x-wav »… The buckets accept the audio/* names only, so recordings are relabelled.
+ */
+const AUDIO_ALIASES: Record<string, string> = {
+  "video/webm": "audio/webm",
+  "video/mp4": "audio/mp4",
+  "video/ogg": "audio/ogg",
+  "application/ogg": "audio/ogg",
+  "audio/x-wav": "audio/wav",
+  "audio/wave": "audio/wav",
+  "audio/vnd.wave": "audio/wav",
+  "audio/x-m4a": "audio/mp4",
+  "audio/m4a": "audio/mp4",
+  "audio/aac": "audio/mp4",
+  "audio/mp3": "audio/mpeg",
+  "audio/x-mpeg": "audio/mpeg",
+};
+
 const SAFE = /^[A-Za-z0-9_-]{1,80}$/;
 
 export interface UploadPlanInput {
@@ -98,7 +117,8 @@ export interface UploadPlanInput {
 /** Bucket and path of an upload, after checking type and size (400 / 413). Pure: unit-tested. */
 export function planUpload(i: UploadPlanInput): { bucket: Bucket; path: string; contentType: string } {
   const rule = RULES[i.kind];
-  const mime = cleanMime(i.contentType);
+  const declared = cleanMime(i.contentType);
+  const mime = i.kind === "audio" || i.kind === "sample" ? (AUDIO_ALIASES[declared] ?? declared) : declared;
   if (!rule.mimes.includes(mime)) throw badRequest(`Type de fichier refusé pour un ${rule.label} : ${mime || "inconnu"}. Acceptés : ${rule.mimes.join(", ")}.`);
   if (!Number.isFinite(i.size) || i.size <= 0) throw badRequest("Fichier vide.");
   if (i.size > rule.max) throw new ApiError(413, "FICHIER_TROP_GROS", `Fichier trop lourd pour un ${rule.label} : ${Math.round(rule.max / MB)} Mo au plus.`);

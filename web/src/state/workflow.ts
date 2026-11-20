@@ -39,7 +39,9 @@ export interface FamilyCheck {
   videoFinding: string;
   explanation: string;
   at: string;
-  simulated: true;
+  /** false when a real model read the document (its name in `provider`), checked by deterministic rules. */
+  simulated: boolean;
+  provider?: string;
 }
 
 export interface FamilyDossier {

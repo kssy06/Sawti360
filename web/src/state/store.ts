@@ -216,12 +216,13 @@ interface Actions {
   confirmCharacter: (pid: string, key: string, name: string, description: string) => void | Promise<void>;
   setUseOriginal: (pid: string, key: string, v: boolean) => void | Promise<void>;
   setLifeStatus: (pid: string, key: string, s: LifeStatus) => void | Promise<void>;
-  sendConsent: (pid: string, key: string, email: string, registered: boolean) => string;
+  sendConsent: (pid: string, key: string, email: string, registered: boolean) => string | Promise<string>;
   respondConsent: (token: string, accept: boolean) => void;
-  uploadDossier: (pid: string, key: string, d: Pick<FamilyDossier, "deceasedName" | "declaredRole" | "fileName" | "fileSize" | "fileType" | "fileHash">) => Promise<void>;
-  validateDossier: (pid: string, key: string) => void;
-  requestComplementary: (pid: string, key: string) => void;
-  resetDossier: (pid: string, key: string) => void;
+  /** `file`: the signed document itself (back-end mode sends it to the private bucket). */
+  uploadDossier: (pid: string, key: string, d: Pick<FamilyDossier, "deceasedName" | "declaredRole" | "fileName" | "fileSize" | "fileType" | "fileHash"> & { file?: File }) => Promise<void>;
+  validateDossier: (pid: string, key: string) => void | Promise<void>;
+  requestComplementary: (pid: string, key: string) => void | Promise<void>;
+  resetDossier: (pid: string, key: string) => void | Promise<void>;
 
   /* voice licensing */
   requestLicense: (pid: string, key: string, voiceId: string, message: string) => LicenseRequest | Promise<LicenseRequest>;
@@ -524,6 +525,7 @@ export const useStore = create<Store>()(
           log(me(), "STATUT_DE_VIE_RENSEIGNE", { projet: pid, personnage: key, statut: st }, st.toUpperCase());
         },
         sendConsent: (pid, key, email, registered) => {
+          if (BACKEND) return remote.consents.sendConsent(set, pid, key, email, registered);
           const t = token();
           patchChar(pid, key, () => ({ living: { status: "en_attente", email: email.trim(), registered, token: t, sentAt: new Date().toISOString() } }));
           log(me(), "CONSENTEMENT_DEMANDE", { projet: pid, personnage: key, email_hash: sha256Hex(email.trim().toLowerCase()) }, "EN_ATTENTE");
@@ -546,6 +548,7 @@ export const useStore = create<Store>()(
           }
         },
         uploadDossier: async (pid, key, d) => {
+          if (BACKEND) return remote.dossiers.uploadDossier(set, pid, key, d);
           const reference = dossierReference(`${pid}/${key}/${d.fileHash}`);
           patchChar(pid, key, (c) => ({ dossier: { ...(c.dossier ?? { status: "manquant", deceasedName: "", declaredRole: "" }), ...d, reference, status: "recu", receivedAt: new Date().toISOString(), check: undefined, validatedAt: undefined, complementaryRequestedAt: undefined } }));
           log(me(), "DOSSIER_FAMILIAL_RECU", { projet: pid, personnage: key, empreinte: d.fileHash, reference }, "RECU");
@@ -570,14 +573,17 @@ export const useStore = create<Store>()(
           });
         },
         validateDossier: (pid, key) => {
+          if (BACKEND) return remote.dossiers.validateDossier(set, pid, key);
           patchChar(pid, key, (c) => (c.dossier?.status === "correspondance" ? { dossier: { ...c.dossier, status: "valide", validatedAt: new Date().toISOString(), validatedBy: me() } } : {}));
           log(me(), "DOSSIER_FAMILIAL_VALIDE", { projet: pid, personnage: key }, "VALIDE");
         },
         requestComplementary: (pid, key) => {
+          if (BACKEND) return remote.dossiers.requestComplementary(set, pid, key);
           patchChar(pid, key, (c) => ({ dossier: { ...c.dossier!, complementaryRequestedAt: new Date().toISOString() } }));
           log(me(), "VERIFICATION_COMPLEMENTAIRE_DEMANDEE", { projet: pid, personnage: key }, "EN_ATTENTE");
         },
-        resetDossier: (pid, key) => patchChar(pid, key, (c) => ({ dossier: { status: "manquant", deceasedName: c.dossier?.deceasedName ?? "", declaredRole: c.dossier?.declaredRole ?? "" } })),
+        resetDossier: (pid, key) =>
+          BACKEND ? remote.dossiers.resetDossier(set, pid, key) : void patchChar(pid, key, (c) => ({ dossier: { status: "manquant", deceasedName: c.dossier?.deceasedName ?? "", declaredRole: c.dossier?.declaredRole ?? "" } })),
 
         /* ---------------------------------------------- licensing */
         requestLicense: (pid, key, voiceId, message) => {

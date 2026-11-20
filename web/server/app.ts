@@ -11,7 +11,9 @@ import { rateLimit } from "./ratelimit.js";
 import { analysis } from "./routes/analysis.js";
 import { bootstrap } from "./routes/bootstrap.js";
 import { characters } from "./routes/characters.js";
+import { consents } from "./routes/consents.js";
 import { demo } from "./routes/demo.js";
+import { dossiers } from "./routes/dossiers.js";
 import { health } from "./routes/health.js";
 import { jobs } from "./routes/jobs.js";
 import { journal } from "./routes/journal.js";
@@ -47,6 +49,8 @@ export function createApp() {
   app.route("/", analysis);
   app.route("/", licences);
   app.route("/", payments);
+  app.route("/", consents);
+  app.route("/", dossiers);
 
   app.notFound(() => json(404, { error: "INTROUVABLE", message: "Route inconnue." }));
   app.onError((err) => {

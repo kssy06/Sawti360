@@ -1,7 +1,10 @@
 import { ArrowRight, CircleCheck, CircleX, ExternalLink, FileText, Loader2, Mail, Scale, SearchCheck, ShieldAlert, Upload } from "lucide-react";
 import { useId, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { messageOf } from "../../api/client";
+import { BACKEND } from "../../lib/backend";
 import { formatSize, hashFile } from "../../media/local";
+import { consentLinkFor, consentMailed, useRefreshWhile } from "../../state/remote/consents";
 import { useStore, type Project } from "../../state/store";
 import {
   canValidateDossier,
@@ -15,6 +18,7 @@ import {
   type CheckOutcome,
 } from "../../state/workflow";
 import { Callout, CopyField, KV, Prov, relTime, Status, toast, VoiceMark, type Tone } from "../../ui/kit";
+import { WhatsAppButton } from "../../ui/share";
 import { StepFoot } from "./Workspace";
 
 const AUTH_LABEL: Record<AuthState, [string, Tone]> = {
@@ -48,7 +52,17 @@ function LivingPath({ p, c }: { p: Project; c: Character }) {
   const [registered, setRegistered] = useState<boolean | null>(living.token ? living.registered : null);
   const emailId = useId();
   const valid = /^\S+@\S+\.\S+$/.test(email.trim());
-  const link = living.token ? `${window.location.origin}/consentement/${living.token}` : "";
+  // Back-end mode: the server gives the link once (kept in this browser); the person may answer on any device.
+  const link = BACKEND ? consentLinkFor(p.id, c.key) : living.token ? `${window.location.origin}/consentement/${living.token}` : "";
+  useRefreshWhile(useStore.setState, p.id, BACKEND && living.status === "en_attente");
+  const sendNow = async (to: string, reg: boolean) => {
+    try {
+      await send(p.id, c.key, to, reg);
+      toast(BACKEND ? (consentMailed(p.id, c.key) ? "Demande envoyée par e-mail" : "Demande enregistrée : transmettez le lien") : "Demande de consentement enregistrée", "ok");
+    } catch (err) {
+      toast(messageOf(err), "bad");
+    }
+  };
   const states = ["a_obtenir", "en_attente", living.status === "refusee" ? "refusee" : "autorisee"] as const;
   const idx = living.status === "a_obtenir" ? 0 : living.status === "en_attente" ? 1 : 2;
 
@@ -89,10 +103,7 @@ function LivingPath({ p, c }: { p: Project; c: Character }) {
                   <button
                     className="btn btn-primary"
                     disabled={!valid}
-                    onClick={() => {
-                      send(p.id, c.key, email, registered);
-                      toast("Demande de consentement enregistrée", "ok");
-                    }}
+                    onClick={() => void sendNow(email, registered)}
                   >
                     <Mail />
                     {registered ? "Envoyer la demande" : "Envoyer l’invitation"}
@@ -135,7 +146,18 @@ function LivingPath({ p, c }: { p: Project; c: Character }) {
                 La voix originale reste bloquée. Ce refus est inscrit au journal d’audit.
               </Callout>
             )}
-            {living.status === "en_attente" && (
+            {living.status === "en_attente" && BACKEND && !link && (
+              <div className="stack-sm">
+                <span className="hint">Le lien a été envoyé par e-mail et n’est pas conservé dans ce navigateur. Un nouvel envoi crée un nouveau lien et désactive l’ancien.</span>
+                <div>
+                  <button className="btn btn-secondary btn-sm" onClick={() => void sendNow(living.email, living.registered)}>
+                    <Mail />
+                    Renvoyer un nouveau lien
+                  </button>
+                </div>
+              </div>
+            )}
+            {living.status === "en_attente" && link && (
               <div className="stack-sm">
                 <span className="label-sm">Lien sécurisé reçu par la personne</span>
                 <CopyField value={link} label="Lien de consentement" />
@@ -144,9 +166,16 @@ function LivingPath({ p, c }: { p: Project; c: Character }) {
                     <ExternalLink />
                     Ouvrir comme la personne (démonstration)
                   </a>
-                  <span className="hint">
-                    <Prov kind="sim">e-mail</Prov> aucun e-mail n’est réellement envoyé par le prototype.
-                  </span>
+                  {BACKEND && <WhatsAppButton text={`Demande de consentement pour votre voix (${p.title}) :`} url={link} />}
+                  {BACKEND ? (
+                    <span className="hint">
+                      <Prov kind="real">e-mail</Prov> {consentMailed(p.id, c.key) === false ? "e-mail non envoyé (SMTP non configuré) : transmettez ce lien." : "envoyé à la personne avec ce lien."}
+                    </span>
+                  ) : (
+                    <span className="hint">
+                      <Prov kind="sim">e-mail</Prov> aucun e-mail n’est réellement envoyé par le prototype.
+                    </span>
+                  )}
                 </div>
               </div>
             )}
@@ -184,6 +213,7 @@ function DeceasedPath({ p, c }: { p: Project; c: Character }) {
   const [busy, setBusy] = useState(false);
   const [checked, setChecked] = useState(false);
   const ids = { name: useId(), role: useId() };
+  useRefreshWhile(useStore.setState, p.id, BACKEND && (d.status === "recu" || d.status === "analyse"), 5000);
   const order = ["manquant", "recu", "analyse", "resultat", "valide"] as const;
   const at = d.status === "manquant" ? 0 : d.status === "recu" ? 1 : d.status === "analyse" ? 2 : d.status === "valide" ? 4 : 3;
   const labels = ["Document manquant", "Document reçu", "Analyse en cours", d.check ? OUTCOME_LABEL[d.check.outcome] : "Résultat du contrôle", "Dossier validé"];
@@ -200,7 +230,7 @@ function DeceasedPath({ p, c }: { p: Project; c: Character }) {
     setBusy(true);
     const fileHash = await hashFile(file, () => {});
     setBusy(false);
-    void upload(p.id, c.key, { deceasedName: name.trim(), declaredRole: role.trim(), fileName: file.name, fileSize: file.size, fileType: file.type, fileHash });
+    void upload(p.id, c.key, { deceasedName: name.trim(), declaredRole: role.trim(), fileName: file.name, fileSize: file.size, fileType: file.type, fileHash, ...(BACKEND ? { file } : {}) });
     toast("Document reçu, contrôle de cohérence lancé");
   };
 
@@ -309,7 +339,7 @@ function DeceasedPath({ p, c }: { p: Project; c: Character }) {
               <div>
                 <div className="row">
                   <h4>{d.status === "valide" ? "Dossier validé" : OUTCOME_LABEL[outcome]}</h4>
-                  <Prov kind="sim">contrôle IA</Prov>
+                  <Prov kind={d.check.simulated ? "sim" : "real"}>{d.check.simulated ? "contrôle IA" : `contrôle IA · ${d.check.provider ?? "modèle"}`}</Prov>
                 </div>
                 <p style={{ fontSize: 13, color: "var(--ink-2)" }}>{d.check.explanation}</p>
                 <KV

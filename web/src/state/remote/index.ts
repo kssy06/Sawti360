@@ -2,6 +2,8 @@
 export * as analysis from "./analysis";
 export * as bootstrap from "./bootstrap";
 export * as characters from "./characters";
+export * as consents from "./consents";
+export * as dossiers from "./dossiers";
 export * as journal from "./journal";
 export * as licensing from "./licensing";
 export * as projects from "./projects";
