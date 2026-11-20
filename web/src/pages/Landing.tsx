@@ -217,7 +217,7 @@ export default function Landing() {
               <div className="l-par-down">
                 <Reveal className="l-card l-card-accent">
                   <div className="l-card-top">
-                    <span className="l-card-icon spin">
+                    <span className="l-card-icon l-icon-turn">
                       <Star aria-hidden />
                     </span>
                     <span className="l-card-no">01</span>
@@ -235,7 +235,7 @@ export default function Landing() {
               <div className="l-par-up l-card-offset">
                 <Reveal delay={150} className="l-card l-card-dark">
                   <div className="l-card-top">
-                    <span className="l-card-icon grow">
+                    <span className="l-card-icon l-icon-lift">
                       <ArrowRight aria-hidden style={{ transform: "rotate(-45deg)" } as CSSProperties} />
                     </span>
                     <span className="l-card-no">02</span>
