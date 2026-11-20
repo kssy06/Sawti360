@@ -211,7 +211,7 @@ interface Actions {
   updateOwnLicense: (patch: Pick<VoiceLicense, "allowed_uses" | "forbidden_themes">) => void;
   revoke: (licenseId: string) => void;
   reinstate: (licenseId: string) => void;
-  exportPassport: (projectId?: string) => Passport360;
+  exportPassport: (projectId?: string) => Passport360 | Promise<Passport360 | undefined>;
   logExport: (kind: string, detail: Record<string, unknown>) => void;
   markRead: () => void;
   reset: () => void;
@@ -491,6 +491,7 @@ export const useStore = create<Store>()(
           log(lic.holder_name, "LICENCE_RETABLIE", { license_id: licenseId, signature: lic.signature }, "SIGNE");
         },
         exportPassport: (projectId) => {
+          if (BACKEND) return remote.passports.exportPassport(set, get, projectId ?? get().currentId);
           const s = get();
           const project = projectId ? s.projects[projectId] : currentProject(s);
           const signed = buildPassport(s, project);

@@ -51,8 +51,12 @@ Graine Ed25519 secrète (serveur) et clé publique (navigateur). Le script `web/
 cd web && npx tsx scripts/keys.ts
 ```
 
-Il affiche `SAWTI_SIGNING_SEED=<64 caractères hex>` et `VITE_SAWTI_PUBLIC_KEY=<64 caractères hex>`.
+(ou `npm run keys`). Il affiche `SAWTI_SIGNING_SEED=<64 caractères hex>` et
+`VITE_SAWTI_PUBLIC_KEY=<64 caractères hex>`, sans rien écrire : copier la graine dans les variables
+serveur de Vercel et dans `web/.env.local`, la clé publique aux deux endroits aussi. Puis
+`npm run seed` : les licences et le passeport d'exemple sont signés à nouveau avec la nouvelle clé.
 Changer la graine invalide les passeports déjà signés : la fixer une fois pour toutes avant la démo.
+Sans graine, le serveur signe avec la clé de démonstration publique (développement uniquement).
 
 ## 4. Gmail : mot de passe d'application
 

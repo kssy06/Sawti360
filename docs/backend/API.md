@@ -298,11 +298,21 @@ nouvelles) remet `generation.status` à `idle` avec `generation.error` : la gén
 ### Passeports
 
 **`POST /api/projects/:id/passport`** → `Passport360` signé par le serveur et rangé
-(`passports`). Journal `PASSEPORT_EXPORTE`. Remplace `exportPassport`.
+(`passports`). Journal `PASSEPORT_EXPORTE`. Remplace `exportPassport`. Aussi fait par la tâche
+`generation` (étape « Éléments de transparence »). L'identifiant `S360-XXXX-XXXX` est stable pour un
+projet (`passportId`) : signer à nouveau remplace le passeport, le QR déjà imprimé reste valable.
 
-**`GET /api/public/passports/:id`** → `{ passport: Passport360, journal: AuditEntry[] }`.
-`journal` = la chaîne jusqu'à l'entrée de tête citée dans le passeport, pour que
-`verifyPassport(p, journal)` vérifie aussi la chaîne dans le navigateur.
+**`GET /api/public/passports/:id`** → `{ passport: Passport360, journal: AuditEntry[] }` (sans compte,
+identifiant insensible à la casse, 404 sinon). `journal` = la chaîne jusqu'à l'entrée de tête citée dans
+le passeport, pour que `verifyPassport(p, journal)` vérifie aussi la chaîne dans le navigateur.
+La chaîne est unique : elle montre les acteurs et actions de toute la plateforme (contenus seulement
+sous forme d'empreintes). Acceptable pour le prototype ; en production, une preuve d'inclusion
+(arbre de Merkle) éviterait de tout publier.
+
+Clés : le serveur signe avec `SAWTI_SIGNING_SEED` (`npm run keys`) et vérifie avec la clé de sa graine ;
+le navigateur vérifie avec `VITE_SAWTI_PUBLIC_KEY` (même clé que `GET /api/health` → `publicKey`).
+Sans graine : clé de démonstration publique des deux côtés. `npm run seed` signe à nouveau les
+licences et le passeport d'exemple avec la clé en place.
 
 ### Espace propriétaire vocal
 

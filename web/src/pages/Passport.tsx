@@ -2,16 +2,20 @@ import { CircleCheck, CircleMinus, CircleX, Download, FileDown, ExternalLink, Fi
 import QRCode from "qrcode";
 import { useEffect, useMemo, useState } from "react";
 import { Link, Navigate, useLocation, useNavigate, useParams } from "react-router-dom";
-import { PLATFORM_PUBLIC_KEY } from "../core/crypto";
-import { decodePassport, encodePassport, verifyPassport, type Passport360, type PassportFile } from "../core/passport";
+import { messageOf } from "../api/client";
+import { DEMO_PUBLIC_KEY, platformPublicKey } from "../core/crypto";
+import { decodePassport, verifyPassport, type Passport360, type PassportFile } from "../core/passport";
 import type { AuditEntry } from "../core/types";
+import { BACKEND } from "../lib/backend";
+import { loadJournal } from "../state/remote/journal";
+import { fetchPublicPassport } from "../state/remote/passports";
 import { accountOf, useStore } from "../state/store";
 import { FORMAT_LABEL, transparencyPolicy, type VideoFormat } from "../state/workflow";
 import { Brand, Seal } from "../ui/brand";
 import { Callout, CopyField, Empty, frDate, Hash, KV, PageHead, Prov, Status, toast, Toasts, VoiceMark } from "../ui/kit";
 import { useCrumbs } from "../ui/Shell";
 import { ScrambleText, shortHex, useReducedMotion } from "../ui/motion";
-import { download, publicUrl, slug } from "./project/Result";
+import { download, passportUrl, slug } from "./project/Result";
 
 /* ------------------------------------------------------------------ the document */
 
@@ -58,7 +62,7 @@ const VERIFY_STEP = 640;
 
 export function PassportDocument({ p, journal, publicView = false }: { p: Passport360; journal?: AuditEntry[]; publicView?: boolean }) {
   const result = useMemo(() => verifyPassport(p, journal), [p, journal]);
-  const url = useMemo(() => publicUrl(encodePassport(p)), [p]);
+  const url = useMemo(() => passportUrl(p), [p]);
   const [qr, setQr] = useState("");
   useEffect(() => {
     void QRCode.toString(url, { type: "svg", errorCorrectionLevel: "L", margin: 0, color: { dark: "#0b0b0c", light: "#ffffff" } }).then(setQr);
@@ -307,7 +311,10 @@ export function PassportDocument({ p, journal, publicView = false }: { p: Passpo
               {sigOk && done && <Status tone="ok">Signé</Status>}
             </div>
             <div className="pp-qr" role="img" aria-label="QR code menant à cette page publique" dangerouslySetInnerHTML={{ __html: qr }} />
-            <p className="hint">Le QR code n’est qu’un moyen d’accès : le passeport est public à cette URL, sans compte. Son contenu voyage dans le lien lui-même.</p>
+            <p className="hint">
+              Le QR code n’est qu’un moyen d’accès : le passeport est public à cette URL, sans compte.{" "}
+              {BACKEND && p.identifiant ? "Le lien porte son identifiant : passeport et journal sont lus sur le serveur, la signature est vérifiée dans votre navigateur." : "Son contenu voyage dans le lien lui-même."}
+            </p>
             <CopyField value={url} label="URL publique du passeport" />
             {!publicView && (
               <a href={url} className="btn btn-secondary btn-sm" target="_blank" rel="noreferrer">
@@ -410,6 +417,9 @@ export function PassportView() {
   const journal = useStore((s) => s.journal);
   const exportPassport = useStore((s) => s.exportPassport);
   useCrumbs([{ label: "Passeports vidéo", to: "/passeports" }, { label: passport?.identifiant ?? "Passeport" }]);
+  useEffect(() => {
+    if (BACKEND) void loadJournal(useStore.setState, true);
+  }, []);
   if (!passport) return <Navigate to="/passeports" replace />;
   return (
     <>
@@ -440,10 +450,9 @@ export function PassportView() {
             {project && (
               <button
                 className="btn btn-secondary"
-                onClick={() => {
-                  exportPassport(project.id);
-                  toast("Passeport signé à nouveau et inscrit au journal", "ok");
-                }}
+                onClick={() =>
+                  void Promise.resolve(exportPassport(project.id)).then((signed) => signed && toast("Passeport signé à nouveau et inscrit au journal", "ok"))
+                }
               >
                 <RefreshCw />
                 Signer à nouveau
@@ -461,11 +470,41 @@ export function PassportView() {
 /* ------------------------------------------------------------------ public page */
 
 export function Verify() {
-  const { hash } = useLocation();
+  const { hash, search } = useLocation();
   const [p, setP] = useState<Passport360 | null>(null);
   const [journal, setJournal] = useState<AuditEntry[] | undefined>();
   const [error, setError] = useState("");
   const [drag, setDrag] = useState(false);
+
+  // /verifier?id=S360-… (QR of a passport signed by the server): passport and chain read from the server,
+  // checked here. In simulated mode, the passports of this browser.
+  useEffect(() => {
+    const id = new URLSearchParams(search).get("id")?.trim().toUpperCase();
+    if (!id) return;
+    let alive = true;
+    if (BACKEND) {
+      fetchPublicPassport(id).then(
+        (r) => {
+          if (!alive) return;
+          setP(r.passport);
+          setJournal(r.journal);
+          setError("");
+        },
+        (err) => alive && setError(messageOf(err)),
+      );
+    } else {
+      const s = useStore.getState();
+      const found = Object.values(s.passports).find((x) => x.identifiant === id);
+      if (found) {
+        setP(found);
+        setJournal(s.journal.slice(0, found.responsabilite.nombre_entrees));
+        setError("");
+      } else setError("Passeport introuvable dans ce navigateur (mode démonstration) : ouvrez son lien complet ou déposez son fichier.");
+    }
+    return () => {
+      alive = false;
+    };
+  }, [search]);
 
   useEffect(() => {
     document.title = "Vérifier un Passeport 360° · Sawti 360";
@@ -545,14 +584,14 @@ export function Verify() {
               <input type="file" accept="application/json,.json" className="sr-only" onChange={(e) => e.target.files?.[0] && readFile(e.target.files[0])} />
             </label>
             <p className="hint">
-              Clé publique de la plateforme (démonstration) : <span className="mono" style={{ wordBreak: "break-all" }}>{PLATFORM_PUBLIC_KEY}</span>
+              Clé publique de la plateforme{platformPublicKey() === DEMO_PUBLIC_KEY ? " (démonstration)" : ""} : <span className="mono" style={{ wordBreak: "break-all" }}>{platformPublicKey()}</span>
             </p>
           </div>
         )}
       </main>
       <footer className="public-foot">
         <span>Sawti 360 · L’IA propose, l’humain décide, la confiance accompagne chaque export.</span>
-        <span>Clé de démonstration publique : prouve le mécanisme, pas le secret.</span>
+        <span>{platformPublicKey() === DEMO_PUBLIC_KEY ? "Clé de démonstration publique : prouve le mécanisme, pas le secret." : "Clé publique de la plateforme : la clé secrète ne quitte jamais le serveur."}</span>
       </footer>
       <Toasts />
     </div>

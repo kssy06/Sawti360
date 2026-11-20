@@ -3,7 +3,8 @@
  * the two demo accounts. Idempotent: running it again resets the demo accounts' content to the same
  * state (projects, requests, usages, notifications, jetons). Accounts created by other people are
  * never touched. The audit journal is append-only: the example journal is written only into an
- * empty journal.
+ * empty journal. Licences and the example passport are signed with the server's key
+ * (SAWTI_SIGNING_SEED; the demo key without one): run it again after changing the key.
  */
 import type { Sql, TransactionSql } from "postgres";
 import { sha256Hex } from "../../src/core/canonical";
@@ -12,6 +13,8 @@ import { PLANS } from "../../src/core/credits";
 import { DEMO_ACCOUNTS, PROFILES, profileOf } from "../../src/mock/registry";
 import { seed } from "../../src/state/seed";
 import { passportId } from "../../src/state/workflow";
+import { journalHead } from "../../server/audit";
+import { signLicenseServer, signPassportServer } from "../../server/sign";
 
 export interface DemoIds {
   nour: string;
@@ -80,8 +83,9 @@ export async function seedDatabase(sql: Sql, ids: DemoIds): Promise<SeedSummary>
           sample = excluded.sample, eleven_voice_id = excluded.eleven_voice_id, cloned = false, created_at = excluded.created_at`;
     }
 
-    /* signed licences */
-    for (const l of data.licenses) {
+    /* signed licences, with the server's key (the one runGate verifies with) */
+    for (const unsigned of data.licenses) {
+      const l = signLicenseServer(unsigned);
       await tx`
         insert into public.voice_licenses (license_id, voice_id, data, status, revoked_at)
         values (${l.license_id}, ${l.voice_id}, ${tx.json(l)}, ${l.status}, ${l.revoked_at})
@@ -154,14 +158,6 @@ export async function seedDatabase(sql: Sql, ids: DemoIds): Promise<SeedSummary>
         values (${to}, ${n.space}, ${n.at}, ${n.tone}, ${n.title}, ${n.body}, ${n.link ?? null}, ${n.read})`;
     }
 
-    /* the completed example's Passeport 360° */
-    for (const [pid, passport] of Object.entries(data.passports)) {
-      await tx`
-        insert into public.passports (id, project_id, account_id, data, created_at)
-        values (${passport.identifiant ?? passportId(pid)}, ${pid}, ${ids.nour}, ${tx.json(passport)}, ${passport.identite.date})
-        on conflict (id) do update set project_id = excluded.project_id, account_id = excluded.account_id, data = excluded.data`;
-    }
-
     /* the example journal, only into an empty journal (the chain is append-only) */
     const [{ count }] = await tx<{ count: number }[]>`select count(*)::int as count from public.audit_entries`;
     if (count === 0) {
@@ -170,6 +166,23 @@ export async function seedDatabase(sql: Sql, ids: DemoIds): Promise<SeedSummary>
           insert into public.audit_entries (idx, ts, actor, action, payload_hash, decision, prev_hash, entry_hash)
           values (${e.index}, ${e.timestamp}, ${e.actor}, ${e.action}, ${e.payload_hash}, ${e.decision}, ${e.prev_hash}, ${e.entry_hash})`;
       }
+    }
+
+    /*
+     * The completed example's Passeport 360°, signed by the server. It commits to the example journal
+     * when that journal is the base's; otherwise (journal kept from earlier runs) to the base's chain as it is now.
+     */
+    const head = await journalHead(tx);
+    for (const [pid, passport] of Object.entries(data.passports)) {
+      const r = passport.responsabilite;
+      const [cited] = await tx<{ entry_hash: string }[]>`select entry_hash from public.audit_entries where idx = ${r.nombre_entrees - 1}`;
+      const [{ refusals }] = await tx<{ refusals: number }[]>`select count(*)::int as refusals from public.audit_entries where action = 'GENERATION_REFUSEE'`;
+      const commits = cited?.entry_hash === r.journal_empreinte_de_tete ? passport : { ...passport, responsabilite: { ...r, journal_empreinte_de_tete: head.head, nombre_entrees: head.count, nombre_refus: refusals } };
+      const signed = signPassportServer(commits);
+      await tx`
+        insert into public.passports (id, project_id, account_id, data, created_at)
+        values (${signed.identifiant ?? passportId(pid)}, ${pid}, ${ids.nour}, ${tx.json(signed as never)}, ${signed.identite.date})
+        on conflict (id) do update set project_id = excluded.project_id, account_id = excluded.account_id, data = excluded.data`;
     }
 
     return {

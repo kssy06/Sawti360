@@ -1104,6 +1104,8 @@ input, textarea { caret-color: var(--accent); }
 /* ================================================================== passport verification playback */
 .pp-seal { display: block; position: relative; flex: none; }
 .pp-seal.stamp { animation: seal-stamp 560ms var(--ease); }
+/* On a phone, the stamp (scale 1.28) must not widen the public page (QR → /verifier). */
+.public { overflow-x: clip; }
 .pp-seal.stamp::after { content: ""; position: absolute; inset: 6px; border-radius: 50%; border: 2px solid var(--ink); opacity: 0; pointer-events: none; animation: ink-ring 780ms var(--ease-out) 300ms; }
 @keyframes seal-stamp {
   0% { opacity: 0.25; transform: scale(1.28) rotate(-9deg); }

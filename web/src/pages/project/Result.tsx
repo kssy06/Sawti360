@@ -3,7 +3,8 @@ import { Captions, Clapperboard, Download, FileBadge2, FileJson, Pause, Play } f
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { toSrt } from "../../core/srt";
-import { encodePassport, type PassportFile } from "../../core/passport";
+import { encodePassport, type Passport360, type PassportFile } from "../../core/passport";
+import { BACKEND } from "../../lib/backend";
 import { audioKey, audioUrls, useStore, type Project } from "../../state/store";
 import { useLineAudio } from "../../state/remote/generation";
 import { FORMAT_LABEL, transparencyPolicy } from "../../state/workflow";
@@ -12,6 +13,11 @@ import { useVideoSrc, voiceInfo } from "./shared";
 
 export function publicUrl(code: string) {
   return `${window.location.origin}/verifier#p=${code}`;
+}
+
+/** Back-end: the short link (identifier, read on the server, small QR). Simulated: the self-contained #p= link. */
+export function passportUrl(p: Passport360): string {
+  return BACKEND && p.identifiant ? `${window.location.origin}/verifier?id=${p.identifiant}` : publicUrl(encodePassport(p));
 }
 
 export function download(name: string, text: string, type: string) {
@@ -135,7 +141,7 @@ export default function Result({ p }: { p: Project }) {
   const journal = useStore((s) => s.journal);
   const logExport = useStore((s) => s.logExport);
   const [qr, setQr] = useState("");
-  const url = useMemo(() => (passport ? publicUrl(encodePassport(passport)) : ""), [passport]);
+  const url = useMemo(() => (passport ? passportUrl(passport) : ""), [passport]);
   useEffect(() => {
     if (url) void QRCode.toString(url, { type: "svg", errorCorrectionLevel: "L", margin: 0 }).then(setQr);
   }, [url]);

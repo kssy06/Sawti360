@@ -110,9 +110,9 @@ Fichiers : `scripts/keys.ts`, `server/sign.ts`, `src/core/crypto.ts`, `src/state
    (serveur) ; la clé de démo ne sert plus qu'en mode simulé.
 2. `buildPassport()` sort de `store.ts` en fonction pure `src/state/passportBuild.ts`,
    utilisée par le store simulé et par le serveur.
-- [ ] passeport signé par le serveur vérifié dans le navigateur ; un champ modifié → signature invalide
-- [ ] `/verifier?id=S360-…` marche sur un téléphone (QR) ; les anciens liens `#p=` restent vérifiables en mode simulé
-- [ ] licences signées par le serveur acceptées par `verifyLicense()` dans `runGate`
+- [x] passeport signé par le serveur vérifié dans le navigateur ; un champ modifié → signature invalide
+- [x] `/verifier?id=S360-…` marche sur un téléphone (QR) ; les anciens liens `#p=` restent vérifiables en mode simulé (Chromium, iPhone 13 émulé)
+- [x] licences signées par le serveur acceptées par `verifyLicense()` dans `runGate` (`npm run keys`, puis `npm run seed` pour signer à nouveau)
 
 ### A9. Notifications (P1, 45 min) · dépend de A3
 Fichiers : `server/notify.ts`, `server/routes/notifications.ts`, `src/state/remote/notifications.ts`, `ui/Shell.tsx`.
@@ -185,7 +185,7 @@ Fichiers : `server/ai/elevenlabs.ts`, `server/routes/generation.ts`, `server/led
 - [x] chaque réplique approuvée est synthétisée, ou refusée avec sa raison (ARCHITECTURE.md § 4.9) (Chromium avec `SAWTI_TTS_MOCK=1` ; voix réelle : `ELEVENLABS_API_KEY`)
 - [x] audio rangé ; jetons débités ; 70 % crédités au titulaire ; journal ; notification « Votre voix a été utilisée »
 - [x] thème interdit → titulaire notifié ; solde insuffisant → 402 expliqué
-- [ ] passeport signé à la fin, notification « Rendu prêt » (« Rendu prêt » et e-mail faits ; passeport signé par le serveur : A8)
+- [x] passeport signé à la fin, notification « Rendu prêt » (et e-mail)
 
 ### C2. Ajustement du débit (P1, 1 h) · dépend de C1
 - [ ] une réplique volontairement longue est accélérée (jusqu'à 1,15) ou signalée « trop longue » avec une version courte proposée

@@ -1,6 +1,7 @@
 /**
  * Assembly of a project's Passeport 360° (pure: no store, no browser API).
- * Moved out of store.ts unchanged; used by the simulated store and by the server (signed passports).
+ * draftPassport() is shared: the simulated store signs it with the demo key (buildPassport),
+ * the server with its own seed (server/sign.ts, A8).
  */
 import { voiceById } from "../core/catalog.js";
 import { assemblePassport, signPassport, type Passport360 } from "../core/passport.js";
@@ -12,7 +13,14 @@ export function requestFor(s: Pick<Data, "requests">, pid: string, key: string, 
   return [...s.requests].reverse().find((r) => r.projectId === pid && r.characterKey === key && (!voiceId || r.voiceId === voiceId));
 }
 
-export function buildPassport(s: Pick<Data, "validator" | "usage" | "licenses" | "journal" | "requests">, project: Project, when = new Date()): Passport360 {
+type PassportData = Pick<Data, "validator" | "usage" | "licenses" | "journal" | "requests">;
+
+export function buildPassport(s: PassportData, project: Project, when = new Date()): Passport360 {
+  return signPassport(draftPassport(s, project, when));
+}
+
+/** The passport before signature. */
+export function draftPassport(s: PassportData, project: Project, when = new Date()): Passport360 {
   const name = (k: string) => project.characters[k]?.name ?? project.speakers[k]?.name ?? k;
   const keys = Object.keys(project.characters);
   const speakers = keys.map((k) => {
@@ -48,7 +56,10 @@ export function buildPassport(s: Pick<Data, "validator" | "usage" | "licenses" |
       : { ...v, nature: v.nature.includes("base") ? "Voix générée par IA · voix de synthèse Sawti, n’imite personne" : v.nature };
   });
   draft.transparence.label = `Doublé avec l’IA · ${draft.voix.length} voix · validé par ${s.validator}`;
-  return signPassport({
+  // What really ran: the analysis models (back-end) and the voice engine's test mode.
+  const real = project.pipeline?.simulated === false ? (project.pipeline.providers ?? {}) : null;
+  const testAudio = Object.values(project.gens).some((g) => g.status === "ok" && g.mock);
+  return {
     ...draft,
     identifiant: passportId(project.id),
     source: {
@@ -75,13 +86,13 @@ export function buildPassport(s: Pick<Data, "validator" | "usage" | "licenses" |
       return { personnage: name(k), voix_originale: true, statut_vie: LIFE_LABEL[c.lifeStatus], autorisation: "consentement de la personne", statut: c.living?.status === "autorisee" ? "autorisée" : "non autorisée" };
     }),
     doublage_ia: {
-      transcription: "Derja → texte, IA (simulée dans le prototype)",
-      traduction: "LLM 1 traduit, LLM 2 vérifie (simulés dans le prototype)",
+      transcription: real ? `Derja → texte : ${real.asr ?? "IA"} (réel)` : "Derja → texte, IA (simulée dans le prototype)",
+      traduction: real ? `LLM 1 : ${real.llm1 ?? "IA"} · LLM 2 : ${real.llm2 ?? "règles"} (réels)` : "LLM 1 traduit, LLM 2 vérifie (simulés dans le prototype)",
       verification: "Vérificateur de fidélité : chiffres et négations (règles)",
       validation_humaine: `${project.segments.filter((x) => x.validated).length} / ${project.segments.length} répliques approuvées par ${s.validator}`,
-      synthese: "ElevenLabs eleven_multilingual_v2, après décision du moteur de règles",
+      synthese: `ElevenLabs eleven_multilingual_v2, après décision du moteur de règles${testAudio ? " · mode test : audio silencieux" : ""}`,
       label_ia: policy.label,
       qr: policy.qr,
     },
-  });
+  };
 }

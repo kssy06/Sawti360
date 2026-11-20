@@ -4,7 +4,7 @@ import { useSearchParams } from "react-router-dom";
 import { verifyChain } from "../core/audit";
 import { voiceById } from "../core/catalog";
 import { fmt } from "../core/credits";
-import { PLATFORM_PUBLIC_KEY } from "../core/crypto";
+import { DEMO_PUBLIC_KEY, platformPublicKey } from "../core/crypto";
 import type { AuditEntry } from "../core/types";
 import { BACKEND } from "../lib/backend";
 import { loadJournal } from "../state/remote/journal";
@@ -316,8 +316,8 @@ export default function Trust() {
                     ["Vidéo source", "Lue dans le navigateur, jamais téléversée"],
                     ["Clé du moteur de voix", "Uniquement côté serveur"],
                     ["Double contrôle", "Moteur de règles dans le navigateur puis à nouveau sur le serveur"],
-                    ["Signature", "Ed25519, clé de démonstration publique"],
-                    ["Clé publique", <Hash value={PLATFORM_PUBLIC_KEY} n={12} />],
+                    ["Signature", platformPublicKey() === DEMO_PUBLIC_KEY ? "Ed25519, clé de démonstration publique" : "Ed25519, clé secrète gardée par le serveur"],
+                    ["Clé publique", <Hash value={platformPublicKey()} n={12} />],
                     ["Moteur de voix", engine === "loading" ? "…" : ENGINE_TEXT[engine]],
                   ]}
                 />

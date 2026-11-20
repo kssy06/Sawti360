@@ -9,15 +9,22 @@
  */
 import { Hono } from "hono";
 import { MAX_TTS_CHARS, PROJECT, SEED_LICENSES, voiceById } from "../../src/core/catalog.js";
-import { signLicense } from "../../src/core/crypto.js";
 import { runGate } from "../../src/core/gate.js";
 import { THEMES } from "../../src/core/safety.js";
 import type { Lang, Theme, Use, VoiceLicense } from "../../src/core/types.js";
 import { silentWav } from "../audio.js";
 import { env } from "../env.js";
 import { json } from "../errors.js";
+import { publicKeyHex, signLicenseServer } from "../sign.js";
 
-const REGISTRY: VoiceLicense[] = SEED_LICENSES.map(signLicense);
+/** Signed with the server's key, the one runGate verifies with (demo key without SAWTI_SIGNING_SEED). */
+const registries = new Map<string, VoiceLicense[]>();
+function registry(): VoiceLicense[] {
+  const key = publicKeyHex();
+  let r = registries.get(key);
+  if (!r) registries.set(key, (r = SEED_LICENSES.map(signLicenseServer)));
+  return r;
+}
 const USES: Use[] = ["doublage_film", "doublage_video_en_ligne", "bande_annonce", "publicite", "contenu_politique", "contenu_intime"];
 const LANGS: Lang[] = ["fr", "ar", "en"];
 
@@ -62,7 +69,7 @@ export async function POST(request: Request): Promise<Response> {
   const extraThemes = Array.isArray(body.extra_themes)
     ? body.extra_themes.filter((x): x is Theme => typeof x === "string" && x in THEMES)
     : [];
-  const licenses = REGISTRY.map((l) =>
+  const licenses = registry().map((l) =>
     revoked.includes(l.license_id) && l.status !== "revoked" ? { ...l, status: "revoked" as const, revoked_at: new Date().toISOString() } : l,
   );
 

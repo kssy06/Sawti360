@@ -1,7 +1,7 @@
 import { deflateSync, inflateSync, strFromU8, strToU8 } from "fflate";
 import { headHash, verifyChain } from "./audit.js";
 import { canonicalJson, nowIso, sha256Hex } from "./canonical.js";
-import { PLATFORM_PUBLIC_KEY, signText, verifyText } from "./crypto.js";
+import { DEMO_PUBLIC_KEY, platformPublicKey, signText, verifyText } from "./crypto.js";
 import type { AuditEntry, VoiceLicense } from "./types.js";
 
 /** Passeport 360°: the signed dossier that travels with every export.
@@ -104,10 +104,14 @@ function unsigned(p: Passport360): Omit<Passport360, "signature"> {
   return rest;
 }
 
+/** What the signature covers: every field but the signature itself. */
+export const passportPayload = (p: Passport360): string => canonicalJson(unsigned(p));
+
+/** Signed with the demo key (simulated mode); the server signs with its own seed (server/sign.ts). */
 export function signPassport(p: Passport360): Passport360 {
   return {
     ...p,
-    signature: { algorithme: "Ed25519", cle_publique: PLATFORM_PUBLIC_KEY, valeur: signText(canonicalJson(unsigned(p))) },
+    signature: { algorithme: "Ed25519", cle_publique: DEMO_PUBLIC_KEY, valeur: signText(passportPayload(p)) },
   };
 }
 
@@ -121,8 +125,8 @@ export interface PassportCheck {
 
 export function verifyPassport(p: Passport360, journal?: AuditEntry[]): { valid: boolean; checks: PassportCheck[] } {
   const sig = p.signature;
-  const sigOk = Boolean(sig) && verifyText(canonicalJson(unsigned(p)), sig!.valeur, sig!.cle_publique);
-  const keyOk = sig?.cle_publique === PLATFORM_PUBLIC_KEY;
+  const sigOk = Boolean(sig) && verifyText(passportPayload(p), sig!.valeur, sig!.cle_publique);
+  const keyOk = sig?.cle_publique === platformPublicKey();
   const checks: PassportCheck[] = [
     {
       id: "signature",

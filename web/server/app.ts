@@ -19,14 +19,18 @@ import { health } from "./routes/health.js";
 import { jobs } from "./routes/jobs.js";
 import { journal } from "./routes/journal.js";
 import { licences } from "./routes/licences.js";
+import { passports } from "./routes/passports.js";
 import { me } from "./routes/me.js";
 import { payments } from "./routes/payments.js";
 import { projects } from "./routes/projects.js";
 import { review } from "./routes/review.js";
 import { tts } from "./routes/tts.js";
 import { uploads } from "./routes/uploads.js";
+import { trustServerKey } from "./sign.js";
 
 export function createApp() {
+  // Licences (runGate) and passports are verified with the server's own key.
+  trustServerKey();
   const app = new Hono<AppEnv>().basePath("/api");
 
   app.use("*", async (c, next) => {
@@ -53,6 +57,7 @@ export function createApp() {
   app.route("/", consents);
   app.route("/", dossiers);
   app.route("/", generation);
+  app.route("/", passports);
 
   app.notFound(() => json(404, { error: "INTROUVABLE", message: "Route inconnue." }));
   app.onError((err) => {

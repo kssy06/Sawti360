@@ -25,6 +25,7 @@ import { balanceOf } from "../ledger.js";
 import { renderReadyMail, sendMail } from "../mail.js";
 import { notify } from "../notify.js";
 import { ownedProject, readProject } from "../projects.js";
+import { issuePassport } from "./passports.js";
 import { files } from "../storage.js";
 import { linePath, loadVoiceBook, projectRequests, refuseSlot, SKIPPED, slotFor, speakLine, type VoiceBook } from "../synthesis.js";
 
@@ -114,6 +115,8 @@ export const generation = new Hono<AppEnv>()
         for (let i = 1; i < GEN_STAGES.length; i++) {
           await ctx.step(i, GEN_STAGES[i].server.detail);
           await setGeneration(sql, row.id, { stage: i });
+          // The Passeport 360°, signed by the server, once every line has its final state.
+          if (GEN_STAGES[i].key === "transp") await issuePassport(sql, me, row.id);
         }
         await setGeneration(sql, row.id, { status: "done", stage: GEN_STAGES.length, finishedAt: new Date().toISOString(), etaMs: 0 });
         const link = `/projet/${row.id}/resultat`;

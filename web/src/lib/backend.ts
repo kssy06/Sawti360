@@ -4,6 +4,8 @@
  * Anything else → the fully simulated demo, exactly as before the back-end (src/mock/).
  * VITE_* values are public by nature: no secret here.
  */
+import { trustPlatformKey } from "../core/crypto";
+
 type ViteEnv = Record<string, string | undefined>;
 const vite: ViteEnv = (import.meta as unknown as { env?: ViteEnv }).env ?? {};
 
@@ -13,6 +15,9 @@ export const SUPABASE_PUBLISHABLE_KEY = vite.VITE_SUPABASE_PUBLISHABLE_KEY ?? ""
 export const SAWTI_PUBLIC_KEY = vite.VITE_SAWTI_PUBLIC_KEY ?? "";
 
 export const BACKEND = vite.VITE_BACKEND === "1" && Boolean(SUPABASE_URL && SUPABASE_PUBLISHABLE_KEY);
+
+// Back-end mode: passports and licences are verified with the server's published key (the demo key without one).
+if (BACKEND) trustPlatformKey(SAWTI_PUBLIC_KEY || null);
 
 /** Captured before Supabase reads (and clears) the URL hash of a password-recovery link. */
 export const RECOVERY_LINK = typeof location !== "undefined" && /type=recovery/.test(location.hash);
