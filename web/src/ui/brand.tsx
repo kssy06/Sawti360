@@ -1,18 +1,7 @@
 import "@fontsource/playfair-display/700.css";
+import { useId } from "react";
 import { Link } from "react-router-dom";
 
-/** Eight-pointed star (khatam), the geometric figure of Tunisian zellige, drawn as two squares. */
-function starPath(cx: number, cy: number, r: number) {
-  const pts: string[] = [];
-  for (let i = 0; i < 8; i++) {
-    const a = (Math.PI / 4) * i - Math.PI / 2;
-    const rr = i % 2 === 0 ? r : r * 0.78;
-    pts.push(`${(cx + rr * Math.cos(a)).toFixed(2)},${(cy + rr * Math.sin(a)).toFixed(2)}`);
-  }
-  return pts;
-}
-
-/** Mini logo: the « S. » of the wordmark (Playfair Display, outlined), on a dark tile. Same drawing as the favicon. */
 export function BrandMark({ size = 26 }: { size?: number }) {
   return (
     <svg className="brand-mark" width={size} height={size} viewBox="0 0 32 32" aria-hidden>
@@ -32,31 +21,50 @@ export function Brand({ to = "/" }: { to?: string }) {
   );
 }
 
+/** Day month year in capitals, as on a postmark: « 20 NOV 2026 ». */
+function postmarkDate(iso?: string) {
+  const d = iso ? new Date(iso) : null;
+  if (!d || Number.isNaN(d.getTime())) return null;
+  const m = ["JAN", "FÉV", "MAR", "AVR", "MAI", "JUIN", "JUIL", "AOÛT", "SEPT", "OCT", "NOV", "DÉC"][d.getMonth()];
+  return `${d.getDate()} ${m} ${d.getFullYear()}`;
+}
+
+const SEAL_WORD = { ok: "VÉRIFIÉ", bad: "ALTÉRÉ", pending: "EN COURS" } as const;
+const SEAL_INK = { ok: "var(--accent)", bad: "var(--bad)", pending: "var(--ink-3)" } as const;
+
 /**
- * The Passeport 360° seal: concentric rules, the khatam, and the verification state.
- * State is carried by the centre mark and the label, never by colour alone.
+ * The Passeport 360° stamp, drawn as a postal cancellation: wavy lines running into a double
+ * circle, the ring text, and the status word with the signature date in the centre.
+ * State is carried by the word as well as the ink colour, never by colour alone.
+ * `size` is the stamp height; the width follows (1.6 × size).
  */
-export function Seal({ size = 120, state = "ok", label }: { size?: number; state?: "ok" | "bad" | "pending"; label?: string }) {
-  const id = `seal-${state}-${size}`;
-  // Drawn in currentColor so the seal follows the theme; the face takes the surface colour.
-  const ink = "currentColor";
-  const text = label ?? (state === "ok" ? "PASSEPORT 360° · SIGNATURE VÉRIFIÉE · " : state === "bad" ? "PASSEPORT 360° · SIGNATURE INVALIDE · " : "PASSEPORT 360° · EN ATTENTE DE SIGNATURE · ");
+export function Seal({ size = 120, state = "ok", label, word, date }: { size?: number; state?: "ok" | "bad" | "pending"; label?: string; word?: string; date?: string }) {
+  const uid = useId().replace(/:/g, "");
+  const ink = SEAL_INK[state];
+  const status = word ?? SEAL_WORD[state];
+  const when = state === "pending" ? "· · ·" : postmarkDate(date) ?? "PASSEPORT";
+  const aria = (label ?? `Passeport 360° · ${status.toLowerCase()}`).replace(/ · $/, "");
+  // Fit the status inside the inner circle (r = 40): about 6.4 units per glyph, capped at 58.
+  const wordLen = Math.min(58, status.length * 7.2);
+  const waves = [45, 62, 79, 96, 113].map((y) => `M8 ${y}` + " q7 -7 14 0".repeat(8));
   return (
-    <svg className="seal" width={size} height={size} viewBox="0 0 100 100" role="img" aria-label={text.replace(/ · $/, "")} style={{ color: state === "bad" ? "var(--bad-ink)" : "var(--ink)" }}>
-      <defs>
-        <path id={id} d="M50,50 m-38,0 a38,38 0 1,1 76,0 a38,38 0 1,1 -76,0" />
-      </defs>
-      <circle cx="50" cy="50" r="48" stroke={ink} strokeWidth="1.2" style={{ fill: "var(--surface)" }} />
-      <circle cx="50" cy="50" r="31" fill="none" stroke={ink} strokeWidth="0.6" strokeDasharray={state === "pending" ? "2 2" : undefined} />
-      <text style={{ fill: ink }}>
-        <textPath href={`#${id}`} startOffset="0" textLength="236" lengthAdjust="spacing">
-          {text}
-        </textPath>
-      </text>
-      <polygon points={starPath(50, 50, 22).join(" ")} fill="none" stroke={ink} strokeWidth="1.1" />
-      {state === "ok" && <path d="M41 50.5l6 6 12-13" fill="none" stroke={ink} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />}
-      {state === "bad" && <path d="M43 43l14 14M57 43L43 57" fill="none" stroke={ink} strokeWidth="2.4" strokeLinecap="round" />}
-      {state === "pending" && <circle cx="50" cy="50" r="3" fill={ink} />}
+    <svg className="seal" width={size * 1.6} height={size} viewBox="0 0 240 150" role="img" aria-label={aria} style={{ color: ink }}>
+      <g transform="rotate(-6 120 75)">
+        <g fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" opacity="0.92">
+          {waves.map((d) => <path key={d} d={d} />)}
+        </g>
+        <defs>
+          <path id={`ring-${uid}`} d="M175 75 m-51 0 a51 51 0 1 1 102 0 a51 51 0 1 1 -102 0" />
+        </defs>
+        <circle cx="175" cy="75" r="63" stroke="currentColor" strokeWidth="3.5" style={{ fill: "var(--seal-face, var(--surface))" }} />
+        <circle cx="175" cy="75" r="40" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray={state === "pending" ? "4 4" : undefined} />
+        <text className="seal-ring">
+          <textPath href={`#ring-${uid}`} textLength="314" lengthAdjust="spacing">PASSEPORT 360° · SAWTI 360. · ED25519 ·</textPath>
+        </text>
+        <text className="seal-word" x="175" y="76" textAnchor="middle" textLength={wordLen} lengthAdjust="spacingAndGlyphs">{status}</text>
+        <line x1="152" y1="83" x2="198" y2="83" stroke="currentColor" strokeWidth="0.8" />
+        <text className="seal-date" x="175" y="95" textAnchor="middle" textLength={when.length > 6 ? 50 : 20} lengthAdjust="spacing">{when}</text>
+      </g>
     </svg>
   );
 }
