@@ -89,6 +89,11 @@ export default function Timeline({ p }: { p: Project }) {
   useEffect(() => {
     stopClips();
   }, [mode, stopClips]);
+  // Whatever stopped playback (pause button, space bar, end of a passage, end of the video), the
+  // French line that was speaking stops with it.
+  useEffect(() => {
+    if (!playing) stopClips();
+  }, [playing, stopClips]);
 
   const seek = (t: number) => {
     stopClips();

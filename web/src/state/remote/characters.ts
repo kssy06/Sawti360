@@ -66,3 +66,26 @@ export async function assignVoice(set: Set, pid: string, key: string, voiceId: s
 export function setSpeakerVoice(set: Set, get: Get, speaker: string, voiceId: string): Promise<void> {
   return assignVoice(set, get().currentId, speaker, voiceId);
 }
+
+/** A speaker the analysis missed (two voices heard as one). The server picks the key and the name. */
+export async function addCharacter(set: Set, pid: string): Promise<void> {
+  try {
+    applyServer(set, await api.post<Project>(`/projects/${pid}/characters`, {}));
+  } catch (err) {
+    report(err);
+  }
+}
+
+/** One person the analysis split in two: `key`'s lines go to `into`, then `key` is removed. */
+export async function mergeCharacter(set: Set, pid: string, key: string, into: string): Promise<void> {
+  patchLocal(set, pid, (p) => {
+    const { [key]: _c, ...characters } = p.characters;
+    return { characters, segments: p.segments.map((s) => (s.speaker === key ? { ...s, speaker: into } : s)) };
+  });
+  try {
+    applyServer(set, await api.post<Project>(`/projects/${pid}/characters/${key}/merge`, { into }));
+  } catch (err) {
+    report(err);
+    await refreshProject(set, pid);
+  }
+}

@@ -221,6 +221,10 @@ interface Actions {
   /* characters and authorizations */
   updateCharacter: (pid: string, key: string, patch: Partial<Character>) => void | Promise<void>;
   confirmCharacter: (pid: string, key: string, name: string, description: string) => void | Promise<void>;
+  /** Corrections of the speaker detection: who says a line, a missed speaker, one person split in two. */
+  setLineSpeaker: (pid: string, segId: string, key: string) => void;
+  addCharacter: (pid: string) => void | Promise<void>;
+  mergeCharacter: (pid: string, key: string, into: string) => void | Promise<void>;
   setUseOriginal: (pid: string, key: string, v: boolean) => void | Promise<void>;
   setLifeStatus: (pid: string, key: string, s: LifeStatus) => void | Promise<void>;
   sendConsent: (pid: string, key: string, email: string, registered: boolean) => string | Promise<string>;
@@ -523,6 +527,45 @@ export const useStore = create<Store>()(
           patchChar(pid, key, () => ({ name: name.trim(), description: description.trim(), confirmed: true }));
           patch(pid, (p) => ({ speakers: { ...p.speakers, [key]: { ...(p.speakers[key] ?? { gender: "inconnu" }), name: name.trim() } } }));
           log(me(), "PERSONNAGE_CONFIRME", { projet: pid, personnage: key, nom: name.trim() }, "HUMAIN");
+        },
+        setLineSpeaker: (pid, segId, key) => {
+          const p = get().projects[pid];
+          if (!p) return;
+          const seg = p.segments.find((s) => s.id === segId);
+          if (!seg || seg.speaker === key) return;
+          const segments = p.segments.map((s) => (s.id === segId ? { ...s, speaker: key } : s));
+          if (BACKEND) return remote.projects.patchProject(set, get, pid, { segments });
+          const { [segId]: _old, ...gens } = p.gens;
+          patch(pid, () => ({ segments, gens }));
+          log(me(), "REPLIQUE_REATTRIBUEE", { projet: pid, segment: segId, de: seg.speaker, a: key }, "HUMAIN");
+        },
+        addCharacter: (pid) => {
+          if (BACKEND) return remote.characters.addCharacter(set, pid);
+          const p = get().projects[pid];
+          if (!p) return;
+          const taken = new Set([...Object.keys(p.characters), ...Object.keys(p.speakers)]);
+          let n = 1;
+          while (taken.has(`p${n}`)) n += 1;
+          const key = `p${n}`;
+          const names = new Set(Object.values(p.characters).map((c) => c.name));
+          let i = Object.keys(p.characters).length;
+          while (names.has(`Intervenant ${"ABCDEFGHIJKLMNOPQRSTUVWXYZ"[i] ?? i + 1}`)) i += 1;
+          const name = `Intervenant ${"ABCDEFGHIJKLMNOPQRSTUVWXYZ"[i] ?? i + 1}`;
+          const ch: Character = { key, proposedName: name, proposedDescription: "Ajouté par le créateur : une voix que l’analyse n’avait pas séparée.", name, description: "", confirmed: false, useOriginal: false, lifeStatus: "a_renseigner" };
+          patch(pid, (x) => ({ characters: { ...x.characters, [key]: ch }, speakers: { ...x.speakers, [key]: { name, gender: "inconnu" } } }));
+          log(me(), "PERSONNAGE_AJOUTE", { projet: pid, personnage: key, nom: name }, "HUMAIN");
+        },
+        mergeCharacter: (pid, key, into) => {
+          if (BACKEND) return remote.characters.mergeCharacter(set, pid, key, into);
+          const p = get().projects[pid];
+          if (!p?.characters[key] || !p.characters[into] || key === into) return;
+          const moved = new Set(p.segments.filter((s) => s.speaker === key).map((s) => s.id));
+          const { [key]: _c, ...characters } = p.characters;
+          const { [key]: _s, ...speakers } = p.speakers;
+          const { [key]: _v, ...speakerVoices } = p.speakerVoices;
+          const gens = Object.fromEntries(Object.entries(p.gens).filter(([id]) => !moved.has(id)));
+          patch(pid, (x) => ({ characters, speakers, speakerVoices, gens, segments: x.segments.map((s) => (s.speaker === key ? { ...s, speaker: into } : s)) }));
+          log(me(), "PERSONNAGES_FUSIONNES", { projet: pid, personnage: key, dans: into, repliques: moved.size }, "HUMAIN");
         },
         setUseOriginal: (pid, key, v) => (BACKEND ? remote.characters.setUseOriginal(set, pid, key, v) : void patchChar(pid, key, () => ({ useOriginal: v }))),
         setLifeStatus: (pid, key, st) => {

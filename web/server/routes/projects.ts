@@ -148,7 +148,9 @@ export const projects = new Hono<AppEnv>()
         if (body.validated && !next.translation.trim()) throw badRequest("Une réplique vide ne peut pas être approuvée.");
         next.validated = body.validated;
       }
-      await updateProject(tx, row.id, { segments: row.segments.map((s) => (s.id === segId ? next : s)) });
+      // A line given to another speaker will be said by another voice: its old audio no longer applies.
+      const gens = next.speaker !== seg.speaker && row.gens?.[segId] ? Object.fromEntries(Object.entries(row.gens).filter(([id]) => id !== segId)) : undefined;
+      await updateProject(tx, row.id, { segments: row.segments.map((s) => (s.id === segId ? next : s)), gens });
       if (validationChanged) {
         await appendAudit(
           tx,

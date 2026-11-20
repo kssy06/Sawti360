@@ -1376,3 +1376,16 @@ input, textarea { caret-color: var(--accent); }
 .first-path li { counter-increment: fp; display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: var(--s-2); padding: 10px 0; border-bottom: 1px solid var(--rule-soft); font-size: var(--t-sm); color: var(--ink-3); }
 .first-path li::before { content: counter(fp); font-weight: 600; font-variant-numeric: tabular-nums; color: var(--accent); }
 .first-path b { font-weight: 600; color: var(--ink); }
+
+/* Personnages: correcting the speaker detection (who says a line, merge two people, add a missed voice). */
+.char-line-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--s-1); align-items: start; }
+.char-line-row .char-line { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+.char-line-row .ar { text-align: right; }
+.char-line-who { width: 112px; height: 28px; padding: 0 24px 0 8px; font-size: var(--t-xs); background-position: right 8px center; }
+.char-merge { display: grid; gap: var(--s-1); margin-top: var(--s-4); padding-top: var(--s-3); border-top: 1px solid var(--rule-soft); }
+.char-merge .row { flex-wrap: nowrap; }
+.char-merge .select { max-width: 260px; }
+.chars-fix { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3) var(--s-6); flex-wrap: wrap; padding: var(--s-4) 0; border-top: 1px solid var(--rule); font-size: var(--t-sm); color: var(--ink-2); }
+.chars-fix p { flex: 1 1 420px; max-width: 80ch; }
+.chars-fix b { color: var(--ink); font-weight: 600; }
+

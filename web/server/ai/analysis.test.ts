@@ -137,3 +137,26 @@ describe("B3 · chaîne de repli de l'analyse", () => {
     await expect(analyse(media, step)).rejects.toMatchObject({ status: 502, code: "FOURNISSEUR_IA" });
   });
 });
+
+describe("B3 · clés d'intervenants mal écrites par le modèle", () => {
+  const speakers: AnalysisOut["speakers"] = [
+    { key: "p1", proposedName: "Amel", nameEvidence: "aucun", proposedDescription: "", gender: "femme" },
+    { key: "p2", proposedName: "Yassine", nameEvidence: "aucun", proposedDescription: "", gender: "homme" },
+  ];
+  const seg = (id: string, speaker: string) => ({ id, speaker, source: "س", certainty: 0.9, translation: "T", context: "" });
+  const timeline: TimedSegment[] = ["s1", "s2", "s3", "s4", "s5"].map((id, i) => ({ id, start: i * 2, end: i * 2 + 1.5, text: "x" }));
+
+  it("« P2 », « p02 », « speaker_2 » et le prénom désignent bien le deuxième intervenant : le dialogue garde ses deux voix", () => {
+    const a = assembleAnalysis(timeline, { speakers, segments: [seg("s1", "p1"), seg("s2", "P2"), seg("s3", "p02"), seg("s4", "speaker_2"), seg("s5", "Yassine")] });
+    expect(a.segments.map((s) => s.speaker)).toEqual(["p1", "p2", "p2", "p2", "p2"]);
+    expect(Object.keys(a.characters)).toEqual(["p1", "p2"]);
+    expect(a.segments.every((s) => !s.context?.includes("rattaché"))).toBe(true);
+  });
+
+  it("des clés déclarées inutilisables (« Intervenant A ») sont renommées p1, p2 et retrouvées sur les segments", () => {
+    const odd = speakers.map((s, i) => ({ ...s, key: `Intervenant ${"AB"[i]}` }));
+    const a = assembleAnalysis(timeline.slice(0, 2), { speakers: odd, segments: [seg("s1", "Intervenant A"), seg("s2", "Intervenant B")] });
+    expect(a.segments.map((s) => s.speaker)).toEqual(["p1", "p2"]);
+    expect(a.characters.p2).toMatchObject({ name: "Yassine" });
+  });
+});

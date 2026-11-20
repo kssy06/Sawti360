@@ -36,6 +36,45 @@ function characterOf(key: string, name: string, description: string): Character 
   return { key, proposedName: name, proposedDescription: description, name, description, confirmed: false, useOriginal: false, lifeStatus: "a_renseigner" };
 }
 
+/** Lower case, no accents, letters and digits only: « P1 », « p 1 » and « Speaker_1 » compare alike. */
+const norm = (k: string) => k.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]/g, "");
+const trailingNumber = (k: string) => k.match(/(\d+)\s*$/)?.[1];
+
+/**
+ * The declared speakers with a usable key each, and a resolver for the keys the model wrote on the
+ * segments. Models often write « P1 », « p01 », « speaker_1 » or the speaker's name instead of the key
+ * they declared; matching those exactly sent every line to the first speaker, so a dialogue came out
+ * as one person. An unusable declared key (spaces, accents) is replaced by the next free pN.
+ */
+export function speakerKeys(list: AnalysisOut["speakers"]) {
+  const taken = new Set<string>();
+  const alias = new Map<string, string>();
+  const byNumber = new Map<string, string>();
+  const declared = list.map((s, i) => {
+    let key = s.key.trim();
+    if (!KEY.test(key) || taken.has(key)) {
+      let n = i + 1;
+      while (taken.has(`p${n}`)) n += 1;
+      key = `p${n}`;
+    }
+    taken.add(key);
+    for (const a of [key, s.key, s.proposedName]) {
+      const n = norm(a);
+      if (n && !alias.has(n)) alias.set(n, key);
+    }
+    const d = trailingNumber(s.key);
+    if (d && !byNumber.has(String(Number(d)))) byNumber.set(String(Number(d)), key);
+    return { ...s, key };
+  });
+  const resolve = (k: string): string | undefined => {
+    const hit = alias.get(norm(k));
+    if (hit) return hit;
+    const d = trailingNumber(k);
+    return d ? byNumber.get(String(Number(d))) : undefined;
+  };
+  return { declared, resolve };
+}
+
 function speakersOf(list: AnalysisOut["speakers"], used: Set<string>) {
   const valid = list.filter((s) => KEY.test(s.key));
   const speakers: Record<string, Speaker> = {};
@@ -60,8 +99,8 @@ function speakersOf(list: AnalysisOut["speakers"], used: Set<string>) {
 
 /** § 3.3 — Gemini's proposal checked against Whisper's timeline. Pure: unit-tested. */
 export function assembleAnalysis(timeline: TimedSegment[], out: AnalysisOut, opts: { noImage?: boolean } = {}): Assembled {
-  const known = new Set(out.speakers.map((s) => s.key).filter((k) => KEY.test(k)));
-  const first = [...known][0] ?? "p1";
+  const { declared, resolve } = speakerKeys(out.speakers);
+  const first = declared[0]?.key ?? "p1";
   const byId = new Map(out.segments.map((s) => [s.id, s]));
   const segments: Segment[] = [];
   for (const w of timeline) {
@@ -71,8 +110,9 @@ export function assembleAnalysis(timeline: TimedSegment[], out: AnalysisOut, opt
       continue;
     }
     if (isSilence(g.source)) continue;
-    const speaker = known.has(g.speaker) ? g.speaker : first;
-    const notes = [g.context.trim(), speaker !== g.speaker ? `Intervenant inconnu « ${g.speaker} » rattaché à ${first}.` : "", opts.noImage ? "Traduit sans image." : ""].filter(Boolean);
+    const resolved = resolve(g.speaker);
+    const speaker = resolved ?? first;
+    const notes = [g.context.trim(), resolved ? "" : `Intervenant inconnu « ${g.speaker} » rattaché à ${first}.`, opts.noImage ? "Traduit sans image." : ""].filter(Boolean);
     const translation = g.translation.trim();
     segments.push({
       id: w.id,
@@ -88,7 +128,7 @@ export function assembleAnalysis(timeline: TimedSegment[], out: AnalysisOut, opt
     });
   }
   const used = new Set(segments.map((s) => s.speaker));
-  return { segments, ...speakersOf(out.speakers, used), proposals: Object.fromEntries(segments.map((s) => [s.id, s.translation])) };
+  return { segments, ...speakersOf(declared, used), proposals: Object.fromEntries(segments.map((s) => [s.id, s.translation])) };
 }
 
 /** § 4.6 — Gemini alone: ids given by the code, confidence fixed at 0.5 (less reliable times). */

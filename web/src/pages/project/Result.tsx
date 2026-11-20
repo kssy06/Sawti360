@@ -44,6 +44,7 @@ function DubPlayer({ p, qr }: { p: Project; qr: string }) {
   const [now, setNow] = useState(0);
   const clock = useRef({ t: 0, last: 0 });
   const played = useRef(new Set<string>());
+  const clips = useRef(new Map<string, HTMLAudioElement>());
   const duration = p.video?.duration ?? Math.ceil((p.segments[p.segments.length - 1]?.end ?? 10) + 4);
   const policy = transparencyPolicy(p.format);
   const current = p.segments.find((s) => now >= s.start && now < s.end);
@@ -68,7 +69,11 @@ function DubPlayer({ p, qr }: { p: Project; qr: string }) {
       if (v) v.volume += ((playing && url ? 0.12 : 1) - v.volume) * 0.25;
       if (playing && seg && url && !played.current.has(seg.id)) {
         played.current.add(seg.id);
-        const a = new Audio(url);
+        let a = clips.current.get(seg.id);
+        if (!a || a.src !== url) {
+          a = new Audio(url);
+          clips.current.set(seg.id, a);
+        }
         a.currentTime = Math.max(0, t - seg.start);
         void a.play().catch(() => {});
       }
@@ -77,6 +82,18 @@ function DubPlayer({ p, qr }: { p: Project; qr: string }) {
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
   }, [p.id, p.segments, duration, playing]);
+
+  // Pausing (button, click on the image, end of the video) also silences the French line speaking,
+  // and leaving the page stops everything.
+  useEffect(() => {
+    if (playing) return;
+    clips.current.forEach((a) => a.pause());
+    played.current.clear();
+  }, [playing]);
+  useEffect(() => {
+    const all = clips.current;
+    return () => all.forEach((a) => a.pause());
+  }, []);
 
   const toggle = () => {
     if (playing) {

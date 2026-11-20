@@ -1,9 +1,9 @@
-import { ArrowRight, Info, Pause, Pencil, Play } from "lucide-react";
+import { ArrowRight, Info, Merge, Pause, Pencil, Play, UserPlus } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { accountOf, useStore, type Project } from "../../state/store";
 import type { Character } from "../../state/workflow";
-import { Callout, plural, Proposal, Prov, Status, timecode, toast, VoiceMark } from "../../ui/kit";
+import { Callout, Dialog, plural, Proposal, Prov, Status, timecode, toast, VoiceMark } from "../../ui/kit";
 import { useVideoSrc } from "./shared";
 import { StepFoot } from "./Workspace";
 
@@ -47,14 +47,25 @@ function useExcerpt(src: string | null) {
   return { available: Boolean(src), playing, toggle };
 }
 
+const shownName = (c: Character) => (c.confirmed ? c.name : c.name || c.proposedName);
+
 function CharacterCard({ p, c, excerpt }: { p: Project; c: Character; excerpt: ReturnType<typeof useExcerpt> }) {
   const confirm = useStore((s) => s.confirmCharacter);
   const update = useStore((s) => s.updateCharacter);
+  const setLineSpeaker = useStore((s) => s.setLineSpeaker);
+  const mergeCharacter = useStore((s) => s.mergeCharacter);
+  const others = Object.values(p.characters).filter((x) => x.key !== c.key);
+  const requests = useStore((s) => s.requests);
+  // A character already engaged in an authorization or a licence keeps its identity (the server refuses too).
+  const engaged = requests.some((r) => r.projectId === p.id && r.characterKey === c.key) || (c.living !== undefined && c.living.status !== "a_obtenir") || (c.dossier !== undefined && c.dossier.status !== "manquant");
+  const [mergeInto, setMergeInto] = useState("");
+  const target = others.find((x) => x.key === mergeInto);
   const me = useStore(accountOf);
   const [name, setName] = useState(c.name);
   const [desc, setDesc] = useState(c.description);
   const [editing, setEditing] = useState(!c.confirmed);
-  const ids = { name: useId(), desc: useId() };
+  const ids = { name: useId(), desc: useId(), merge: useId() };
+  const [asking, setAsking] = useState(false);
   const lines = p.segments.filter((s) => s.speaker === c.key);
   const total = lines.reduce((a, s) => a + (s.end - s.start), 0);
   const first = lines[0];
@@ -127,6 +138,28 @@ function CharacterCard({ p, c, excerpt }: { p: Project; c: Character; excerpt: R
             </div>
           </Proposal>
         )}
+        {others.length > 0 && (
+          <div className="char-merge">
+            {lines.length === 0 && !engaged && <p className="hint">Plus aucune réplique : fusionnez ce personnage avec un autre pour le retirer.</p>}
+            <label className="hint" htmlFor={ids.merge}>
+              {engaged ? "Autorisation ou licence déjà engagée pour ce personnage : il ne peut plus être fusionné." : "C’est la même personne que :"}
+            </label>
+            <div className="row">
+              <select id={ids.merge} className="select" value={mergeInto} onChange={(e) => setMergeInto(e.target.value)} disabled={engaged}>
+                <option value="">Choisir un personnage…</option>
+                {others.map((o) => (
+                  <option key={o.key} value={o.key}>
+                    {shownName(o)}
+                  </option>
+                ))}
+              </select>
+              <button className="btn btn-secondary" disabled={!target || engaged} onClick={() => setAsking(true)}>
+                <Merge />
+                Fusionner
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="stack">
@@ -144,18 +177,65 @@ function CharacterCard({ p, c, excerpt }: { p: Project; c: Character; excerpt: R
         )}
         <span className="label-sm">Positions des interventions</span>
         <div className="char-lines">
+          {lines.length === 0 && <p className="hint">Aucune réplique attribuée à ce personnage.</p>}
           {lines.map((s) => (
-            <button key={s.id} className="char-line" aria-pressed={excerpt.playing === s.id} onClick={() => excerpt.available && excerpt.toggle(s.id, s.start, s.end)} disabled={!excerpt.available} aria-label={`Écouter ${timecode(s.start)}`}>
-              <span className="mono">
-                {timecode(s.start)}–{timecode(s.end).slice(3)}
-              </span>
-              <span className="ar" lang="ar-TN">
-                {s.source}
-              </span>
-            </button>
+            <div key={s.id} className="char-line-row">
+              <button className="char-line" aria-pressed={excerpt.playing === s.id} onClick={() => excerpt.available && excerpt.toggle(s.id, s.start, s.end)} disabled={!excerpt.available} aria-label={`Écouter ${timecode(s.start)}`}>
+                <span className="mono">
+                  {timecode(s.start)}–{timecode(s.end).slice(3)}
+                </span>
+                <span className="ar" lang="ar-TN" dir="rtl">
+                  {s.source}
+                </span>
+              </button>
+              {others.length > 0 && (
+                <select
+                  className="select char-line-who"
+                  aria-label={`Qui parle à ${timecode(s.start)} ?`}
+                  title="Qui parle ?"
+                  value={s.speaker}
+                  onChange={(e) => {
+                    const to = p.characters[e.target.value];
+                    setLineSpeaker(p.id, s.id, e.target.value);
+                    if (to) toast(`Réplique de ${timecode(s.start)} attribuée à ${shownName(to)}`, "ok");
+                  }}
+                >
+                  {Object.values(p.characters).map((o) => (
+                    <option key={o.key} value={o.key}>
+                      {shownName(o)}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
           ))}
         </div>
       </div>
+      <Dialog
+        open={asking && Boolean(target)}
+        onClose={() => setAsking(false)}
+        size="sm"
+        title={`Fusionner avec ${target ? shownName(target) : ""} ?`}
+        description={`${lines.length ? `${plural(lines.length, "réplique de", "répliques de")} « ${shownName(c)} » ${lines.length > 1 ? "seront attribuées" : "sera attribuée"} à « ${target ? shownName(target) : ""} », puis` : `« ${shownName(c)} » n’a plus de réplique :`} ce personnage disparaîtra. Ses répliques déjà synthétisées devront l’être à nouveau avec la voix de l’autre personnage.`}
+        footer={
+          <>
+            <button className="btn btn-secondary" onClick={() => setAsking(false)}>
+              Annuler
+            </button>
+            <button
+              className="btn btn-primary"
+              onClick={() => {
+                if (!target) return;
+                void mergeCharacter(p.id, c.key, target.key);
+                setAsking(false);
+                toast(`« ${shownName(c)} » fusionné avec « ${shownName(target)} »`, "ok");
+              }}
+            >
+              Fusionner
+            </button>
+          </>
+        }
+      />
     </article>
   );
 }
@@ -165,6 +245,7 @@ export default function Characters({ p }: { p: Project }) {
   const excerpt = useExcerpt(src);
   const chars = Object.values(p.characters);
   const left = chars.filter((c) => !c.confirmed).length;
+  const addCharacter = useStore((s) => s.addCharacter);
   return (
     <>
       <div className="stack-lg">
@@ -175,6 +256,15 @@ export default function Characters({ p }: { p: Project }) {
           {chars.map((c) => (
             <CharacterCard key={c.key} p={p} c={c} excerpt={excerpt} />
           ))}
+        </div>
+        <div className="chars-fix">
+          <p>
+            <b>Le nombre de personnes n’est pas le bon ?</b> L’IA peut confondre deux voix proches ou séparer une même personne. Changez « Qui parle » sur une réplique, fusionnez deux personnages qui sont la même personne, ou ajoutez une voix que l’analyse a manquée.
+          </p>
+          <button className="btn btn-secondary" onClick={() => void addCharacter(p.id)} disabled={chars.length >= 12}>
+            <UserPlus />
+            Ajouter un intervenant
+          </button>
         </div>
       </div>
       <StepFoot hint={left ? `${plural(left, "personnage reste", "personnages restent")} à confirmer.` : "Tous les personnages sont confirmés."}>
