@@ -2,7 +2,7 @@
  * The platform's audit log: ONE SHA-256 chain for everybody, exactly the format of
  * src/core/audit.ts (appendEntry), so the browser's verifyChain() checks what the base holds.
  * Appends are serialized by a transaction-level advisory lock: no two entries get the same index,
- * and each one links to the real previous head. Works through the transaction pooler.
+ * and each one links to the real previous head. Works through the pooler (transaction-scoped lock).
  */
 import type { Sql, TransactionSql } from "postgres";
 import { entryHash, GENESIS } from "../src/core/audit.js";

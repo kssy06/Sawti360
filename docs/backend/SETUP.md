@@ -44,8 +44,14 @@ composer `DATABASE_URL`.
    Sans cela, « mot de passe oublié » n'écrit qu'aux membres de l'organisation Supabase.
 6. **Project Settings → API Keys** : copier la clé **publishable** (ex-« anon ») et la clé
    **secrète** (ex-« service_role »). La clé secrète ne va que côté serveur.
-7. **Connect → Connection string → Transaction pooler** (port 6543) : c'est `DATABASE_URL`
+7. **Connect → Connection string → Session pooler** (port **5432**) : c'est `DATABASE_URL`
    (y remplacer `[YOUR-PASSWORD]`). Le serveur s'y connecte avec `{ prepare: false, max: 1 }`.
+   **Pas le « Transaction pooler » (port 6543)** : constaté le 20 novembre, la page reste
+   bloquée après la connexion, car le serveur envoie plusieurs requêtes à la fois sur sa connexion
+   (`GET /api/bootstrap`) et ce mode du pooler ne les traite pas comme Postgres. Le mode session
+   se comporte comme une connexion directe, celle de tous les tests ; avec `max: 1` et 20 s
+   d'inactivité par instance, sa limite (15 clients sur le plan gratuit) suffit au prototype.
+   Même adresse et même mot de passe : seul le port change.
 
 Le changement de 2026 sur les droits de l'API de données (PostgREST) ne nous concerne pas :
 le navigateur n'interroge jamais les tables, seul le serveur le fait, par connexion directe.
@@ -88,7 +94,7 @@ contiennent jamais de secret. Toutes les autres sont réservées au serveur.
 | `APP_URL` | serveur | oui | `https://sawti360.vercel.app` (`http://localhost:5173` en local) |
 | `SUPABASE_URL` | serveur | oui | même URL que ci-dessus |
 | `SUPABASE_SECRET_KEY` | serveur | oui | clé secrète (§ 2.6) |
-| `DATABASE_URL` | serveur | oui | chaîne « Transaction pooler » (§ 2.7) |
+| `DATABASE_URL` | serveur | oui | chaîne « Session pooler », port 5432 (§ 2.7) |
 | `SAWTI_SIGNING_SEED` | serveur | oui | graine (§ 3) |
 | `GROQ_API_KEY` | serveur | oui | console Groq |
 | `GEMINI_API_KEY` | serveur | oui | AI Studio |

@@ -1,5 +1,7 @@
 /**
- * Direct Postgres connection (Supabase « Transaction pooler », port 6543).
+ * Postgres connection through Supabase's « Session pooler » (port 5432), which behaves like a direct
+ * connection. Not the « Transaction pooler » (6543): several queries sent at once on this connection
+ * (GET /api/bootstrap) left the page waiting forever there (seen on 20 November).
  * The browser never reads the tables: RLS is on without any policy, only this server connects.
  *
  * Rule for transactions: inside `sql.begin(async (tx) => …)` use `tx` only. With `max: 1`,
@@ -16,7 +18,7 @@ export function db(): Sql {
   const url = env().DATABASE_URL;
   if (!url) throw notConfigured("La base de données (DATABASE_URL)");
   client = postgres(url, {
-    prepare: false, // required by the transaction pooler
+    prepare: false, // harmless in session mode, and still safe if a transaction pooler is ever used
     max: 1,
     idle_timeout: 20,
     connect_timeout: 10,
