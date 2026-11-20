@@ -8,9 +8,9 @@ Sawti 360 double une œuvre de la derja vers le français : un film, mais aussi 
 
 Hackathon IA Éthique 360, 5e édition (Junior Entreprise INSAT et OIF).
 
-![Passeport 360°](docs/maquettes/06-passeport-360.png)
+![Passeport 360°](docs/prototype/05-passeport-360.png)
 
-*Maquette du prototype, données illustratives, aucune voix réelle.*
+*Capture du prototype en ligne ([sawti360.vercel.app](https://sawti360.vercel.app/)), mode démonstration, données fictives.*
 
 **Ce qui est nouveau :** les outils de doublage par IA produisent une voix. Sawti 360 produit une voix et la preuve qu'elle est légitime, mesurée et traçable.
 
@@ -19,6 +19,7 @@ Hackathon IA Éthique 360, 5e édition (Junior Entreprise INSAT et OIF).
 - [Le problème](#le-problème)
 - [La solution](#la-solution)
 - [Aperçu du prototype](#aperçu-du-prototype)
+- [État d'avancement](#état-davancement)
 - [Le Passeport 360° du film](#le-passeport-360-du-film)
 - [Place de l&#39;IA : construit ou réutilisé](#place-de-lia--construit-ou-réutilisé)
 - [Démarche éthique à 360°](#démarche-éthique-à-360)
@@ -87,55 +88,82 @@ Sawti 360 est un doublage supervisé entouré d'une couche de confiance. Les out
 
 ## Aperçu du prototype
 
-Ces huit écrans sont des **maquettes du prototype**. Les données y sont illustratives et la bannière « Maquette · données illustratives » figure sur chaque image.
+Prototype en ligne : **[sawti360.vercel.app](https://sawti360.vercel.app/)**. Captures du site actuel, en mode démonstration : comptes, projets et voix sont fictifs. Chaque élément porte son étiquette **Réel**, **Simulé** ou **Exemple**.
 
-### 1. Parcours du film
+### 1. Accueil
 
-Les dix portes de confiance et l'anneau des neuf modules. Rien ne sort sans validation humaine.
+« Le doublage de confiance » : chaque voix a un passeport, chaque œuvre sort avec son Passeport 360°.
 
-![Parcours du film](docs/maquettes/01-parcours.png)
+![Accueil](docs/prototype/00-accueil.png)
 
-### 2. Transcription et validation
+### 2. Tableau de bord du créateur
 
-Score de confiance par segment et par langue ; les segments faibles sont signalés, pas masqués. Le bouton de validation reste inactif tant que le cinéaste n'a pas tout validé.
+Vue d'ensemble des projets du créateur et accès à chaque étape du parcours.
 
-![Transcription et validation](docs/maquettes/02-transcription.png)
+![Tableau de bord](docs/prototype/01-tableau-de-bord.png)
 
-### 3. Traduction contextuelle et vérificateur de fidélité
+### 3. Traduction validée réplique par réplique
 
-Le vérificateur détecte ici un chiffre qui change (300 dinars devenus 30). L'adaptateur accepte, réécrit ou rejette, et sa décision est journalisée. Le glossaire culturel signale les expressions intraduisibles.
+Le LLM 1 traduit, le LLM 2 relit, le vérificateur de fidélité signale un chiffre qui change (300 dinars devenus 30). Rien n'est généré sans l'approbation du créateur.
 
-![Traduction contextuelle](docs/maquettes/03-traduction.png)
+![Traduction](docs/prototype/02-traduction.png)
 
-### 4. Passeport de voix et moteur de règles
+### 4. Autorisations des voix
 
-Une voix non enregistrée est refusée, une voix consentie est acceptée. La révocation bloque les générations futures ; l'audio déjà diffusé ne peut pas être retiré, et l'interface le dit.
+Pour garder une voix originale, on indique si la personne est vivante (consentement par lien sécurisé) ou décédée (autorisation signée par la famille). Tant que l'accord manque, la voix reste bloquée.
 
-![Passeport de voix](docs/maquettes/04-passeport-de-voix.png)
+![Autorisations](docs/prototype/03-autorisations.png)
 
-### 5. Export : label, générique et énergie
+### 5. Génération
 
-Label « doublé avec IA » visible, générique des voix (humaine, consentie, neutre), manifeste de provenance et comparaison énergétique de deux modèles.
+Toutes les conditions doivent être remplies avant de lancer la synthèse : personnages confirmés, voix autorisées, traduction approuvée, crédits suffisants.
 
-![Export, transparence et énergie](docs/maquettes/05-export-transparence.png)
+![Génération](docs/prototype/04-generation.png)
 
 ### 6. Passeport 360°
 
-Le dossier vérifiable par QR : identité, voix, langues, transparence, responsabilité, sécurité, durabilité, signature. Le QR de cette maquette pointe vers ce dépôt.
+Le dossier signé de l'œuvre, vérifié dans le navigateur, exportable en PDF, avec son QR d'accès public.
 
-![Passeport 360°](docs/maquettes/06-passeport-360.png)
+![Passeport 360°](docs/prototype/05-passeport-360.png)
 
-### 7. Journal d'audit à chaîne de hachage
+### 7. Centre de confiance : journal d'audit
 
-Chaque entrée contient l'empreinte de la précédente. Les empreintes de la maquette sont de vrais SHA-256 calculés sur les six entrées affichées.
+Chaque décision est inscrite dans un journal chaîné ; « Simuler une falsification » montre qu'une ligne modifiée casse toute la suite.
 
-![Journal d'audit](docs/maquettes/07-journal-audit.png)
+![Journal d'audit](docs/prototype/06-journal-audit.png)
 
-### 8. Sawti-Bench
+### 8. Bibliothèque de voix
 
-Évaluation par langue. Aucune valeur n'est inventée : les barres en pointillés se remplissent quand les mesures existent.
+Des voix prêtées sous licence : échantillon, langues, tarif par projet et statut (disponible, licence révoquée).
 
-![Sawti-Bench](docs/maquettes/08-sawti-bench.png)
+![Bibliothèque de voix](docs/prototype/07-bibliotheque.png)
+
+### 9. Vérification publique
+
+N'importe qui peut vérifier un Passeport 360°, sans compte.
+
+![Vérification publique](docs/prototype/08-verifier.png)
+
+## État d'avancement
+
+L'avancement est suivi sur ce dépôt GitHub (état au 20 novembre 2026).
+
+| Indicateur          | État                                                                 |
+| ------------------- | -------------------------------------------------------------------- |
+| Commits             | 72, du 15 au 20 novembre 2026                                        |
+| Contributeurs       | 5 membres de l'équipe                                                |
+| Prototype en ligne  | [sawti360.vercel.app](https://sawti360.vercel.app/), déployé sur Vercel |
+| Lots livrés         | A1–A10 back-end · B1–B5 analyse IA · C1–C4 génération · D1, D4 consentement |
+
+Commits par jour :
+
+| 15 nov. | 16 nov. | 17 nov. | 18 nov. | 19 nov. | 20 nov. |
+| :-----: | :-----: | :-----: | :-----: | :-----: | :-----: |
+| 15      | 0       | 0       | 2       | 21      | 34      |
+
+**Réel aujourd'hui :** extraction audio dans le navigateur, découpage des répliques (Whisper via Groq), transcription derja, intervenants et traduction (Gemini), relecture par un second LLM et vérificateur de fidélité, voix françaises (ElevenLabs) après le moteur de règles, consentement par e-mail, Passeport 360° signé et vérification publique, journal d'audit chaîné, export MP4 avec label IA et QR.
+
+**Encore simulé :** synchronisation labiale et mixage, paiements, mesure d'énergie par génération, vérification de la voix par lecture d'un paragraphe (en développement).
 
 ## Le Passeport 360° du film
 
