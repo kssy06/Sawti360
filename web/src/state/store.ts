@@ -50,6 +50,8 @@ export interface GenState {
   mock?: boolean;
   at?: string;
   by?: "client" | "server";
+  /** Back-end (C2): length of the audio against its place on screen, and the rate used to fit it. */
+  fit?: { seconds: number; slot: number; speed?: number; tooLong: boolean };
 }
 
 export interface UsageRow {

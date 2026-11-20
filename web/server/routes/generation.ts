@@ -28,7 +28,7 @@ import { notify } from "../notify.js";
 import { ownedProject, readProject } from "../projects.js";
 import { issuePassport } from "./passports.js";
 import { files } from "../storage.js";
-import { linePath, loadVoiceBook, projectRequests, refuseSlot, SKIPPED, slotFor, speakLine, type VoiceBook } from "../synthesis.js";
+import { linePath, loadVoiceBook, projectRequests, proposeShorter, refuseSlot, SKIPPED, slotFor, speakLine, type VoiceBook } from "../synthesis.js";
 
 /** Rough time per line for the first estimate; then the measured average. */
 const ETA_PER_LINE_MS = 1500;
@@ -51,7 +51,7 @@ async function lineOf(sql: Sql, me: AccountOut, project: Project, segId: string,
   const voiceId = project.speakerVoices[seg.speaker];
   if (slot.mode === "original" && slot.usable) return { gen: SKIPPED };
   if (!slot.usable || !voiceId) return { gen: await refuseSlot(sql, me, project, voiceId, seg.translation, slot) };
-  return speakLine(sql, {
+  const res = await speakLine(sql, {
     me,
     voiceId,
     text: seg.translation,
@@ -60,8 +60,11 @@ async function lineOf(sql: Sql, me: AccountOut, project: Project, segId: string,
     label: lineLabel(seg.id),
     humanValidated: seg.validated,
     book,
+    slot: seg.end - seg.start,
     keep: (speech) => files().write("media", linePath(project.accountId, project.id, seg.id, speech.mock), speech.bytes, speech.mime),
   });
+  if (res.gen.fit?.tooLong) await proposeShorter(sql, project.id, seg, res.gen.fit);
+  return res;
 }
 
 const PreviewBody = z.object({ text: z.string().trim().min(1).max(2000), projectId: z.string().max(80).optional() });

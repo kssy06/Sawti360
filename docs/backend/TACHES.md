@@ -188,7 +188,7 @@ Fichiers : `server/ai/elevenlabs.ts`, `server/routes/generation.ts`, `server/led
 - [x] passeport signé à la fin, notification « Rendu prêt » (et e-mail)
 
 ### C2. Ajustement du débit (P1, 1 h) · dépend de C1
-- [ ] une réplique volontairement longue est accélérée (jusqu'à 1,15) ou signalée « trop longue » avec une version courte proposée
+- [x] une réplique volontairement longue est accélérée (jusqu'à 1,15) ou signalée « trop longue » avec une version courte proposée (version courte : Claude ou Groq ; sans clé, signalée seulement)
 
 ### C3. Export MP4 (P0, 2 h) · essai sans dépendance, vraies répliques après C1
 Fichiers : `src/media/export.ts`, `pages/project/Result.tsx`.

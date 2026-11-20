@@ -288,6 +288,11 @@ Pendant la tâche, une réplique qui ne peut pas être synthétisée (refus, sol
 est marquée dans `gens` et la génération continue. Une tâche arrêtée par la plateforme (300 s sans
 nouvelles) remet `generation.status` à `idle` avec `generation.error` : la génération peut être relancée.
 Étapes honnêtes : `GEN_STAGES[i].server` (`prov` et `detail`) remplace `real`/`ms` en mode serveur.
+Ajustement du débit (C2, génération et aperçu) : la durée de l'audio est mesurée (trames MP3, en-têtes
+WAV) ; plus de 0,3 s au-delà de la place à l'écran → une nouvelle synthèse avec `speed` jusqu'à 1,15,
+sans jetons de plus ; toujours trop longue → `gen.fit.tooLong` et, dans `reviews[segId]`, une version
+courte proposée par le LLM 2 (IA.md § 4.5), jamais appliquée sans approbation. `gen.fit` :
+`{ seconds, slot, speed?, tooLong }`.
 
 **`GET /api/projects/:id/audio`** → `{ [segId]: { url: string; start: number; end: number } }`
 (URL signées 10 min, répliques au statut `ok`). Utilisé par l'export MP4 et la lecture de la timeline

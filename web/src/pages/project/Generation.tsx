@@ -154,7 +154,9 @@ export default function Generation({ p }: { p: Project }) {
                           <span className="ellipsis">
                             {p.characters[s.speaker]?.name} · {s.translation}
                           </span>
-                          <span className={`st st-${r.status === "ok" ? "ok" : r.status === "refused" ? "bad" : r.status === "pending" ? "info" : "warn"}`}>{LINE_LABEL[r.status]}</span>
+                          <span className={`st st-${r.status === "ok" && !r.fit?.tooLong ? "ok" : r.status === "refused" ? "bad" : r.status === "pending" ? "info" : "warn"}`}>
+                            {r.status === "ok" && r.fit?.tooLong ? "Trop longue : version courte proposée" : r.status === "ok" && r.fit?.speed ? `${LINE_LABEL.ok} · accélérée ×${String(r.fit.speed).replace(".", ",")}` : LINE_LABEL[r.status]}
+                          </span>
                         </span>
                       );
                     })}
