@@ -1309,12 +1309,18 @@ input, textarea { caret-color: var(--accent); }
   html.print-passport .pp-aside .btn, html.print-passport .pp-aside a.btn { display: none !important; }
   html.print-passport .app { display: block; }
   html.print-passport .content, html.print-passport .public-main { max-width: none; padding: 0; }
-  html.print-passport .pp-doc { grid-template-columns: minmax(0, 1fr) 200px; gap: 20px; }
-  html.print-passport .pp-aside { position: static; }
+  /* One full-width column on paper: the side panel (verification, QR, limits) follows the content. */
+  html.print-passport .pp-doc { display: block; width: 100%; max-width: 100%; }
+  html.print-passport .pp-doc > * { min-width: 0; max-width: 100%; }
+  html.print-passport .pp-aside { position: static; display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) minmax(0, 1fr); gap: 12px; align-items: start; margin-top: 18px; break-inside: avoid; }
+  html.print-passport .pp-aside > * { min-width: 0; margin: 0; }
+  html.print-passport .pp-aside .kv-row { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+  html.print-passport .pp-aside .kv-row dd, html.print-passport .pp-aside .mono { overflow-wrap: anywhere; }
+  html.print-passport .pp-head { flex-wrap: wrap; }
   html.print-passport .pp-sec { grid-template-columns: 130px minmax(0, 1fr); gap: 14px; padding: 12px 0; break-inside: avoid; }
   html.print-passport .pp-head { border-bottom-color: #2c2c2c; }
   html.print-passport .card, html.print-passport .pp-card { box-shadow: none; break-inside: avoid; }
-  html.print-passport .pp-qr { max-width: 170px; }
+  html.print-passport .pp-qr { max-width: 130px; }
   html.print-passport *, html.print-passport *::before, html.print-passport *::after { animation: none !important; transition: none !important; filter: none !important; }
   html.print-passport .route-view > * { opacity: 1 !important; transform: none !important; }
   html.print-passport .kv-row { font-size: 11px; padding: 5px 0; }

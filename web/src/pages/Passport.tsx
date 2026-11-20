@@ -1,4 +1,4 @@
-import { CircleCheck, CircleMinus, CircleX, Download, FileDown, ExternalLink, FileBadge2, FileUp, RefreshCw, RotateCcw } from "lucide-react";
+import { CircleCheck, CircleMinus, CircleX, FileDown, ExternalLink, FileBadge2, FileUp, RefreshCw, RotateCcw } from "lucide-react";
 import QRCode from "qrcode";
 import { useEffect, useMemo, useState } from "react";
 import { Link, Navigate, useLocation, useNavigate, useParams } from "react-router-dom";
@@ -15,7 +15,7 @@ import { Brand, Seal } from "../ui/brand";
 import { Callout, CopyField, Empty, frDate, Hash, KV, PageHead, Prov, Status, toast, Toasts, VoiceMark } from "../ui/kit";
 import { useCrumbs } from "../ui/Shell";
 import { ScrambleText, shortHex, useReducedMotion } from "../ui/motion";
-import { download, passportUrl, slug } from "./project/Result";
+import { passportUrl, slug } from "./project/Result";
 
 /* ------------------------------------------------------------------ the document */
 
@@ -436,16 +436,6 @@ export function PassportView() {
             <button className="btn btn-primary" onClick={() => exportPassportPdf(passport)}>
               <FileDown />
               Exporter en PDF
-            </button>
-            <button
-              className="btn btn-secondary"
-              onClick={() => {
-                const file: PassportFile = { passeport: passport, journal: journal.slice(0, passport.responsabilite.nombre_entrees) };
-                download(`passeport-360-${slug(passport.identite.titre)}.json`, JSON.stringify(file, null, 2), "application/json");
-              }}
-            >
-              <Download />
-              Télécharger (.json)
             </button>
             {project && (
               <button

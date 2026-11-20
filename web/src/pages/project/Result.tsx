@@ -1,13 +1,12 @@
 import QRCode from "qrcode";
-import { Captions, Download, FileBadge2, FileJson, Pause, Play } from "lucide-react";
+import { Captions, Download, FileBadge2, Pause, Play } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { toSrt } from "../../core/srt";
-import { encodePassport, type Passport360, type PassportFile } from "../../core/passport";
+import { encodePassport, type Passport360 } from "../../core/passport";
 import { BACKEND } from "../../lib/backend";
 import { audioKey, audioUrls, useStore, type Project } from "../../state/store";
 import { useLineAudio } from "../../state/remote/generation";
-import { fetchPublicPassport } from "../../state/remote/passports";
 import { FORMAT_LABEL, transparencyPolicy } from "../../state/workflow";
 import { Callout, KV, Prov, Status, timecode, toast, VoiceMark } from "../../ui/kit";
 import { Mp4Item } from "./ExportMp4";
@@ -140,7 +139,6 @@ function DubPlayer({ p, qr }: { p: Project; qr: string }) {
 export default function Result({ p }: { p: Project }) {
   useLineAudio(p.id);
   const passport = useStore((s) => s.passports[p.id]);
-  const journal = useStore((s) => s.journal);
   const logExport = useStore((s) => s.logExport);
   const [qr, setQr] = useState("");
   const url = useMemo(() => (passport ? passportUrl(passport) : ""), [passport]);
@@ -229,29 +227,6 @@ export default function Result({ p }: { p: Project }) {
                 >
                   <Download />
                   .srt
-                </button>
-              </li>
-              <li>
-                <FileJson aria-hidden />
-                <span>
-                  <b>Passeport 360° et journal</b>
-                  <span>Dossier signé, vérifiable hors ligne</span>
-                </span>
-                <button
-                  className="btn btn-secondary btn-sm"
-                  disabled={!passport}
-                  onClick={async () => {
-                    // Back-end mode: the chain exactly as the passport cites it, read from the server.
-                    const file: PassportFile =
-                      BACKEND && passport!.identifiant
-                        ? await fetchPublicPassport(passport!.identifiant).then((r) => ({ passeport: r.passport, journal: r.journal }))
-                        : { passeport: passport!, journal: journal.slice(0, passport!.responsabilite.nombre_entrees) };
-                    download(`passeport-360-${slug(p.title)}.json`, JSON.stringify(file, null, 2), "application/json");
-                    logExport("PASSEPORT_JSON", { projet: p.id });
-                  }}
-                >
-                  <Download />
-                  .json
                 </button>
               </li>
             </ul>
