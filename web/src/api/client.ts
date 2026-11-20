@@ -28,6 +28,8 @@ export interface CallOptions {
   anonymous?: boolean;
   /** Expect a binary answer (audio). */
   blob?: boolean;
+  /** The successful Response itself, to read both its headers and its body. */
+  raw?: boolean;
 }
 
 export async function request<T>(method: string, path: string, body?: unknown, opts: CallOptions = {}): Promise<T> {
@@ -49,6 +51,7 @@ export async function request<T>(method: string, path: string, body?: unknown, o
     throw new ApiCallError(res.status, typeof b.error === "string" ? b.error : "ERREUR", message, b);
   }
   if (res.status === 204) return undefined as T;
+  if (opts.raw) return res as T;
   if (opts.blob) return (await res.blob()) as T;
   return (type.includes("json") ? await res.json() : await res.text()) as T;
 }

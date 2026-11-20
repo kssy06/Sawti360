@@ -35,6 +35,7 @@ describe.skipIf(!hasTestDb)("B5 · analyse de bout en bout (serveur)", () => {
     signUpload: async () => ({ signedUrl: "x", token: "t" }),
     signRead: async (b, p) => `https://stockage/${b}/${p}`,
     read: async (b, p) => stored.get(`${b}/${p}`) ?? Promise.reject(Object.assign(new Error(`absent ${p}`), { status: 404 })),
+    write: async (b, p, bytes) => void stored.set(`${b}/${p}`, bytes),
     remove: async () => undefined,
   };
   beforeAll(async () => {

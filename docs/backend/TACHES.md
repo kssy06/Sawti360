@@ -182,10 +182,10 @@ dans Sawti-Bench ; licence de chaque modèle vérifiée avant usage.
 ### C1. Génération côté serveur (P0, 2 h) · dépend de A3, A6, A7
 Fichiers : `server/ai/elevenlabs.ts`, `server/routes/generation.ts`, `server/ledger.ts` (avec A7),
 `src/state/remote/generation.ts`, `pages/project/Generation.tsx`, `src/mock/simulate.ts` (`GEN_STAGES` : étapes honnêtes).
-- [ ] chaque réplique approuvée est synthétisée, ou refusée avec sa raison (ARCHITECTURE.md § 4.9)
-- [ ] audio rangé ; jetons débités ; 70 % crédités au titulaire ; journal ; notification « Votre voix a été utilisée »
-- [ ] thème interdit → titulaire notifié ; solde insuffisant → 402 expliqué
-- [ ] passeport signé à la fin, notification « Rendu prêt »
+- [x] chaque réplique approuvée est synthétisée, ou refusée avec sa raison (ARCHITECTURE.md § 4.9) (Chromium avec `SAWTI_TTS_MOCK=1` ; voix réelle : `ELEVENLABS_API_KEY`)
+- [x] audio rangé ; jetons débités ; 70 % crédités au titulaire ; journal ; notification « Votre voix a été utilisée »
+- [x] thème interdit → titulaire notifié ; solde insuffisant → 402 expliqué
+- [ ] passeport signé à la fin, notification « Rendu prêt » (« Rendu prêt » et e-mail faits ; passeport signé par le serveur : A8)
 
 ### C2. Ajustement du débit (P1, 1 h) · dépend de C1
 - [ ] une réplique volontairement longue est accélérée (jusqu'à 1,15) ou signalée « trop longue » avec une version courte proposée
@@ -202,8 +202,8 @@ Fichiers : `src/media/export.ts`, `pages/project/Result.tsx`.
 
 ### C5. Aperçus (P0, 45 min) · dépend de C1
 Fichiers : routes `synthesize` et `preview`, `store.ts` (`generate`, `tryVoice`), `pages/project/Timeline.tsx`, `pages/Library.tsx`.
-- [ ] l'aperçu de la timeline joue l'audio du serveur ; réplique non approuvée refusée
-- [ ] écoute d'échantillon dans la bibliothèque ; voix révoquée refusée
+- [x] l'aperçu de la timeline joue l'audio du serveur ; réplique non approuvée refusée
+- [x] écoute d'échantillon dans la bibliothèque ; voix révoquée refusée
 
 ### C6. Clonage de voix consentie (P2, 2 h) · ElevenLabs Starter
 - [ ] la voix d'un membre de l'équipe, clonée depuis son propre échantillon, sert à la génération

@@ -115,12 +115,17 @@ export function simulateFamilyCheck(dossier: FamilyDossier, target: Character, o
 
 /* ------------------------------------------------------------------ generation (Écran 12) */
 
+/**
+ * `real` and `ms`: the simulated mode. `server`: what the back-end really does at each stage
+ * (ARCHITECTURE.md § 4.9): synthesis, placement and passport are real; lip sync is planned;
+ * mixing and the MP4 are made in the browser when the file is downloaded.
+ */
 export const GEN_STAGES = [
-  { key: "synth", label: "Génération des voix françaises", detail: "Moteur de règles, puis synthèse de chaque réplique approuvée.", real: true },
-  { key: "timing", label: "Respect des moments d’apparition", detail: "Chaque réplique est placée à son horodatage.", real: false, ms: 1500 },
-  { key: "rythme", label: "Adaptation de la durée et du rythme", detail: "Ajustement de la durée à la place disponible à l’écran.", real: false, ms: 1700 },
-  { key: "lips", label: "Synchronisation labiale", detail: "Alignement des voix sur le mouvement des lèvres.", real: false, ms: 2200 },
-  { key: "mix", label: "Intégration audio / vidéo", detail: "Mixage des voix avec la musique et l’ambiance.", real: false, ms: 1500 },
-  { key: "transp", label: "Éléments de transparence", detail: "Label IA et QR code selon le format, création du Passeport 360°.", real: false, ms: 1200 },
-  { key: "export", label: "Export MP4", detail: "Assemblage du fichier final.", real: false, ms: 1400 },
+  { key: "synth", label: "Génération des voix françaises", detail: "Moteur de règles, puis synthèse de chaque réplique approuvée.", real: true, server: { prov: "real", detail: "Moteur de règles avec les licences signées, puis synthèse ElevenLabs de chaque réplique approuvée." } },
+  { key: "timing", label: "Respect des moments d’apparition", detail: "Chaque réplique est placée à son horodatage.", real: false, ms: 1500, server: { prov: "real", detail: "Chaque réplique garde son horodatage : elle est posée à sa place dans le mixage." } },
+  { key: "rythme", label: "Adaptation de la durée et du rythme", detail: "Ajustement de la durée à la place disponible à l’écran.", real: false, ms: 1700, server: { prov: "planned", detail: "Ajustement du débit prévu : une réplique plus longue que sa place n’est pas encore accélérée." } },
+  { key: "lips", label: "Synchronisation labiale", detail: "Alignement des voix sur le mouvement des lèvres.", real: false, ms: 2200, server: { prov: "planned", detail: "Prévu, hors prototype." } },
+  { key: "mix", label: "Intégration audio / vidéo", detail: "Mixage des voix avec la musique et l’ambiance.", real: false, ms: 1500, server: { prov: "real", detail: "Fait dans votre navigateur au téléchargement : l’original est atténué sous chaque réplique." } },
+  { key: "transp", label: "Éléments de transparence", detail: "Label IA et QR code selon le format, création du Passeport 360°.", real: false, ms: 1200, server: { prov: "real", detail: "Passeport 360° signé par le serveur ; label IA et QR selon le format." } },
+  { key: "export", label: "Export MP4", detail: "Assemblage du fichier final.", real: false, ms: 1400, server: { prov: "real", detail: "Assemblé dans votre navigateur au téléchargement, vidéo copiée sans réencodage." } },
 ] as const;

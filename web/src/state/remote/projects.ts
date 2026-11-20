@@ -20,6 +20,13 @@ function enqueue<T>(pid: string, call: () => Promise<T>): Promise<T> {
   return next;
 }
 
+/** Resolves once every call already queued for this project has been answered. */
+export const whenSent = (pid: string): Promise<void> =>
+  (queues.get(pid) ?? Promise.resolve()).then(
+    () => undefined,
+    () => undefined,
+  );
+
 interface PendingEdit {
   pid: string;
   segId: string;

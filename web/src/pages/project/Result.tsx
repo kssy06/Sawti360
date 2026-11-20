@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { toSrt } from "../../core/srt";
 import { encodePassport, type PassportFile } from "../../core/passport";
 import { audioKey, audioUrls, useStore, type Project } from "../../state/store";
+import { useLineAudio } from "../../state/remote/generation";
 import { FORMAT_LABEL, transparencyPolicy } from "../../state/workflow";
 import { Callout, KV, Prov, Status, timecode, toast, VoiceMark } from "../../ui/kit";
 import { useVideoSrc, voiceInfo } from "./shared";
@@ -129,6 +130,7 @@ function DubPlayer({ p, qr }: { p: Project; qr: string }) {
 }
 
 export default function Result({ p }: { p: Project }) {
+  useLineAudio(p.id);
   const passport = useStore((s) => s.passports[p.id]);
   const journal = useStore((s) => s.journal);
   const logExport = useStore((s) => s.logExport);

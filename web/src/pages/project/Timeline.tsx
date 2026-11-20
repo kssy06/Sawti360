@@ -2,6 +2,7 @@ import { ArrowRight, AudioLines, Check, Loader2, Pause, Play, SkipBack, SkipForw
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { audioKey, audioUrls, useStore, type Project } from "../../state/store";
+import { useLineAudio } from "../../state/remote/generation";
 import { AudioClip, Callout, Prov, Segmented, Status, timecode, toast, VoiceMark } from "../../ui/kit";
 import { useVideoSrc, voiceInfo } from "./shared";
 import { StepFoot } from "./Workspace";
@@ -17,6 +18,7 @@ function parseTc(v: string): number | null {
 /** Écran 11 — each line at its position in the video, editable, with its video passage. */
 export default function Timeline({ p }: { p: Project }) {
   const { src, loading } = useVideoSrc(p);
+  useLineAudio(p.id);
   const edit = useStore((s) => s.editTranslation);
   const setValidated = useStore((s) => s.setValidated);
   const patchProject = useStore((s) => s.patchProject);

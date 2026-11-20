@@ -23,6 +23,7 @@ const sampleCache = new Map<string, { url?: string; error?: string; mock?: boole
  */
 export function SamplePlayer({ profile }: { profile: VoiceProfile }) {
   const licenses = useStore((s) => s.licenses);
+  const tryVoice = useStore((s) => s.tryVoice);
   const [state, setState] = useState(sampleCache.get(profile.voiceId) ?? null);
   const [busy, setBusy] = useState(false);
   const own = sampleUrls.get(profile.voiceId);
@@ -34,6 +35,15 @@ export function SamplePlayer({ profile }: { profile: VoiceProfile }) {
     const lic = licenses.find((l) => l.voice_id === profile.voiceId);
     let next: { url?: string; error?: string; mock?: boolean };
     try {
+      if (BACKEND) {
+        // Real synthesis on the server: rules engine, jetons debited, holder paid (C5).
+        const r = await tryVoice(profile.voiceId, profile.sampleText);
+        next = r.url ? { url: r.url, mock: r.mock } : { error: r.status === "refused" ? `Échantillon refusé par le moteur de règles : ${r.decision?.reason_fr ?? "licence non valide"}` : (r.message ?? "Échantillon indisponible.") };
+        sampleCache.set(profile.voiceId, next);
+        setState(next);
+        setBusy(false);
+        return;
+      }
       const res = await fetch("/api/tts", {
         method: "POST",
         headers: { "content-type": "application/json" },

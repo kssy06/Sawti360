@@ -54,6 +54,7 @@ describe.skipIf(!hasTestDb)("A5 · routes d'envoi", () => {
     signUpload: async (bucket, path) => (signed.push(`${bucket}/${path}`), { signedUrl: `https://stockage/${bucket}/${path}?token=t`, token: "t" }),
     signRead: async (bucket, path) => `https://stockage/${bucket}/${path}?lecture`,
     read: async () => new Uint8Array(),
+    write: async () => undefined,
     remove: async () => undefined,
   };
   beforeAll(async () => {

@@ -210,6 +210,13 @@ async function storage(req: IncomingMessage, res: ServerResponse, url: URL, raw:
     if (!existsSync(file)) return fail(res, 404, "not_found", "Object not found");
     return send(res, 200, readFileSync(file), "application/octet-stream");
   }
+  if (m && (req.method === "POST" || req.method === "PUT")) {
+    // Server-side upload (secret key, upsert): the synthesized lines.
+    const file = join(FILES, m[1], decodeURIComponent(m[2]));
+    mkdirSync(dirname(file), { recursive: true });
+    writeFileSync(file, raw);
+    return send(res, 200, { Key: `${m[1]}/${decodeURIComponent(m[2])}`, path: decodeURIComponent(m[2]) });
+  }
   m = /^\/object\/([^/]+)$/.exec(path);
   if (m && req.method === "DELETE") return send(res, 200, []);
   return fail(res, 404, "not_found", `faux Supabase : ${req.method} ${url.pathname} non pris en charge`);

@@ -13,6 +13,8 @@ export interface FileStore {
   signUpload(bucket: Bucket, path: string): Promise<{ signedUrl: string; token: string }>;
   signRead(bucket: Bucket, path: string, seconds?: number): Promise<string>;
   read(bucket: Bucket, path: string): Promise<Uint8Array>;
+  /** Server-side write (the synthesized lines): replaces the file if it exists. */
+  write(bucket: Bucket, path: string, bytes: Uint8Array, contentType: string): Promise<void>;
   remove(bucket: Bucket, paths: string[]): Promise<void>;
 }
 
@@ -31,6 +33,10 @@ const supabaseStore: FileStore = {
     const { data, error } = await supabaseAdmin().storage.from(bucket).download(path);
     if (error || !data) throw new ApiError(404, "INTROUVABLE", `Fichier absent du stockage : ${path}`);
     return new Uint8Array(await data.arrayBuffer());
+  },
+  async write(bucket, path, bytes, contentType) {
+    const { error } = await supabaseAdmin().storage.from(bucket).upload(path, bytes, { contentType, upsert: true });
+    if (error) throw new ApiError(502, "STOCKAGE_INDISPONIBLE", `Le stockage a refusé le fichier (${error.message}).`);
   },
   async remove(bucket, paths) {
     if (paths.length) await supabaseAdmin().storage.from(bucket).remove(paths);

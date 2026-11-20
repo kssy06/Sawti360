@@ -5,6 +5,7 @@
 import { api } from "../../api/client";
 import type { Bootstrap } from "../../api/types";
 import { PLANS } from "../../core/credits";
+import { resumeGenerations } from "./generation";
 import { flushEdits } from "./projects";
 import { accountsWith, type Get, type Set } from "./state";
 
@@ -31,6 +32,7 @@ export async function bootstrap(set: Set, get: Get): Promise<void> {
     validator: b.account.name,
     server: { status: "ready" },
   });
+  resumeGenerations(set, get);
 }
 
 let last = 0;

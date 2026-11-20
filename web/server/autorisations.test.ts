@@ -23,6 +23,7 @@ describe.skipIf(!hasTestDb)("D2, D3 · autorisations sur Postgres", () => {
     signUpload: async () => ({ signedUrl: "https://stockage/x", token: "t" }),
     signRead: async (b, p) => `https://stockage/${b}/${p}`,
     read: async (b, p) => stored.get(`${b}/${p}`) ?? Promise.reject(new Error(`absent ${p}`)),
+    write: async (b, p, bytes) => void stored.set(`${b}/${p}`, bytes),
     remove: async () => undefined,
   };
   beforeAll(async () => {

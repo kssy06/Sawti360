@@ -236,8 +236,12 @@ notification et e-mail au créateur. Remplace `respondConsent`.
 
 **`GET /api/voices`** → `VoiceProfile[]` avec `availability` recalculée (licence révoquée → `indisponible`).
 
-**`POST /api/voices/:voiceId/preview`** `{ text }` → `audio/mpeg` (ou 403 `{ decision }`).
+**`POST /api/voices/:voiceId/preview`** `{ text, projectId? }` → `audio/mpeg` (ou 403 `{ decision }`).
 Écoute d'un échantillon : moteur de règles et filtre, débit de jetons. Remplace `tryVoice`.
+`projectId` (facultatif) donne l'usage du projet au moteur de règles ; la ligne d'usage n'est pas
+rattachée au projet. En-têtes : `x-sawti-decision`, `x-sawti-license`, `x-sawti-cost`, `x-sawti-owner`,
+`x-sawti-ms`, `x-sawti-balance`, et `x-sawti-mock: 1` en mode test (`SAWTI_TTS_MOCK=1`, audio WAV silencieux).
+402 `JETONS_INSUFFISANTS` si le solde est trop bas.
 
 **`POST /api/license-requests`** `{ projectId, characterKey, voiceId, message }` →
 `201 { request: LicenseRequest, project: Project, mail: boolean, licenceUrl?: string }`.
@@ -270,15 +274,24 @@ change et ses jetons mensuels sont crédités aussitôt (`achat_prototype`). Jou
 
 ### Génération, aperçus, export
 
-**`POST /api/projects/:id/segments/:segId/synthesize`** → `{ gen: GenState, audioUrl?: string }`.
-Aperçu d'une réplique depuis la timeline (règles, filtre, jetons, ElevenLabs). Remplace `generate(sid)`.
+**`POST /api/projects/:id/segments/:segId/synthesize`** → `{ gen: GenState, audioUrl?: string, balance?: number }`.
+Aperçu d'une réplique depuis la timeline (voix du personnage, règles, filtre, jetons, ElevenLabs). Remplace `generate(sid)`.
+Refus et pannes du moteur reviennent dans `gen` (statut `refused` ou `error`, jetons rendus) ;
+402 `JETONS_INSUFFISANTS` `{ needed, balance }` si le solde est trop bas.
 
 **`POST /api/projects/:id/generation`** → `202 { jobId }`. Tâche `generation`, étapes = `GEN_STAGES`,
-`synthDone` / `synthTotal` tenus à jour dans `projects.generation`. À la fin : passeport signé,
-notification « Rendu prêt ». Remplace `startGeneration`.
+`synthDone` / `synthTotal` tenus à jour dans `projects.generation` (avec `jobId`, pour reprendre le suivi
+après un rechargement). À la fin : passeport signé, notification et e-mail « Rendu prêt ». Remplace `startGeneration`.
+Avant de lancer : 409 `RIEN_A_GENERER` sans réplique approuvée, 409 `EN_COURS` si une génération tourne,
+402 `JETONS_INSUFFISANTS` `{ needed, balance }` si le solde ne couvre pas les répliques à synthétiser.
+Pendant la tâche, une réplique qui ne peut pas être synthétisée (refus, solde épuisé entre-temps, panne)
+est marquée dans `gens` et la génération continue. Une tâche arrêtée par la plateforme (300 s sans
+nouvelles) remet `generation.status` à `idle` avec `generation.error` : la génération peut être relancée.
+Étapes honnêtes : `GEN_STAGES[i].server` (`prov` et `detail`) remplace `real`/`ms` en mode serveur.
 
 **`GET /api/projects/:id/audio`** → `{ [segId]: { url: string; start: number; end: number } }`
-(URL signées 10 min). Utilisé par l'export MP4 et la lecture de la timeline.
+(URL signées 10 min, répliques au statut `ok`). Utilisé par l'export MP4 et la lecture de la timeline
+(rechargées toutes les 8 min tant que l'écran est ouvert).
 
 **`POST /api/tts`** : contrat actuel d'`api/tts.ts`, conservé pendant la transition.
 

@@ -86,6 +86,10 @@ export async function readJob(sql: Db, id: string): Promise<JobRow | null> {
     const [failed] = await q<JobRow[]>`
       update public.jobs set status = 'error', error = ${STALE_MESSAGE}
       where id = ${id} and status in ('queued', 'running') returning *`;
+    // A generation stopped by the platform must not stay « en cours » on the project: it can be started again.
+    if (failed?.kind === "generation" && failed.project_id)
+      await q`update public.projects set generation = generation || ${q.json({ status: "idle", etaMs: 0, error: STALE_MESSAGE })}
+              where id = ${failed.project_id} and generation->>'status' = 'running'`;
     return failed ?? row;
   }
   return row;

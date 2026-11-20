@@ -1,6 +1,7 @@
 import { ArrowRight, CircleCheck, CircleX, Play } from "lucide-react";
 import { Link } from "react-router-dom";
 import { costOf, fmt } from "../../core/credits";
+import { BACKEND } from "../../lib/backend";
 import { GEN_STAGES } from "../../mock/simulate";
 import { balanceOf, slotsOf, useStore, type Project } from "../../state/store";
 import { transparencyPolicy } from "../../state/workflow";
@@ -73,7 +74,7 @@ export default function Generation({ p }: { p: Project }) {
                 </ul>
               </div>
             </div>
-            <ProcessList label="Étapes de la génération" steps={GEN_STAGES.map((s) => ({ key: s.key, label: s.label, detail: s.detail, state: "todo" as StepState, prov: s.real ? "real" : "sim" }))} />
+            <ProcessList label="Étapes de la génération" steps={GEN_STAGES.map((s) => ({ key: s.key, label: s.label, detail: BACKEND ? s.server.detail : s.detail, state: "todo" as StepState, prov: BACKEND ? s.server.prov : s.real ? "real" : "sim" }))} />
           </div>
           <aside className="sticky-aside">
             <div className="card">
@@ -91,6 +92,11 @@ export default function Generation({ p }: { p: Project }) {
               </div>
             </div>
             {engine !== "loading" && <Callout tone={engine === "off" ? "warn" : "plain"}>{ENGINE_TEXT[engine]}</Callout>}
+            {g.error && (
+              <Callout tone="warn" title="La génération s’est arrêtée">
+                {g.error}
+              </Callout>
+            )}
             <button className="btn btn-primary btn-lg btn-block" disabled={!ready} onClick={() => void start(p.id)}>
               <Play />
               Lancer la génération
@@ -122,7 +128,7 @@ export default function Generation({ p }: { p: Project }) {
               <span className="hint">
                 {g.status === "done" ? `Terminé le ${new Date(g.finishedAt!).toLocaleString("fr-FR", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" })}` : `Temps restant estimé : ${Math.max(1, Math.round((g.etaMs ?? 0) / 1000))} s`}
               </span>
-              {g.status !== "done" && <Prov kind="sim">estimation de la simulation</Prov>}
+              {g.status !== "done" && !BACKEND && <Prov kind="sim">estimation de la simulation</Prov>}
             </div>
           </div>
           <ProcessList
@@ -130,9 +136,9 @@ export default function Generation({ p }: { p: Project }) {
             steps={GEN_STAGES.map((s, i) => ({
               key: s.key,
               label: s.label,
-              detail: s.detail,
+              detail: BACKEND ? s.server.detail : s.detail,
               state: stageState(i),
-              prov: s.real ? "real" : "sim",
+              prov: BACKEND ? s.server.prov : s.real ? "real" : "sim",
               extra:
                 i === 0 ? (
                   <div className="gen-lines">
@@ -170,7 +176,8 @@ export default function Generation({ p }: { p: Project }) {
             </>
           ) : (
             <Callout tone="plain" title="Vous pouvez quitter cette page">
-              Une notification vous préviendra quand le rendu sera prêt. Seule la synthèse vocale est réelle ; les étapes suivantes sont simulées dans ce prototype.
+              Une notification vous préviendra quand le rendu sera prêt.{" "}
+              {BACKEND ? "Synthèse, placement et Passeport 360° sont faits par le serveur ; le mixage et le MP4 se font dans votre navigateur au téléchargement." : "Seule la synthèse vocale est réelle ; les étapes suivantes sont simulées dans ce prototype."}
             </Callout>
           )}
           {engine !== "loading" && engine !== "on" && <Callout tone="warn">{ENGINE_TEXT[engine]}</Callout>}

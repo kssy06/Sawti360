@@ -14,6 +14,7 @@ import { GEN_STAGES, reviewSegment, simulateFamilyCheck, wait, type Review } fro
 import { BACKEND } from "../lib/backend";
 import * as remote from "./remote";
 import { emptyData, type RemoteState } from "./remote/state";
+import { audioKey, audioUrls } from "./audio";
 import { buildPassport, requestFor } from "./passportBuild";
 import { DEMO_ID, emptyGen, seed } from "./seed";
 import {
@@ -119,6 +120,10 @@ export interface Generation {
   startedAt?: string;
   finishedAt?: string;
   etaMs?: number;
+  /** Back-end mode: the server's task, followed again after a reload. */
+  jobId?: string;
+  /** Back-end mode: why the last run stopped (the generation can be started again). */
+  error?: string;
 }
 
 export type StepKey = "analyse" | "personnages" | "autorisations" | "voix" | "traduction" | "timeline" | "generation" | "resultat";
@@ -244,8 +249,7 @@ interface Actions {
 
 export type Store = Data & Actions & { server: RemoteState };
 
-export const audioUrls = new Map<string, string>();
-export const audioKey = (projectId: string, segId: string) => `${projectId}/${segId}`;
+export { audioKey, audioUrls } from "./audio";
 /** Voice samples recorded by owners: memory only, never persisted. */
 export const sampleUrls = new Map<string, string>();
 
@@ -468,8 +472,8 @@ export const useStore = create<Store>()(
           patchCurrent((p) => ({ segments: p.segments.map((x) => (x.id === sid ? { ...x, validated: v } : x)) }));
           if (seg) log(get().validator, v ? "TEXTE_VALIDE" : "VALIDATION_RETIREE", { segment: sid, text_hash: sha256Hex(seg.translation) }, v ? "VALIDE" : "");
         },
-        generate: (sid) => generateIn(currentProject(get()).id, sid),
-        tryVoice: (voiceId, text) => synthesize(voiceId, text, true, "essai de voix"),
+        generate: (sid) => (BACKEND ? remote.generation.generateLine(set, get, get().currentId, sid) : generateIn(currentProject(get()).id, sid)),
+        tryVoice: (voiceId, text) => (BACKEND ? remote.generation.tryVoice(set, get, voiceId, text) : synthesize(voiceId, text, true, "essai de voix")),
         updateOwnLicense: (p) => {
           set((s) => ({ licenses: s.licenses.map((l) => (l.voice_id === OWNER_VOICE ? signLicense({ ...l, ...p }) : l)) }));
           const lic = get().licenses.find((l) => l.voice_id === OWNER_VOICE)!;
@@ -650,6 +654,7 @@ export const useStore = create<Store>()(
         },
         reviewAll: (pid) => (BACKEND ? void remote.review.reviewAll(set, pid) : patch(pid, (p) => ({ reviews: Object.fromEntries(p.segments.map((x) => [x.id, reviewSegment(x)])) }))),
         startGeneration: async (pid) => {
+          if (BACKEND) return remote.generation.startGeneration(set, get, pid);
           const p0 = get().projects[pid];
           if (!p0 || p0.generation.status === "running") return;
           const slots = slotsOf(get(), p0);
