@@ -139,6 +139,12 @@ export default function Dashboard() {
                 <Empty title="Aucun projet" icon={FolderPlus} action={<Link to="/nouveau" className="btn btn-primary btn-sm">Importer une vidéo</Link>}>
                   Un projet commence par une vidéo : fichier depuis votre ordinateur ou lien direct.
                 </Empty>
+                <ol className="first-path" aria-label="Les étapes d’un doublage">
+                  <li><span><b>Importez</b> une vidéo en derja : l’IA repère qui parle, transcrit et propose une traduction.</span></li>
+                  <li><span><b>Vérifiez</b> les personnages et obtenez l’autorisation d’utiliser chaque voix.</span></li>
+                  <li><span><b>Choisissez</b> une voix française par personnage et approuvez chaque réplique traduite.</span></li>
+                  <li><span><b>Générez</b> : vous obtenez la version française, les sous-titres, le MP4 doublé et le Passeport 360° signé.</span></li>
+                </ol>
               </div>
             ) : (
               <div className="plist-projects">

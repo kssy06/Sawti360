@@ -1,4 +1,4 @@
-import { Check, FileBadge2, Trash2 } from "lucide-react";
+import { ArrowRight, Check, FileBadge2, Trash2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Fragment, useEffect, useRef, useState } from "react";
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
@@ -13,7 +13,7 @@ import Authorizations from "./Authorizations";
 import Characters from "./Characters";
 import Generation from "./Generation";
 import Result from "./Result";
-import { nextStep, STEPS, stepStates } from "./shared";
+import { nextStep, STEP_GUIDE, STEPS, stepStates } from "./shared";
 import Timeline from "./Timeline";
 import Translation from "./Translation";
 import VoicesStep from "./VoicesStep";
@@ -114,6 +114,8 @@ export default function Workspace() {
         })}
       </nav>
 
+      <StepGuide step={key} index={index} next={STEPS[index + 1] && states[STEPS[index + 1].key] !== "locked" ? STEPS[index + 1] : undefined} projectId={p.id} />
+
       <div key={key} className="step-view" data-dir={dir}>
         {key === "analyse" && <Analysis p={p} />}
         {key === "personnages" && <Characters p={p} />}
@@ -158,6 +160,27 @@ export default function Workspace() {
 }
 
 /** Footer of a step: what is left, and the way forward. */
+/** One line under the stepper: where you are, what this step does, what you get from it, what comes next. */
+function StepGuide({ step, index, next, projectId }: { step: StepKey; index: number; next?: { key: StepKey; label: string }; projectId: string }) {
+  const g = STEP_GUIDE[step];
+  return (
+    <p key={step} className="step-guide">
+      <span className="step-guide-count num">
+        Étape {index + 1} sur {STEPS.length}
+      </span>
+      <span className="step-guide-text">
+        <span className="step-guide-does">{g.does}</span> {g.gets}
+      </span>
+      {next && (
+        <Link to={`/projet/${projectId}/${next.key}`} className="step-guide-next">
+          Ensuite : {next.label}
+          <ArrowRight aria-hidden />
+        </Link>
+      )}
+    </p>
+  );
+}
+
 export function StepFoot({ hint, children }: { hint?: React.ReactNode; children: React.ReactNode }) {
   return (
     <div className="step-foot">

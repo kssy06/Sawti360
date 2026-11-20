@@ -1034,7 +1034,8 @@ input, textarea { caret-color: var(--accent); }
 .stage-qr small { font-size: 9px; font-weight: 600; }
 .hint-warn { color: var(--warn); }
 @media (min-width: 1181px) { .tr-col .tr-label { display: none; } .tr-col .tr-label-fr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); } }
-.stage-placeholder > div { transform: translateY(-52px); }
+/* Text sits above the play button, which takes the centre of the stage. */
+.stage-placeholder > div { transform: translateY(-88px); }
 .sample { flex-wrap: wrap; }
 .sample .hint { flex-basis: 100%; }
 .stack, .stack-lg, .stack-sm { grid-template-columns: minmax(0, 1fr); }
@@ -1328,3 +1329,50 @@ input, textarea { caret-color: var(--accent); }
   html.print-passport .kv-row { font-size: 11px; padding: 5px 0; }
   html.print-passport .pp-title { font-size: 24px; }
 }
+
+/* ================================================================== guidance and the finish line */
+/* One line under the project stepper: where you are, what the step does, what you get, what comes next. */
+.step-guide { display: flex; align-items: baseline; flex-wrap: wrap; gap: var(--s-1) var(--s-4); margin: calc(var(--s-4) - var(--s-8)) 0 var(--s-6); font-size: var(--t-sm); line-height: 1.5; color: var(--ink-3); animation: fade-in 320ms var(--ease-out); }
+.step-guide-count { flex: none; font-weight: 500; color: var(--ink-2); }
+.step-guide-text { flex: 1 1 420px; min-width: 0; max-width: 96ch; }
+.step-guide-does { color: var(--ink); }
+.step-guide-next { flex: none; display: inline-flex; align-items: center; gap: 4px; font-weight: 500; color: var(--accent); text-decoration: none; }
+.step-guide-next:hover { text-decoration: underline; }
+.step-guide-next svg { width: 14px; height: 14px; transition: transform var(--dur-2) var(--ease-out); }
+.step-guide-next:hover svg { transform: translateX(2px); }
+
+/* Résultat: the French version is ready, and here is what you have. */
+.result-hero { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--s-6); align-items: start; margin-bottom: var(--s-6); padding: var(--s-6); background: var(--surface); border: 1px solid var(--ink); border-radius: var(--r); }
+.result-hero-seal { position: relative; display: block; width: 122px; }
+#telechargements { scroll-margin-top: calc(var(--top-h) + var(--s-4)); }
+.result-hero h2 { font-size: var(--t-xl); letter-spacing: -0.02em; }
+.result-hero-lead { margin-top: var(--s-1); font-size: var(--t-sm); color: var(--ink-3); }
+.result-gets { display: grid; gap: var(--s-2); margin-top: var(--s-4); padding-top: var(--s-4); border-top: 1px solid var(--rule-soft); }
+.result-gets li { display: grid; grid-template-columns: 16px minmax(0, 1fr); gap: 10px; align-items: start; font-size: var(--t-sm); color: var(--ink-3); }
+.result-gets b { font-weight: 500; color: var(--ink); }
+.result-gets svg { width: 16px; height: 16px; margin-top: 2px; stroke-width: 2; color: var(--ok); }
+.result-gets li.no svg { color: var(--ink-4); }
+.result-gets li.no b { color: var(--ink-3); }
+/* First arrival only: the Passeport stamp presses in, its ink ring spreads, then each deliverable checks in. */
+.result-hero.first .result-hero-seal { animation: seal-stamp 560ms var(--ease) 140ms backwards; }
+.result-hero.first .result-hero-seal::after { content: ""; position: absolute; left: 73%; top: 50%; width: 66px; height: 66px; margin: -33px 0 0 -33px; border-radius: 50%; border: 2px solid var(--accent); opacity: 0; pointer-events: none; animation: ink-ring 780ms var(--ease-out) 460ms; }
+.result-hero.first .result-gets li { animation: check-in 360ms var(--ease-out) backwards; animation-delay: calc(560ms + var(--i, 0) * 80ms); }
+.result-hero.first .result-gets li svg { animation: check-pop 420ms var(--ease-out) backwards; animation-delay: calc(560ms + var(--i, 0) * 80ms); }
+@media (max-width: 720px) {
+  .result-hero { grid-template-columns: minmax(0, 1fr); gap: var(--s-4); padding: var(--s-5); }
+  .result-hero h2 { font-size: var(--t-lg); }
+}
+
+/* Timeline: how to hear a line when nothing has been synthesized yet. */
+.tl-howto { margin-top: var(--s-3); }
+
+/* Generation: each line arrives as it starts, its state changes colour in place, the bar glides. */
+.gen-line { animation: check-in 300ms var(--ease-out); }
+.gen-line .st { transition: color var(--dur-3) var(--ease); }
+.gen-overall .progress > span { transition-duration: 700ms; }
+
+/* Dashboard, first run: the whole path of a dubbing in four steps, in order. */
+.first-path { counter-reset: fp; display: grid; margin-top: var(--s-4); border-top: 1px solid var(--rule-soft); }
+.first-path li { counter-increment: fp; display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: var(--s-2); padding: 10px 0; border-bottom: 1px solid var(--rule-soft); font-size: var(--t-sm); color: var(--ink-3); }
+.first-path li::before { content: counter(fp); font-weight: 600; font-variant-numeric: tabular-nums; color: var(--accent); }
+.first-path b { font-weight: 600; color: var(--ink); }

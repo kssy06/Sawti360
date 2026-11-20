@@ -31,13 +31,19 @@ async function linesOf(p: Project): Promise<ExportLine[]> {
   });
 }
 
+/** Why the MP4 cannot be built for this project, or "" when it can. Shown on the button and in the result summary. */
+export function mp4Reason(p: Project): string {
+  if (!p.video) return "indisponible : ce projet d’exemple n’a pas de fichier vidéo. Créez un projet avec votre propre vidéo pour obtenir le MP4";
+  if (!Object.values(p.gens).some((g) => g.status === "ok")) return "indisponible : aucune réplique synthétisée à poser sur la vidéo";
+  return "";
+}
+
 /** `overlay`: film and podcast with a signed passport → AI label and QR code drawn in the video (C4). */
 export function Mp4Item({ p, fileName, overlay }: { p: Project; fileName: string; overlay?: Overlay }) {
   const logExport = useStore((s) => s.logExport);
   const [work, setWork] = useState<{ phase: ExportPhase; fraction: number } | null>(null);
   const [error, setError] = useState("");
-  const synthesized = Object.values(p.gens).filter((g) => g.status === "ok").length;
-  const reason = !p.video ? "Projet d’exemple : il n’a pas de vidéo source." : synthesized === 0 ? "Aucune réplique synthétisée à poser sur la vidéo." : "";
+  const reason = mp4Reason(p);
   const policy = transparencyPolicy(p.format);
   const describe = overlay
     ? "Assemblée dans votre navigateur : label IA 4 s au début, QR du Passeport 360° 5 s à la fin (vidéo réencodée, plus long), voix françaises à leur place, original atténué."
@@ -76,7 +82,7 @@ export function Mp4Item({ p, fileName, overlay }: { p: Project; fileName: string
             ? work.phase === "voix"
               ? "Pose des voix françaises à leur place…"
               : `Assemblage : ${Math.round(work.fraction * 100)} %`
-            : reason || describe}
+            : reason ? `MP4 ${reason}.` : describe}
         </span>
         {work && <Progress value={work.fraction} indeterminate={work.phase === "voix"} label="Export du MP4" />}
         {error && (

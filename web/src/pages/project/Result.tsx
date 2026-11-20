@@ -1,5 +1,5 @@
 import QRCode from "qrcode";
-import { Captions, Download, FileBadge2, Pause, Play } from "lucide-react";
+import { Captions, Check, Download, FileBadge2, Minus, Pause, Play } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { toSrt } from "../../core/srt";
@@ -8,8 +8,9 @@ import { BACKEND } from "../../lib/backend";
 import { audioKey, audioUrls, useStore, type Project } from "../../state/store";
 import { useLineAudio } from "../../state/remote/generation";
 import { FORMAT_LABEL, transparencyPolicy } from "../../state/workflow";
-import { Callout, KV, Prov, Status, timecode, toast, VoiceMark } from "../../ui/kit";
-import { Mp4Item } from "./ExportMp4";
+import { Seal } from "../../ui/brand";
+import { Callout, KV, Prov, reduceMotion, timecode, toast, VoiceMark } from "../../ui/kit";
+import { Mp4Item, mp4Reason } from "./ExportMp4";
 import { useVideoSrc, voiceInfo } from "./shared";
 
 export function publicUrl(code: string) {
@@ -136,6 +137,80 @@ function DubPlayer({ p, qr }: { p: Project; qr: string }) {
   );
 }
 
+/** True the first time this project's result is shown in this tab: the stamp presses in once, then stays put. */
+function useFirstVisit(id: string): boolean {
+  const [first] = useState(() => {
+    try {
+      const k = `sawti.result-seen.${id}`;
+      if (sessionStorage.getItem(k)) return false;
+      sessionStorage.setItem(k, "1");
+      return true;
+    } catch {
+      return false;
+    }
+  });
+  return first;
+}
+
+/**
+ * The finish line: says the French version is ready, then lists what the creator now has and how to
+ * get each one, including what is not available and why.
+ */
+function ResultHero({ p, mp4Reason }: { p: Project; mp4Reason: string }) {
+  const first = useFirstVisit(p.id);
+  const gens = Object.values(p.gens);
+  const ok = gens.filter((g) => g.status === "ok").length;
+  const refused = gens.filter((g) => g.status === "refused").length;
+  const failed = gens.filter((g) => g.status === "error").length;
+  const original = gens.filter((g) => g.status === "skipped").length;
+  const finished = p.generation.finishedAt ? new Date(p.generation.finishedAt).toLocaleString("fr-FR", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" }) : null;
+  const toDownloads = (label: string) => (
+    <a
+      href="#telechargements"
+      className="link"
+      onClick={(e) => {
+        e.preventDefault();
+        document.getElementById("telechargements")?.scrollIntoView({ behavior: reduceMotion() ? "auto" : "smooth", block: "start" });
+      }}
+    >
+      {label}
+    </a>
+  );
+  const gets: { ok: boolean; title: string; how: React.ReactNode }[] = [
+    { ok: ok > 0, title: "La version française", how: ok > 0 ? "à écouter dans le lecteur ci-dessous" : "aucune réplique n’a été synthétisée" },
+    { ok: true, title: "Les sous-titres français", how: <>bouton .srt dans {toDownloads("Téléchargements")}</> },
+    { ok: !mp4Reason, title: "La vidéo doublée en MP4", how: mp4Reason || <>bouton MP4 dans {toDownloads("Téléchargements")} : le fichier est assemblé dans votre navigateur</> },
+    { ok: true, title: "Le Passeport 360° signé", how: "consultable par tous, sans compte, à partir de son lien ou du QR code" },
+  ];
+  return (
+    <section className={`result-hero ${first ? "first" : ""}`} aria-labelledby="result-hero-title">
+      <span className="result-hero-seal">
+        <Seal size={76} word="SIGNÉ" date={p.generation.finishedAt} label="Passeport 360° signé" />
+      </span>
+      <div className="result-hero-body">
+        <h2 id="result-hero-title">Votre version française est prête</h2>
+        <p className="result-hero-lead">
+          {ok} réplique{ok > 1 ? "s" : ""} doublée{ok > 1 ? "s" : ""}
+          {refused > 0 && ` · ${refused} refusée${refused > 1 ? "s" : ""} par le moteur de règles`}
+          {failed > 0 && ` · ${failed} non synthétisée${failed > 1 ? "s" : ""}`}
+          {original > 0 && ` · ${original} en voix originale`}
+          {finished && ` · terminé le ${finished}`}
+        </p>
+        <ul className="result-gets" aria-label="Ce que vous obtenez">
+          {gets.map((g, i) => (
+            <li key={g.title} className={g.ok ? "ok" : "no"} style={{ "--i": i } as React.CSSProperties}>
+              {g.ok ? <Check aria-hidden /> : <Minus aria-hidden />}
+              <span>
+                <b>{g.title}</b> · {g.how}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  );
+}
+
 export default function Result({ p }: { p: Project }) {
   useLineAudio(p.id);
   const passport = useStore((s) => s.passports[p.id]);
@@ -145,11 +220,11 @@ export default function Result({ p }: { p: Project }) {
   useEffect(() => {
     if (url) void QRCode.toString(url, { type: "svg", errorCorrectionLevel: "L", margin: 0 }).then(setQr);
   }, [url]);
-  const gens = Object.values(p.gens);
-  const count = (k: string) => gens.filter((g) => g.status === k).length;
   const chars = Object.values(p.characters);
 
   return (
+    <>
+    <ResultHero p={p} mp4Reason={mp4Reason(p)} />
     <div className="result">
       <div className="stack-lg">
         <DubPlayer p={p} qr={qr} />
@@ -187,24 +262,7 @@ export default function Result({ p }: { p: Project }) {
       </div>
 
       <aside className="sticky-aside">
-        <div className="card">
-          <div className="card-head">
-            <h3>Statut</h3>
-            <span className="card-actions">
-              <Status tone="ok">Terminé</Status>
-            </span>
-          </div>
-          <div className="card-body stack-sm">
-            <span className="row">
-              <span className="num strong">{count("ok")}</span> répliques synthétisées
-            </span>
-            {count("refused") > 0 && <span className="row"><span className="num strong">{count("refused")}</span> refusées par le moteur de règles</span>}
-            {count("error") > 0 && <span className="row"><span className="num strong">{count("error")}</span> non synthétisées (moteur de voix indisponible)</span>}
-            {count("skipped") > 0 && <span className="row"><span className="num strong">{count("skipped")}</span> en voix originale (rendu non branché)</span>}
-          </div>
-        </div>
-
-        <div className="card">
+        <div className="card" id="telechargements">
           <div className="card-head">
             <h3>Téléchargements</h3>
           </div>
@@ -256,5 +314,6 @@ export default function Result({ p }: { p: Project }) {
         <Callout tone="plain">La vidéo d’origine reste sur votre appareil. Les fichiers téléchargés sont produits dans votre navigateur.</Callout>
       </aside>
     </div>
+    </>
   );
 }

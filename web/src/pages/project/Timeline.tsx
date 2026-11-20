@@ -209,6 +209,17 @@ export default function Timeline({ p }: { p: Project }) {
               ]}
             />
           </div>
+          {dubbed === 0 && (
+            <div className="tl-howto">
+              <Callout tone="info" icon={AudioLines}>
+                Pour entendre une réplique en français, sélectionnez-la puis cliquez sur <b>Aperçu audio</b> dans son détail. Pour doubler toutes les répliques d’un coup, passez à la{" "}
+                <Link to={`/projet/${p.id}/generation`} className="link">
+                  génération
+                </Link>
+                .
+              </Callout>
+            </div>
+          )}
 
           <div className="tl" role="group" aria-label="Chronologie des répliques">
             <div className="tl-ruler" aria-hidden>

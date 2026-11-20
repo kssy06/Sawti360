@@ -16,6 +16,18 @@ export const STEPS: { key: StepKey; label: string; screen: string }[] = [
   { key: "resultat", label: "Résultat", screen: "Écran 13" },
 ];
 
+/** What each step asks of the creator, then what it gives them: the line under the stepper. */
+export const STEP_GUIDE: Record<StepKey, { does: string; gets: string }> = {
+  analyse: { does: "L’IA écoute la vidéo, repère qui parle, transcrit la derja et propose une traduction.", gets: "Vous obtenez les répliques et les personnages, que vous vérifiez ensuite." },
+  personnages: { does: "Confirmez qui est qui : l’IA propose, vous décidez.", gets: "Chaque personnage confirmé pourra recevoir une voix française." },
+  autorisations: { does: "Dites si chaque voix originale peut servir, et obtenez l’accord de la personne quand il le faut.", gets: "Aucune voix n’est générée sans autorisation valide." },
+  voix: { does: "Choisissez une voix française par personnage : une voix licenciée d’une personne réelle, ou une voix générée par IA.", gets: "Une licence demandée doit être acceptée par son titulaire avant la génération." },
+  traduction: { does: "Relisez chaque réplique traduite et approuvez-la.", gets: "Seules les répliques approuvées seront doublées." },
+  timeline: { does: "Écoutez chaque réplique à sa place dans la vidéo avec « Aperçu audio », et raccourcissez celles qui débordent.", gets: "Étape facultative : vous pouvez passer directement à la génération." },
+  generation: { does: "Sawti 360 synthétise les répliques approuvées, les place dans la vidéo et signe le Passeport 360°.", gets: "Quelques secondes par réplique ; vous pouvez quitter la page pendant ce temps." },
+  resultat: { does: "Écoutez la version française et téléchargez vos fichiers.", gets: "Sous-titres .srt, vidéo MP4 doublée et Passeport 360° public." },
+};
+
 export type StepStatus = "done" | "attn" | "todo" | "locked";
 
 export function stepStates(p: Project, requests: LicenseRequest[]): Record<StepKey, StepStatus> {

@@ -6,7 +6,7 @@ import { GEN_STAGES } from "../../mock/simulate";
 import { balanceOf, slotsOf, useStore, type Project } from "../../state/store";
 import { transparencyPolicy } from "../../state/workflow";
 import { ENGINE_TEXT, useEngineStatus } from "../../ui/engine";
-import { Callout, DrawCheck, KV, ProcessList, Progress, Prov, timecode, type StepState } from "../../ui/kit";
+import { AnimatedNumber, Callout, DrawCheck, KV, ProcessList, Progress, Prov, timecode, type StepState } from "../../ui/kit";
 import { StepFoot } from "./Workspace";
 
 function overall(p: Project): number {
@@ -36,7 +36,7 @@ export default function Generation({ p }: { p: Project }) {
     { ok: chars.length > 0 && chars.every((c) => c.confirmed), title: "Personnages confirmés", detail: `${chars.filter((c) => c.confirmed).length} / ${chars.length}`, to: "personnages" },
     { ok: chars.length > 0 && chars.every((c) => slots[c.key]?.usable), title: "Une voix utilisable pour chaque personnage", detail: chars.filter((c) => !slots[c.key]?.usable).map((c) => `${c.name} : ${slots[c.key]?.reason.toLowerCase()}`).join(" · ") || "Autorisations et licences validées", to: "voix" },
     { ok: approved === p.segments.length && p.segments.length > 0, title: "Traduction approuvée", detail: `${approved} / ${p.segments.length} répliques approuvées`, to: "traduction" },
-    { ok: cost <= balance, title: "Crédits de synthèse suffisants", detail: `${fmt.format(cost)} jetons nécessaires · ${fmt.format(balance)} disponibles`, to: "" },
+    { ok: cost <= balance, title: "Crédits de synthèse suffisants", detail: `${fmt.format(cost)} jetons nécessaires (1 par caractère synthétisé) · ${fmt.format(balance)} disponibles`, to: "" },
   ];
   const ready = checks.every((c) => c.ok);
   const pct = overall(p);
@@ -119,14 +119,18 @@ export default function Generation({ p }: { p: Project }) {
             <div className="row-between">
               <span className="row">
                 {g.status === "done" ? <DrawCheck size={22} /> : <span className="spinner" />}
-                <h2 style={{ fontSize: 17 }}>{g.status === "done" ? "Rendu prêt" : GEN_STAGES[g.stage]?.label}</h2>
+                <h2 style={{ fontSize: 17 }} aria-live="polite">{g.status === "done" ? "Rendu prêt" : GEN_STAGES[g.stage]?.label}</h2>
               </span>
-              <span className="gen-pct">{Math.round(pct * 100)} %</span>
+              <span className="gen-pct">
+                <AnimatedNumber value={Math.round(pct * 100)} /> %
+              </span>
             </div>
             <Progress value={pct} label="Progression globale de la génération" tone={g.status === "done" ? "ok" : "info"} />
             <div className="row-between">
               <span className="hint">
-                {g.status === "done" ? `Terminé le ${new Date(g.finishedAt!).toLocaleString("fr-FR", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" })}` : `Temps restant estimé : ${Math.max(1, Math.round((g.etaMs ?? 0) / 1000))} s`}
+                {g.status === "done"
+                  ? `Terminé le ${new Date(g.finishedAt!).toLocaleString("fr-FR", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" })} : la version française, les sous-titres et le Passeport 360° vous attendent dans Résultat.`
+                  : `${g.stage === 0 && g.synthTotal ? `Réplique ${Math.min(g.synthTotal, g.synthDone + 1)} sur ${g.synthTotal} · ` : ""}Temps restant estimé : ${Math.max(1, Math.round((g.etaMs ?? 0) / 1000))} s`}
               </span>
               {g.status !== "done" && !BACKEND && <Prov kind="sim">estimation de la simulation</Prov>}
             </div>
