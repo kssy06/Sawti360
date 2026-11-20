@@ -1,17 +1,18 @@
 /**
- * First translation by Claude (LLM 1, text). Gemini keeps what needs the audio (the derja, the
- * speakers, the emotions); Claude writes the French from that derja, line by line, with each line's
- * character budget so the dub fits its time on screen. Claude reads the whole dialogue at once,
- * so the register and the references stay consistent from line to line.
- * Used only when ANTHROPIC_API_KEY is set; on any failure the analysis keeps Gemini's translation.
+ * The translation pass (LLM 1, text), after the listening. Gemini's analysis keeps what needs the
+ * audio (the derja, the speakers, the emotions); this pass writes the French from that derja, the
+ * whole dialogue at once, with each line's character budget so the dub fits its time on screen.
+ * Claude when ANTHROPIC_API_KEY is set (paid API), otherwise Gemini in a second, text-only call
+ * (free tier). On any failure the analysis keeps the translation it already had.
  */
 import { z } from "zod";
 import { FR_CHARS_PER_SECOND } from "../../src/core/catalog.js";
 import type { Segment } from "../../src/core/types.js";
-import { claudeJson } from "./claude.js";
+import { claudeConfigured, claudeJson } from "./claude.js";
+import { geminiConfigured, geminiJson } from "./gemini.js";
 import { GLOSSAIRE } from "./prompts.js";
 
-export const PROMPT_TRADUCTION_CLAUDE = `Tu es l'adaptateur d'un studio de doublage tunisien. Tu reçois les répliques d'une vidéo en
+export const PROMPT_TRADUCTION = `Tu es l'adaptateur d'un studio de doublage tunisien. Tu reçois les répliques d'une vidéo en
 derja tunisienne (graphie arabe, mots français en lettres latines), dans l'ordre, avec qui parle,
 l'émotion entendue et le nombre maximal de caractères que la réplique française peut avoir
 pour tenir dans son temps à l'écran (max_caracteres).
@@ -38,7 +39,17 @@ export const TranslationOut = z.object({
 /** The most French characters a line can hold: its time on screen plus 0.2 s, at 14 characters a second. */
 export const charBudget = (s: Pick<Segment, "start" | "end">) => Math.max(8, Math.floor((s.end - s.start + 0.2) * FR_CHARS_PER_SECOND));
 
-export async function translateWithClaude(
+export type Translator = "claude" | "gemini";
+
+/** Who translates: Claude if its key is set, else Gemini (free tier), else nobody. */
+export function translator(): Translator | null {
+  if (claudeConfigured()) return "claude";
+  if (geminiConfigured()) return "gemini";
+  return null;
+}
+
+export async function translateLines(
+  who: Translator,
   segments: Segment[],
   names: Record<string, string>,
   media: { title: string; format: string },
@@ -46,7 +57,8 @@ export async function translateWithClaude(
   const repliques = segments
     .filter((s) => s.source.trim())
     .map((s) => ({ id: s.id, qui: names[s.speaker] ?? s.speaker, emotion: s.emotion ?? "neutre", max_caracteres: charBudget(s), derja: s.source, contexte: s.context ?? "" }));
-  const r = await claudeJson(TranslationOut, PROMPT_TRADUCTION_CLAUDE, JSON.stringify({ titre: media.title, format: media.format, glossaire: GLOSSAIRE, repliques }));
+  const input = JSON.stringify({ titre: media.title, format: media.format, glossaire: GLOSSAIRE, repliques });
+  const r = who === "claude" ? await claudeJson(TranslationOut, PROMPT_TRADUCTION, input) : await geminiJson(TranslationOut, PROMPT_TRADUCTION, [{ text: input }]);
   const known = new Set(repliques.map((x) => x.id));
   return { lines: new Map(r.data.lines.filter((l) => known.has(l.id)).map((l) => [l.id, { translation: l.translation.trim(), note: l.note.trim() }])), model: r.model };
 }

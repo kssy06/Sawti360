@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { setEnvForTests } from "../env.js";
-import { analyse } from "./analysis.js";
+import { analyse, setClockForTests } from "./analysis.js";
 import { setClaudeForTests, type ClaudeLike } from "./claude.js";
 import { setGeminiForTests, setPauseForTests, type AnalysisMedia } from "./gemini.js";
 import { setGroqForTests, type GroqLike } from "./groq.js";
@@ -31,7 +31,7 @@ const steps: string[] = [];
 const step = async (n: number, d?: string) => void steps.push(`${n}:${d}`);
 
 afterEach(() => {
-  for (const f of [setEnvForTests, setGroqForTests, setGeminiForTests, setClaudeForTests, setPauseForTests]) (f as (x: null) => void)(null);
+  for (const f of [setEnvForTests, setGroqForTests, setGeminiForTests, setClaudeForTests, setPauseForTests, setClockForTests]) (f as (x: null) => void)(null);
   steps.length = 0;
 });
 
@@ -76,12 +76,35 @@ describe("Première traduction par Claude", () => {
     expect(r.notes.at(-1)).toContain("Traduction par Claude impossible");
   });
 
-  it("sans clé Anthropic : rien ne change", async () => {
+  it("sans clé Anthropic : Gemini refait la traduction en texte seul (gratuit), avec les budgets", async () => {
+    setEnvForTests({ GROQ_API_KEY: "k", GEMINI_API_KEY: "k" });
+    setGroqForTests(whisper);
+    const calls: Record<string, unknown>[] = [];
+    setGeminiForTests({
+      models: {
+        generateContent: async (req) => {
+          calls.push(req);
+          if (calls.length === 1) return gemini.models.generateContent();
+          return { text: JSON.stringify({ lines: [{ id: "s1", translation: "C’est quoi l’amour, pour toi ?", note: "" }, { id: "s2", translation: "On est trop jeunes pour l’amour.", note: "" }] }) };
+        },
+      },
+    });
+    const r = await analyse(media, step);
+    expect(calls).toHaveLength(2);
+    expect((calls[1].config as { systemInstruction: string }).systemInstruction).toContain("max_caracteres");
+    expect(r.assembled.segments[1].translation).toBe("On est trop jeunes pour l’amour.");
+    expect(r.assembled.segments[1].context).toContain("Traduit par Gemini.");
+    expect(steps.at(-1)).toBe("3:Traduction par Gemini…");
+  });
+
+  it("analyse déjà trop longue : la passe de traduction est sautée", async () => {
     setEnvForTests({ GROQ_API_KEY: "k", GEMINI_API_KEY: "k" });
     setGroqForTests(whisper);
     setGeminiForTests(gemini);
+    let t = 0;
+    setClockForTests(() => (t += 200_000));
     const r = await analyse(media, step);
-    expect(r.providers.llm1).toBe("gemini-3.8-flash");
     expect(r.assembled.segments[0].translation).toBe("Ta définition de l’amour ?");
+    expect(r.notes.at(-1)).toContain("sautée");
   });
 });

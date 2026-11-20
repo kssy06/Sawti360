@@ -101,8 +101,9 @@ Entrées envoyées par le navigateur (ARCHITECTURE.md § 4.2) : audio Ogg/Opus m
    puis les modèles de secours `gemini-flash-latest` et `gemini-3.5-flash`
    (`GEMINI_BACKUP_MODELS`) avant le repli texte seul ; sans eux, une interview passait au
    repli texte seul, qui n'entend pas les voix, et sortait à un seul intervenant.
-   **Première traduction par Claude (20 nov.)** : si `ANTHROPIC_API_KEY` est posée, Claude
-   récrit la traduction à partir de la derja de Gemini (`server/ai/translate.ts`), réplique par
+   **Passe de traduction (20 nov.)** : Claude si `ANTHROPIC_API_KEY` est posée (payant), sinon
+   Gemini dans un second appel en texte seul (gratuit) ; sautée si l'analyse a déjà pris plus de
+   150 s. Elle récrit la traduction à partir de la derja de Gemini (`server/ai/translate.ts`), réplique par
    réplique, avec qui parle, l'émotion et un budget de caractères (14 par seconde à l'écran,
    + 0,2 s). Gemini garde l'écoute (derja, intervenants, émotions). Échec de Claude : la
    traduction de Gemini reste, avec une note. Un intervalle sans parole (Whisper en invente parfois)

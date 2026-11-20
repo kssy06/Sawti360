@@ -111,7 +111,8 @@ describe("B3 · chaîne de repli de l'analyse", () => {
     expect(parts[0]).toMatchObject({ inlineData: { mimeType: "audio/ogg" } });
     expect(parts[1]).toEqual({ text: "Image à 1,0 s :" });
     expect(JSON.parse(String((parts.at(-1) as { text: string }).text)).segments[0]).toEqual({ id: "s1", start: 0.4, end: 3.1, texte: "يا ياسين الكار" });
-    expect(steps.map((s) => s.split(":")[0])).toEqual(["1", "2", "3"]);
+    // 1 cut, 2 listen, 3 assign, then 3 again: the text-only translation pass (Gemini, free).
+    expect(steps.map((s) => s.split(":")[0])).toEqual(["1", "2", "3", "3"]);
   });
 
   it("Groq en panne : Gemini découpe seul (confiance 0,5)", async () => {
@@ -139,9 +140,8 @@ describe("B3 · chaîne de repli de l'analyse", () => {
       },
     });
     const r = await analyse(media, step);
-    expect(models).toEqual(["gemini-3.8-flash", "gemini-3.8-flash", "gemini-flash-latest"]);
-    expect(r.providers.llm1).toBe("gemini-flash-latest");
-    expect(r.notes).toEqual([]);
+    expect(models.slice(0, 3)).toEqual(["gemini-3.8-flash", "gemini-3.8-flash", "gemini-flash-latest"]);
+    expect(r.providers.asr).toBe("gemini-flash-latest");
   });
 
   it("Gemini en panne : Groq traduit le texte seul (« sans image »)", async () => {

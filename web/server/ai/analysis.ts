@@ -14,8 +14,7 @@ import { analyseGeminiOnly, analyseWithGemini, geminiConfigured, type AnalysisMe
 import { groqConfigured, groqJson, whisperTimeline, type TimedSegment } from "./groq.js";
 import { GLOSSAIRE, PROMPT_TRADUCTION_TEXTE } from "./prompts.js";
 import { AnalysisOut, type AnalysisOutTimed } from "./schemas.js";
-import { claudeConfigured } from "./claude.js";
-import { translateWithClaude } from "./translate.js";
+import { translateLines, translator } from "./translate.js";
 
 export interface Assembled {
   segments: Segment[];
@@ -159,22 +158,34 @@ export interface ChainResult {
 
 export type Step = (n: number, detail?: string) => Promise<void>;
 
+/** Past this, the translation pass is skipped: the whole analysis must end within the function's 300 s. */
+export const TRANSLATION_PASS_DEADLINE_MS = 150_000;
+let now = () => Date.now();
+export function setClockForTests(fn: (() => number) | null): void {
+  now = fn ?? (() => Date.now());
+}
+
+const BY = { claude: "Claude", gemini: "Gemini" } as const;
+
 /**
- * The analysis, then the first translation by Claude when it is configured: Gemini keeps the
- * listening (derja, speakers, emotions), Claude writes the French within each line's character
- * budget. Claude unavailable or failing: the translation of the chain stays, with a note.
+ * The analysis, then the translation pass: Gemini keeps the listening (derja, speakers, emotions);
+ * Claude (paid key) or else Gemini again, text only (free), writes the French within each line's
+ * character budget. Failing, or too late: the chain's translation stays, with a note.
  */
 export async function analyse(media: AnalysisMedia, step: Step): Promise<ChainResult> {
+  const t0 = now();
   const r = await analyseChain(media, step);
-  if (!claudeConfigured() || !r.assembled.segments.length) return r;
-  await step(3, "Traduction par Claude…");
+  const who = translator();
+  if (!who || !r.assembled.segments.length) return r;
+  if (now() - t0 > TRANSLATION_PASS_DEADLINE_MS) return { ...r, notes: [...r.notes, "Passe de traduction sautée : l’analyse a déjà pris trop de temps."] };
+  await step(3, `Traduction par ${BY[who]}…`);
   try {
     const names = Object.fromEntries(Object.entries(r.assembled.speakers).map(([k, v]) => [k, v.name]));
-    const t = await translateWithClaude(r.assembled.segments, names, media);
+    const t = await translateLines(who, r.assembled.segments, names, media);
     const segments = r.assembled.segments.map((s) => {
       const l = t.lines.get(s.id);
       if (!l?.translation) return s;
-      const context = [s.context?.trim(), l.note, "Traduit par Claude."].filter(Boolean).join(" ");
+      const context = [s.context?.trim(), l.note, `Traduit par ${BY[who]}.`].filter(Boolean).join(" ");
       return { ...s, translation: l.translation, context, fits: fitsOnScreen(l.translation, s.start, s.end) };
     });
     return {
@@ -183,7 +194,7 @@ export async function analyse(media: AnalysisMedia, step: Step): Promise<ChainRe
       providers: { ...r.providers, llm1: t.model },
     };
   } catch (err) {
-    return { ...r, notes: [...r.notes, `Traduction par Claude impossible, celle de ${r.providers.llm1 ?? "l’analyse"} est gardée : ${err instanceof Error ? err.message : String(err)}`] };
+    return { ...r, notes: [...r.notes, `Traduction par ${BY[who]} impossible, celle de ${r.providers.llm1 ?? "l’analyse"} est gardée : ${err instanceof Error ? err.message : String(err)}`] };
   }
 }
 
