@@ -14,6 +14,8 @@ import { analyseGeminiOnly, analyseWithGemini, geminiConfigured, type AnalysisMe
 import { groqConfigured, groqJson, whisperTimeline, type TimedSegment } from "./groq.js";
 import { GLOSSAIRE, PROMPT_TRADUCTION_TEXTE } from "./prompts.js";
 import { AnalysisOut, type AnalysisOutTimed } from "./schemas.js";
+import { claudeConfigured } from "./claude.js";
+import { translateWithClaude } from "./translate.js";
 
 export interface Assembled {
   segments: Segment[];
@@ -157,8 +159,36 @@ export interface ChainResult {
 
 export type Step = (n: number, detail?: string) => Promise<void>;
 
-/** Runs the chain with the providers that are configured; 502 FOURNISSEUR_IA when none worked. */
+/**
+ * The analysis, then the first translation by Claude when it is configured: Gemini keeps the
+ * listening (derja, speakers, emotions), Claude writes the French within each line's character
+ * budget. Claude unavailable or failing: the translation of the chain stays, with a note.
+ */
 export async function analyse(media: AnalysisMedia, step: Step): Promise<ChainResult> {
+  const r = await analyseChain(media, step);
+  if (!claudeConfigured() || !r.assembled.segments.length) return r;
+  await step(3, "Traduction par Claude…");
+  try {
+    const names = Object.fromEntries(Object.entries(r.assembled.speakers).map(([k, v]) => [k, v.name]));
+    const t = await translateWithClaude(r.assembled.segments, names, media);
+    const segments = r.assembled.segments.map((s) => {
+      const l = t.lines.get(s.id);
+      if (!l?.translation) return s;
+      const context = [s.context?.trim(), l.note, "Traduit par Claude."].filter(Boolean).join(" ");
+      return { ...s, translation: l.translation, context, fits: fitsOnScreen(l.translation, s.start, s.end) };
+    });
+    return {
+      ...r,
+      assembled: { ...r.assembled, segments, proposals: Object.fromEntries(segments.map((s) => [s.id, s.translation])) },
+      providers: { ...r.providers, llm1: t.model },
+    };
+  } catch (err) {
+    return { ...r, notes: [...r.notes, `Traduction par Claude impossible, celle de ${r.providers.llm1 ?? "l’analyse"} est gardée : ${err instanceof Error ? err.message : String(err)}`] };
+  }
+}
+
+/** Runs the chain with the providers that are configured; 502 FOURNISSEUR_IA when none worked. */
+async function analyseChain(media: AnalysisMedia, step: Step): Promise<ChainResult> {
   const notes: string[] = [];
   const providers: Record<string, string> = {};
   let timeline: TimedSegment[] | null = null;
