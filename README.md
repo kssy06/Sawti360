@@ -4,9 +4,9 @@
 
 Sawti 360 double une œuvre de la derja vers le français : un film, mais aussi une vidéo YouTube, un Short ou un podcast. L'IA propose, le créateur décide. Chaque voix a un Passeport de voix : sans consentement, rien n'est généré. À l'export, l'œuvre part avec un Passeport 360° que chacun peut vérifier.
 
-« L'IA propose · L'humain décide · La confiance agitccompagne chaque export. »
+« L'IA propose · L'humain décide · La confiance accompagne chaque export. »
 
-Hackathon IA Éthique 360, 5e édition (Junior Entreprise INSAT et OIF) .
+Hackathon IA Éthique 360, 5e édition (Junior Entreprise INSAT et OIF).
 
 ![Passeport 360°](docs/maquettes/06-passeport-360.png)
 
@@ -32,7 +32,7 @@ Hackathon IA Éthique 360, 5e édition (Junior Entreprise INSAT et OIF) .
 
 Un cinéaste tunisien indépendant rencontre une barrière de langue qui empêche ses films en derja d'être compris quand ils sont présentés à des festivals ou à des publics étrangers, ce qui entraîne des films primés mais invisibles. Les outils d'IA qui pourraient les doubler lui font courir un autre risque : voix clonées sans accord, contenus non étiquetés, aucune trace de qui a décidé quoi.
 
-**Face 1 : le film ne voyage pas.** . Le cinéaste amateur tunisien Mohamed Karim Dahmouni a expliqué que les sous-titres aident, mais que le doublage permet à un film de voyager. Toute utilisation de son image ou de sa voix dans le projet est conditionnée à un accord écrit.
+**Face 1 : le film ne voyage pas.** Le cinéaste amateur tunisien Mohamed Karim Dahmouni a expliqué que les sous-titres aident, mais que le doublage permet à un film de voyager. Toute utilisation de son image ou de sa voix dans le projet est conditionnée à un accord écrit.
 
 > « Un film que le public ne comprend pas reste invisible, même s'il est extraordinaire. Les miens sont en dialecte tunisien, ils s'arrêtent à la barrière de la langue. Les sous-titres aident un peu, mais seul le doublage permet à un film de voyager. »
 > Mohamed Karim Dahmouni, cinéaste amateur tunisien.
