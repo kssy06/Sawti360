@@ -137,7 +137,7 @@ function drawQr(ctx: OffscreenCanvasRenderingContext2D, qr: HTMLCanvasElement, w
   ctx.fillRect(x, y, side + 2 * pad, side + 3 * pad + caption);
   ctx.imageSmoothingEnabled = false;
   ctx.drawImage(qr, x + pad, y + pad, side, side);
-  ctx.fillStyle = "#0a0a0a";
+  ctx.fillStyle = "#2c2c2c";
   ctx.font = `600 ${caption}px "IBM Plex Sans", system-ui, sans-serif`;
   ctx.textAlign = "center";
   ctx.textBaseline = "top";
