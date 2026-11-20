@@ -33,7 +33,7 @@ Sans clé, l’interface fonctionne et la synthèse répond « non configurée �
 npm test
 ```
 
-35 tests : le moteur de règles reprend les scénarios d’attaque de `tests/` (Python), plus le filtre de contenu, la fidélité, le journal, le Passeport 360° et la fonction serveur appelée directement.
+135 tests (et 79 de plus avec une base Postgres locale) : le moteur de règles reprend les scénarios d’attaque de `tests/` (Python), plus le filtre de contenu, la fidélité, le journal, le Passeport 360° et la fonction serveur appelée directement.
 
 ## Déployer sur Vercel
 
