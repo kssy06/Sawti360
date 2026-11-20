@@ -398,8 +398,9 @@ Objectif : remplacer « à mesurer » par une mesure honnête, même défavorabl
 3. Hypothèses de chaque fournisseur (Groq Whisper, Gemini, Scribe v3 si disponible) rangées
    dans `results/bench/<fournisseur>/<id>.txt`.
 4. WER et CER calculés par `sawti/bench.py` (normalisation documentée dans le fichier).
-5. Résultat dans `results/sawti-bench.json` : `{ date, n, extraits, fournisseurs: { nom: { wer, cer, mots } } }`,
-   lu par l'onglet Sawti-Bench du centre de confiance, avec la date et l'effectif.
+5. Résultat dans `results/sawti-bench.json` : `{ date, n, extraits, fournisseurs: { nom: { wer, cer, mots } } }`
+   (`wer` et `cer` entre 0 et 1), copié tel quel dans `web/public/sawti-bench.json` : l'onglet Sawti-Bench
+   du centre de confiance le lit, avec la date et l'effectif ; sans ce fichier, il affiche « à mesurer ».
 
 ## 9. Code de référence
 

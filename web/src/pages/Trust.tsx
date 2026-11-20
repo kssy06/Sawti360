@@ -1,6 +1,8 @@
 import { Check, CircleCheck, CircleX, FlaskConical, RotateCcw } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import { useBench, useHealth } from "../api/health";
+import type { Health } from "../api/types";
 import { verifyChain } from "../core/audit";
 import { voiceById } from "../core/catalog";
 import { fmt } from "../core/credits";
@@ -24,8 +26,8 @@ const GATES: { title: string; gate: string; prov: ProvKind; note: string }[] = [
   { title: "Traduction contextuelle", gate: "Robustesse", prov: "sim", note: "LLM 1 et LLM 2 simulés ; vérificateur de fidélité réel." },
   { title: "Approbation par réplique", gate: "Responsabilité", prov: "real", note: "Chaque approbation est inscrite au journal." },
   { title: "Choix de la voix", gate: "Consentement", prov: "real", note: "Moteur de règles et licences signées, refus par défaut." },
-  { title: "Synthèse et mixage", gate: "Durabilité", prov: "real", note: "Synthèse réelle si le moteur est configuré ; mixage simulé." },
-  { title: "Export et passeport", gate: "Toutes les portes", prov: "real", note: "Passeport 360° signé et sous-titres réels ; MP4 prévu." },
+  { title: "Synthèse et mixage", gate: "Durabilité", prov: "real", note: "Synthèse réelle si le moteur est configuré ; mixage dans le navigateur, au téléchargement du MP4." },
+  { title: "Export et passeport", gate: "Toutes les portes", prov: "real", note: "Passeport 360° signé, sous-titres et MP4 réels ; label et QR dans la vidéo pour film et podcast." },
 ];
 
 const MODULES: { title: string; principle: string; prov: ProvKind; note: string }[] = [
@@ -33,12 +35,28 @@ const MODULES: { title: string; principle: string; prov: ProvKind; note: string 
   { title: "Passeport de voix et moteur de règles", principle: "Consentement", prov: "real", note: "Licences signées Ed25519, révocation, thèmes interdits." },
   { title: "Équité d’accès", principle: "Équité", prov: "planned", note: "Écarts par accent régional, offre gratuite étudiants." },
   { title: "Sawti-Bench", principle: "Diversité", prov: "planned", note: "Mesures par langue publiées quand elles existent." },
-  { title: "Label, générique, QR", principle: "Transparence", prov: "real", note: "Label par format, Passeport 360° public." },
+  { title: "Label, générique, QR", principle: "Transparence", prov: "real", note: "Label par format, QR dans la vidéo (film, podcast), Passeport 360° public." },
   { title: "Journal d’audit", principle: "Responsabilité", prov: "real", note: "Chaîne SHA-256, falsification détectée." },
   { title: "Garde-fous", principle: "Robustesse", prov: "real", note: "Filtre de contenu, personnalités bloquées ; équipe rouge prévue." },
   { title: "Coffre local", principle: "Sécurité des données", prov: "real", note: "Vidéo jamais envoyée ; clé du moteur côté serveur." },
   { title: "Panneau énergie", principle: "Durabilité", prov: "planned", note: "kWh et gCO₂ affichés « à mesurer » tant qu’ils ne sont pas mesurés." },
 ];
+
+/** Back-end mode: what is really connected comes from GET /api/health (D4); simulated mode keeps the lists above. */
+function gatesOf(h: Health | null) {
+  const p = h?.providers;
+  if (!p) return GATES;
+  const over: Record<string, { prov: ProvKind; note: string }> = {
+    Transcription: p.asr ? { prov: "real", note: `Derja, français et mélange : ${p.asr}.` } : { prov: "sim", note: "Aucun modèle configuré : l’exemple simulé reste proposé, signalé comme tel." },
+    Autorisations: { prov: "real", note: `Vivant ou décédé, consentement ou dossier familial. Contrôle du dossier : ${p.dossier ?? "règles seules, « vérification nécessaire »"}.` },
+    "Traduction contextuelle": p.llm1 ? { prov: "real", note: `LLM 1 : ${p.llm1} ; LLM 2 : ${p.llm2 ?? "règles de fidélité"} ; vérificateur de fidélité réel.` } : { prov: "sim", note: "Aucun modèle configuré : exemple simulé ; vérificateur de fidélité réel." },
+  };
+  return GATES.map((g) => ({ ...g, ...(over[g.title] ?? {}) }));
+}
+
+function modulesOf(measured: boolean) {
+  return MODULES.map((m) => (m.title === "Sawti-Bench" && measured ? { ...m, prov: "real" as ProvKind, note: "WER et CER mesurés par fournisseur, avec date et effectif." } : m));
+}
 
 const ACTIONS: Record<string, string> = {
   LICENCE_SIGNEE: "Licence signée",
@@ -156,6 +174,9 @@ export default function Trust() {
   const tab = (params.get("onglet") as Tab) ?? "apercu";
   const usage = useStore((s) => s.usage);
   const engine = useEngineStatus();
+  const health = useHealth();
+  const bench = useBench();
+  const p = health?.providers;
   const measured = usage.filter((u) => u.ms !== undefined);
 
   return (
@@ -185,7 +206,7 @@ export default function Trust() {
                 <span className="hint">Une porte par étape du parcours.</span>
               </div>
               <div className="gates">
-                {GATES.map((g, i) => (
+                {gatesOf(health).map((g, i) => (
                   <div key={g.title} className="gate">
                     <span className="row-between">
                       <span className="num">{String(i + 1).padStart(2, "0")}</span>
@@ -213,7 +234,7 @@ export default function Trust() {
                     </tr>
                   </thead>
                   <tbody>
-                    {MODULES.map((m) => (
+                    {modulesOf(Boolean(bench)).map((m) => (
                       <tr key={m.title}>
                         <td style={{ fontWeight: 500 }}>{m.title}</td>
                         <td className="muted">{m.principle}</td>
@@ -230,7 +251,28 @@ export default function Trust() {
           </div>
         )}
         {tab === "journal" && <Journal />}
-        {tab === "bench" && (
+        {tab === "bench" && bench && (
+          <div className="stack-lg">
+            <Callout tone="plain" title={`Mesuré le ${frDate(bench.date)} sur ${bench.n} extraits.`}>
+              WER et CER de la transcription derja par fournisseur (IA.md § 8.1), sans retouche : les chiffres défavorables sont publiés aussi.
+            </Callout>
+            <div className="card">
+              <div className="card-body bench">
+                {Object.entries(bench.fournisseurs).map(([name, r]) => (
+                  <div key={name} className="bench-row">
+                    <span>{name}</span>
+                    <span className="bench-bar" aria-hidden style={{ borderStyle: "solid", background: `linear-gradient(90deg, var(--ink-3) ${Math.min(100, Math.round(r.wer * 100))}%, transparent 0)` }} />
+                    <span className="num">
+                      WER {Math.round(r.wer * 1000) / 10} % · CER {Math.round(r.cer * 1000) / 10} %{r.mots ? ` · ${fmt.format(r.mots)} mots` : ""}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <Prov kind="real">mesures publiées</Prov>
+          </div>
+        )}
+        {tab === "bench" && !bench && (
           <div className="stack-lg">
             <Callout tone="plain" title="Aucune valeur n’est inventée.">
               Sawti-Bench mesurera le WER de la transcription et la qualité de traduction par langue et par accent. Les barres restent vides tant que les mesures n’existent pas ; les écarts seront publiés, même défavorables.
@@ -252,7 +294,7 @@ export default function Trust() {
         {tab === "energie" && (
           <div className="stack-lg">
             <Callout tone="plain">
-              <b>Mesuré ici :</b> la durée de chaque génération vue du navigateur et la taille de l’audio reçu. <b>Pas encore mesuré :</b> l’énergie de l’inférence, qui a lieu chez le fournisseur de voix et n’est pas publiée par requête. Elle est affichée « à mesurer » plutôt qu’estimée.
+              <b>Mesuré ici :</b> {BACKEND ? "la durée de chaque synthèse, mesurée par le serveur, et la taille de l’audio produit." : "la durée de chaque génération vue du navigateur et la taille de l’audio reçu."} <b>Pas encore mesuré :</b> l’énergie de l’inférence, qui a lieu chez le fournisseur de voix et n’est pas publiée par requête. Elle est affichée « à mesurer » plutôt qu’estimée.
             </Callout>
             {measured.length === 0 ? (
               <Empty title="Aucune génération mesurée">Générez une réplique (aperçu audio ou génération complète) : sa durée et sa taille apparaîtront ici.</Empty>
@@ -273,7 +315,7 @@ export default function Trust() {
                     {measured.map((u) => (
                       <tr key={u.id}>
                         <td>{frDate(u.at, true)}</td>
-                        <td>{voiceById(u.voice_id)?.name}</td>
+                        <td>{voiceById(u.voice_id)?.name ?? u.voice_id}</td>
                         <td className="r">{fmt.format(u.chars)}</td>
                         <td className="r">{fmt.format(u.ms!)} ms</td>
                         <td className="r">{fmt.format(Math.round((u.bytes ?? 0) / 1024))} Ko</td>
@@ -295,11 +337,12 @@ export default function Trust() {
               <div className="card-body-tight">
                 <KV
                   rows={[
-                    ["Synthèse vocale", <span>ElevenLabs eleven_multilingual_v2 <Prov kind="real" /></span>],
+                    ["Synthèse vocale", p ? <span>{p.tts ? `ElevenLabs ${p.tts}` : p.ttsMock ? "Mode test : audio silencieux" : "Non configurée"} <Prov kind={p.tts ? "real" : "sim"} /></span> : <span>ElevenLabs eleven_multilingual_v2 <Prov kind="real" /></span>],
                     ["Voix", "Voix de synthèse prédéfinies, n’imitant aucune personne réelle"],
-                    ["Transcription derja", <span>Non branchée <Prov kind="sim" /></span>],
-                    ["Traduction LLM 1 et vérification LLM 2", <span>Non branchées <Prov kind="sim" /></span>],
-                    ["Contrôle du dossier familial", <span>Non branché <Prov kind="sim" /></span>],
+                    ["Transcription derja", p?.asr ? <span>{p.asr} <Prov kind="real" /></span> : <span>{p ? "Non configurée" : "Non branchée"} <Prov kind="sim" /></span>],
+                    ["Traduction LLM 1 et vérification LLM 2", p?.llm1 ? <span>LLM 1 : {p.llm1} · LLM 2 : {p.llm2 ?? "règles de fidélité"} <Prov kind="real" /></span> : <span>{p ? "Non configurées" : "Non branchées"} <Prov kind="sim" /></span>],
+                    ["Contrôle du dossier familial", p ? <span>{p.dossier ?? "Règles seules : « vérification nécessaire »"} <Prov kind="real" /></span> : <span>Non branché <Prov kind="sim" /></span>],
+                    ...(p ? ([["E-mails", <span>{p.mail ? "Gmail (SMTP)" : "Non configurés : lien à copier ou WhatsApp"} <Prov kind={p.mail ? "real" : "sim"} /></span>]] as [string, React.ReactNode][]) : []),
                     ["Vérificateur de fidélité", <span>Règles : chiffres et négations <Prov kind="real" /></span>],
                     ["Filtre de contenu", <span>Lignes rouges et thèmes par titulaire <Prov kind="real" /></span>],
                   ]}

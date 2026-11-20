@@ -236,9 +236,9 @@ Préparer jeudi soir trois documents écrits par l'équipe (PDF ou photo) :
 
 ### D4. Centre de confiance (P1, 1 h) · dépend de A1, A4, B8
 Fichier : `pages/Trust.tsx`.
-- [ ] « Modèles et versions » rempli par `/api/health` ; portes et modules à jour
-- [ ] panneau énergie depuis les usages mesurés ; Sawti-Bench depuis les résultats de B8
-- [ ] plus aucun « Simulé » pour ce qui est réel ; « Prévu » gardé pour la synchro labiale, la séparation et les kWh
+- [x] « Modèles et versions » rempli par `/api/health` ; portes et modules à jour
+- [ ] panneau énergie depuis les usages mesurés ; Sawti-Bench depuis les résultats de B8 (énergie faite, durées mesurées par le serveur ; l'onglet lit `web/public/sawti-bench.json` dès que B8 le produit)
+- [x] plus aucun « Simulé » pour ce qui est réel ; « Prévu » gardé pour la synchro labiale, la séparation et les kWh
 
 ### D5. Recette et démonstration (P0, en continu, Ahmed)
 Vendredi 17 h, en production, sur ordinateur et téléphone :
