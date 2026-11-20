@@ -195,6 +195,14 @@ describe.skipIf(!hasTestDb)("C1 · C5 · génération côté serveur et aperçus
     await t.sql`delete from public.token_ledger where account_id = ${nour} and ref = 'test'`;
   });
 
+  it("vidéo d'origine : URL signée seulement si le créateur l'a envoyée", async () => {
+    expect((await call(nour, "GET", `/projects/${PID}/original`)).status).toBe(404);
+    await t.sql`update public.projects set video = ${t.sql.json({ name: "film.mp4", size: 1, type: "video/mp4", duration: 20, width: 640, height: 360, privacy: "inedite", originalPath: `${nour}/${PID}/original.mp4` })} where id = ${PID}`;
+    expect(await (await call(nour, "GET", `/projects/${PID}/original`)).json()).toEqual({ url: `https://stockage/media/${nour}/${PID}/original.mp4?expire=600` });
+    expect((await call(other, "GET", `/projects/${PID}/original`)).status).toBe(403);
+    await t.sql`update public.projects set video = null where id = ${PID}`;
+  });
+
   it("génération arrêtée par la plateforme (plus de 300 s sans nouvelles) → le projet peut être relancé", async () => {
     const [job] = await t.sql<{ id: string }[]>`
       insert into public.jobs (kind, account_id, project_id, status, step, updated_at)

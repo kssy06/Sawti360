@@ -1,5 +1,5 @@
 import QRCode from "qrcode";
-import { Captions, Clapperboard, Download, FileBadge2, FileJson, Pause, Play } from "lucide-react";
+import { Captions, Download, FileBadge2, FileJson, Pause, Play } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { toSrt } from "../../core/srt";
@@ -7,8 +7,10 @@ import { encodePassport, type Passport360, type PassportFile } from "../../core/
 import { BACKEND } from "../../lib/backend";
 import { audioKey, audioUrls, useStore, type Project } from "../../state/store";
 import { useLineAudio } from "../../state/remote/generation";
+import { fetchPublicPassport } from "../../state/remote/passports";
 import { FORMAT_LABEL, transparencyPolicy } from "../../state/workflow";
 import { Callout, KV, Prov, Status, timecode, toast, VoiceMark } from "../../ui/kit";
+import { Mp4Item } from "./ExportMp4";
 import { useVideoSrc, voiceInfo } from "./shared";
 
 export function publicUrl(code: string) {
@@ -210,17 +212,7 @@ export default function Result({ p }: { p: Project }) {
           </div>
           <div className="card-body-tight">
             <ul className="dl-list">
-              <li>
-                <Clapperboard aria-hidden />
-                <span>
-                  <b>Vidéo doublée · MP4</b>
-                  <span>Le rendu MP4 demande le service de rendu, non branché dans ce prototype.</span>
-                </span>
-                <button className="btn btn-secondary btn-sm" disabled title="Service de rendu non branché">
-                  <Download />
-                  MP4
-                </button>
-              </li>
+              <Mp4Item p={p} fileName={`${slug(p.title)}.vf.mp4`} />
               <li>
                 <Captions aria-hidden />
                 <span>
@@ -248,8 +240,12 @@ export default function Result({ p }: { p: Project }) {
                 <button
                   className="btn btn-secondary btn-sm"
                   disabled={!passport}
-                  onClick={() => {
-                    const file: PassportFile = { passeport: passport!, journal: journal.slice(0, passport!.responsabilite.nombre_entrees) };
+                  onClick={async () => {
+                    // Back-end mode: the chain exactly as the passport cites it, read from the server.
+                    const file: PassportFile =
+                      BACKEND && passport!.identifiant
+                        ? await fetchPublicPassport(passport!.identifiant).then((r) => ({ passeport: r.passport, journal: r.journal }))
+                        : { passeport: passport!, journal: journal.slice(0, passport!.responsabilite.nombre_entrees) };
                     download(`passeport-360-${slug(p.title)}.json`, JSON.stringify(file, null, 2), "application/json");
                     logExport("PASSEPORT_JSON", { projet: p.id });
                   }}

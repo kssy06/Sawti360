@@ -293,6 +293,10 @@ nouvelles) remet `generation.status` à `idle` avec `generation.error` : la gén
 (URL signées 10 min, répliques au statut `ok`). Utilisé par l'export MP4 et la lecture de la timeline
 (rechargées toutes les 8 min tant que l'écran est ouvert).
 
+**`GET /api/projects/:id/original`** → `{ url }` (URL signée 10 min) de la vidéo d'origine, seulement si
+le créateur l'a envoyée (`video.originalPath`) ; 404 sinon : par défaut, elle reste sur son ordinateur.
+L'export MP4 lit d'abord la copie du navigateur (IndexedDB), puis le lien d'import, puis celle-ci.
+
 **`POST /api/tts`** : contrat actuel d'`api/tts.ts`, conservé pendant la transition.
 
 ### Passeports

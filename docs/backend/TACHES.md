@@ -192,9 +192,9 @@ Fichiers : `server/ai/elevenlabs.ts`, `server/routes/generation.ts`, `server/led
 
 ### C3. Export MP4 (P0, 2 h) · essai sans dépendance, vraies répliques après C1
 Fichiers : `src/media/export.ts`, `pages/project/Result.tsx`.
-- [ ] le MP4 se lit dans VLC, Chrome et sur un téléphone ; voix françaises à leur place, original atténué
-- [ ] vidéo copiée sans réencodage ; extrait de 2 min exporté en moins de 30 s
-- [ ] vidéo source lue dans IndexedDB (et dans Storage si l'original a été envoyé)
+- [ ] le MP4 se lit dans VLC, Chrome et sur un téléphone ; voix françaises à leur place, original atténué (Chromium et décodage ffmpeg, le moteur de VLC, vérifiés ; original à 18 % mesuré, −14,9 dB ; voix posée à son horodatage ; téléphone à confirmer en recette : audio AAC depuis Chrome Mac/Windows, Opus sinon)
+- [x] vidéo copiée sans réencodage ; extrait de 2 min exporté en moins de 30 s (3,5 s ; paquets vidéo identiques à la source, H.264 et VP9)
+- [x] vidéo source lue dans IndexedDB (et dans Storage si l'original a été envoyé)
 
 ### C4. Label IA et QR dans la vidéo (P1, 1 h 30) · dépend de C3, A8
 - [ ] film et podcast : label pendant 4 s au début, QR pendant 5 s à la fin, scanné par un téléphone → passeport vérifié

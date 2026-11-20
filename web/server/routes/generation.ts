@@ -2,6 +2,7 @@
  * Generation (écran 12), timeline preview (écran 11) and library sample (écran 08), ARCHITECTURE.md § 4.8–4.9.
  *  POST /api/projects/:id/generation              → 202 { jobId }: every approved line, in order (task « generation »)
  *  GET  /api/projects/:id/audio                   → { [segId]: { url, start, end } }, signed URLs valid 10 min
+ *  GET  /api/projects/:id/original                → { url }: the source video, when it was sent (MP4 export)
  *  POST /api/projects/:id/segments/:segId/synthesize → { gen, audioUrl?, balance? }
  *  POST /api/voices/:voiceId/preview { text, projectId? } → audio (or 403 { decision })
  * The jetons are checked before the task starts (402 JETONS_INSUFFISANTS), then line by line under lock.
@@ -144,6 +145,14 @@ export const generation = new Hono<AppEnv>()
       }),
     );
     return c.json(out);
+  })
+
+  .get("/projects/:id/original", async (c) => {
+    // The source video, only when the creator chose to send it (otherwise it never leaves their computer).
+    const row = await ownedProject(db(), c.get("user"), c.req.param("id"));
+    const path = (row.video as { originalPath?: string } | null)?.originalPath;
+    if (!path) throw notFound("La vidéo d’origine n’a pas été envoyée : elle est restée sur l’ordinateur du créateur.");
+    return c.json({ url: await files().signRead("media", path, 600) });
   })
 
   .post("/projects/:id/segments/:segId/synthesize", async (c) => {
