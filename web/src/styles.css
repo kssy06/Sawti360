@@ -1076,6 +1076,8 @@ input, textarea { caret-color: var(--accent); }
 .motto-line.l3 { align-items: flex-end; justify-content: flex-start; gap: var(--s-5); margin-top: 8px; }
 .motto-line.l3 .motto-text { max-width: 14ch; }
 .motto-seal { position: relative; flex: none; display: block; opacity: 0; transform: scale(1.35) rotate(-14deg); }
+/* On a 375 px phone the new stamp sticks out 4 px: clip it rather than let the login page scroll sideways. */
+.auth { overflow-x: clip; }
 .motto-seal .seal { display: block; }
 .motto-line.l3.on .motto-seal { animation: stamp 560ms var(--ease) 1250ms forwards; }
 .motto.static .motto-seal { opacity: 1; transform: rotate(-6deg); }
