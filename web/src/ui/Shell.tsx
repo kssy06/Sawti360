@@ -26,6 +26,7 @@ import { requestStatus } from "../state/workflow";
 import { Brand } from "./brand";
 import { FullLoader, PageLoader } from "./Loader";
 import { Popover, relTime, toast, Toasts } from "./kit";
+import { useNotificationPolling } from "../state/remote/notifications";
 
 /* ------------------------------------------------------------------ breadcrumbs */
 
@@ -274,6 +275,7 @@ function Notifications() {
   const persona = useStore((s) => s.persona);
   const all = useStore((s) => s.notifications);
   const markRead = useStore((s) => s.markRead);
+  useNotificationPolling(useStore.setState, useStore.getState);
   const list = all.filter((n) => n.to === session?.accountId && n.space === persona);
   const unread = list.filter((n) => !n.read).length;
   const [open, setOpen] = useState(false);

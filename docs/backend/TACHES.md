@@ -117,7 +117,7 @@ Fichiers : `scripts/keys.ts`, `server/sign.ts`, `src/core/crypto.ts`, `src/state
 ### A9. Notifications (P1, 45 min) · dépend de A3
 Fichiers : `server/notify.ts`, `server/routes/notifications.ts`, `src/state/remote/notifications.ts`, `ui/Shell.tsx`.
 - [ ] chaque événement du tableau de la spéc. § 8 notifie le bon compte, dans le bon espace
-- [ ] la cloche se met à jour en 15 s au plus sur un autre appareil ; « tout lu » fonctionne
+- [x] la cloche se met à jour en 15 s au plus sur un autre appareil ; « tout lu » fonctionne (7,8 s mesurées dans Chromium, deux appareils)
 
 ### A10. Espace propriétaire (P1, 1 h) · dépend de A7, A8 (et B7 pour le contrôle du texte lu)
 Fichiers : `server/routes/owner.ts`, `src/state/remote/owner.ts`, `pages/Owner.tsx`.

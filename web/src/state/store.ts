@@ -502,7 +502,7 @@ export const useStore = create<Store>()(
           return signed;
         },
         logExport: (kind, detail) => (BACKEND ? remote.journal.logExport(set, get, kind, detail) : log(get().validator, "EXPORT", { type: kind, ...detail }, "OK")),
-        markRead: () => set((s) => ({ notifications: s.notifications.map((n) => (n.to === meId() && n.space === s.persona ? { ...n, read: true } : n)) })),
+        markRead: () => (BACKEND ? void remote.notifications.markRead(set, get) : set((s) => ({ notifications: s.notifications.map((n) => (n.to === meId() && n.space === s.persona ? { ...n, read: true } : n)) }))),
         reset: () => {
           if (BACKEND) return;
           audioUrls.forEach((u) => URL.revokeObjectURL(u));

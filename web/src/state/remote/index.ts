@@ -7,6 +7,7 @@ export * as dossiers from "./dossiers";
 export * as generation from "./generation";
 export * as journal from "./journal";
 export * as licensing from "./licensing";
+export * as notifications from "./notifications";
 export * as passports from "./passports";
 export * as projects from "./projects";
 export * as review from "./review";

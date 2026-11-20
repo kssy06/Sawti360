@@ -339,9 +339,12 @@ utilisent la voix. Remplacent `revoke` et `reinstate`.
 
 **`POST /api/journal/export`** `{ kind, detail }` → `AuditEntry`. Remplace `logExport`.
 
-**`GET /api/notifications?since=<iso>`** → `Notice[]` (les deux espaces du compte).
+**`GET /api/notifications?since=<iso>`** → `Notice[]` (les deux espaces du compte, 50 au plus, les plus
+récentes d'abord ; `since` invalide → 400). Le navigateur interroge toutes les 15 s quand l'onglet est
+visible, avec une minute de recouvrement ; une notification inconnue déclenche `GET /api/bootstrap`.
 
-**`POST /api/notifications/read`** `{ space }` → `204`. Remplace `markRead`.
+**`POST /api/notifications/read`** `{ space }` → `204` : « tout lu » pour cet espace, sur tous les appareils.
+Remplace `markRead`.
 
 **`GET /api/jobs/:id`** → `Job`. Interrogé toutes les 1,5 s par `useJob`. Une tâche silencieuse
 depuis plus de 300 s est lue (et enregistrée) en `error` : « relancez-la ».
