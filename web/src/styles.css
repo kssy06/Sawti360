@@ -184,6 +184,9 @@ input, textarea { caret-color: var(--accent); }
 .btn-lg { --h: 42px; padding: 0 20px; font-size: var(--t-base); }
 .btn-icon { width: var(--h); padding: 0; }
 .btn-block { width: 100%; }
+/* Sidebar children never shrink: the column scrolls instead of squashing the « Nouveau projet » button. */
+.side > * { flex-shrink: 0; }
+.side > .btn-block { min-height: 40px; }
 .btn-link { padding: 0; height: auto; color: var(--accent); background: none; border: 0; font-weight: 500; }
 .btn-link:hover { text-decoration: underline; }
 .spin { animation: spin 0.9s linear infinite; }
