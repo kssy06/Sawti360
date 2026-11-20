@@ -26,7 +26,7 @@ describe("B4 · erreurs injectées signalées", () => {
   it("le LLM 2 juge « ok » une ligne que les règles signalent : « à relire », jamais accepté en silence", () => {
     const r = mergeReview(DINARS, { id: "s3", verdict: "ok", note: "Rien à corriger.", suggestion: null }, "claude-opus-5-5");
     expect(r.verdict).toBe("correction");
-    expect(r.note).toMatch(/^Le vérificateur automatique signale : Chiffres différents.*: à relire\. \(LLM 2 : Rien à corriger\.\)$/);
+    expect(r.note).toMatch(/^Le vérificateur automatique signale : Chiffres différents.*: à relire\. \(Sawti Check : Rien à corriger\.\)$/);
     expect(r.suggestion).toBeUndefined();
   });
 

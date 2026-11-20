@@ -710,7 +710,7 @@ export const useStore = create<Store>()(
           if (!sug) return;
           patch(pid, (pp) => ({
             segments: pp.segments.map((x) => (x.id === segId ? { ...x, translation: sug, validated: false } : x)),
-            reviews: { ...pp.reviews, [segId]: { verdict: "ok", note: "Correction du LLM 2 appliquée. À approuver.", simulated: true } },
+            reviews: { ...pp.reviews, [segId]: { verdict: "ok", note: "Correction de Sawti Check appliquée.", simulated: true } },
           }));
         },
         reviewAll: (pid) => (BACKEND ? void remote.review.reviewAll(set, pid) : patch(pid, (p) => ({ reviews: Object.fromEntries(p.segments.map((x) => [x.id, reviewSegment(x)])) }))),

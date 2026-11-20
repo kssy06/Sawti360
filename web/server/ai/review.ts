@@ -48,7 +48,7 @@ export function mergeReview(seg: Pick<Segment, "source" | "translation">, llm: L
   if (alerts.length) {
     return {
       verdict: "correction",
-      note: `Le vérificateur automatique signale : ${alerts.map((a) => a.message.replace(/\.$/, "")).join(" ; ")} : à relire.${llm.note.trim() ? ` (LLM 2 : ${llm.note.trim()})` : ""}`,
+      note: `Le vérificateur automatique signale : ${alerts.map((a) => a.message.replace(/\.$/, "")).join(" ; ")} : à relire.${llm.note.trim() ? ` (Sawti Check : ${llm.note.trim()})` : ""}`,
       simulated: false,
       provider,
     };

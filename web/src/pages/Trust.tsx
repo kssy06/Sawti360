@@ -23,7 +23,7 @@ const GATES: { title: string; gate: string; prov: ProvKind; note: string }[] = [
   { title: "Transcription", gate: "Diversité", prov: "sim", note: "Derja, français et mélange ; exemples préparés." },
   { title: "Identification des personnages", gate: "Contrôle humain", prov: "real", note: "Propositions de l’IA confirmées par le créateur." },
   { title: "Autorisations", gate: "Consentement", prov: "real", note: "Vivant ou décédé, consentement ou dossier familial. Contrôle IA simulé." },
-  { title: "Traduction contextuelle", gate: "Robustesse", prov: "sim", note: "LLM 1 et LLM 2 simulés ; vérificateur de fidélité réel." },
+  { title: "Traduction contextuelle", gate: "Robustesse", prov: "sim", note: "Sawti Translate et Sawti Check simulés ; vérificateur de fidélité réel." },
   { title: "Approbation par réplique", gate: "Responsabilité", prov: "real", note: "Chaque approbation est inscrite au journal." },
   { title: "Choix de la voix", gate: "Consentement", prov: "real", note: "Moteur de règles et licences signées, refus par défaut." },
   { title: "Synthèse et mixage", gate: "Durabilité", prov: "real", note: "Synthèse réelle si le moteur est configuré ; mixage dans le navigateur, au téléchargement du MP4." },
@@ -49,7 +49,7 @@ function gatesOf(h: Health | null) {
   const over: Record<string, { prov: ProvKind; note: string }> = {
     Transcription: p.asr ? { prov: "real", note: `Derja, français et mélange : ${p.asr}.` } : { prov: "sim", note: "Aucun modèle configuré : l’exemple simulé reste proposé, signalé comme tel." },
     Autorisations: { prov: "real", note: `Vivant ou décédé, consentement ou dossier familial. Contrôle du dossier : ${p.dossier ?? "règles seules, « vérification nécessaire »"}.` },
-    "Traduction contextuelle": p.llm1 ? { prov: "real", note: `LLM 1 : ${p.llm1} ; LLM 2 : ${p.llm2 ?? "règles de fidélité"} ; vérificateur de fidélité réel.` } : { prov: "sim", note: "Aucun modèle configuré : exemple simulé ; vérificateur de fidélité réel." },
+    "Traduction contextuelle": p.llm1 ? { prov: "real", note: `Sawti Translate : ${p.llm1} ; Sawti Check : ${p.llm2 ?? "règles de fidélité"} ; vérificateur de fidélité réel.` } : { prov: "sim", note: "Aucun modèle configuré : exemple simulé ; vérificateur de fidélité réel." },
   };
   return GATES.map((g) => ({ ...g, ...(over[g.title] ?? {}) }));
 }
@@ -340,7 +340,7 @@ export default function Trust() {
                     ["Synthèse vocale", p ? <span>{p.tts ? `ElevenLabs ${p.tts}` : p.ttsMock ? "Mode test : audio silencieux" : "Non configurée"} <Prov kind={p.tts ? "real" : "sim"} /></span> : <span>ElevenLabs eleven_multilingual_v2 <Prov kind="real" /></span>],
                     ["Voix", "Voix de synthèse prédéfinies, n’imitant aucune personne réelle"],
                     ["Transcription derja", p?.asr ? <span>{p.asr} <Prov kind="real" /></span> : <span>{p ? "Non configurée" : "Non branchée"} <Prov kind="sim" /></span>],
-                    ["Traduction LLM 1 et vérification LLM 2", p?.llm1 ? <span>LLM 1 : {p.llm1} · LLM 2 : {p.llm2 ?? "règles de fidélité"} <Prov kind="real" /></span> : <span>{p ? "Non configurées" : "Non branchées"} <Prov kind="sim" /></span>],
+                    ["Traduction (Sawti Translate) et vérification (Sawti Check)", p?.llm1 ? <span>Sawti Translate : {p.llm1} · Sawti Check : {p.llm2 ?? "règles de fidélité"} <Prov kind="real" /></span> : <span>{p ? "Non configurées" : "Non branchées"} <Prov kind="sim" /></span>],
                     ["Contrôle du dossier familial", p ? <span>{p.dossier ?? "Règles seules : « vérification nécessaire »"} <Prov kind="real" /></span> : <span>Non branché <Prov kind="sim" /></span>],
                     ...(p ? ([["E-mails", <span>{p.mail ? "Gmail (SMTP)" : "Non configurés : lien à copier ou WhatsApp"} <Prov kind={p.mail ? "real" : "sim"} /></span>]] as [string, React.ReactNode][]) : []),
                     ["Vérificateur de fidélité", <span>Règles : chiffres et négations <Prov kind="real" /></span>],

@@ -3,6 +3,7 @@
  * draftPassport() is shared: the simulated store signs it with the demo key (buildPassport),
  * the server with its own seed (server/sign.ts, A8).
  */
+import { CHECK, TRANSLATE } from "../core/engines.js";
 import { voiceById } from "../core/catalog.js";
 import { assemblePassport, signPassport, type Passport360 } from "../core/passport.js";
 import type { Data, Project } from "./store";
@@ -87,7 +88,7 @@ export function draftPassport(s: PassportData, project: Project, when = new Date
     }),
     doublage_ia: {
       transcription: real ? `Derja → texte : ${real.asr ?? "IA"} (réel)` : "Derja → texte, IA (simulée dans le prototype)",
-      traduction: real ? `LLM 1 : ${real.llm1 ?? "IA"} · LLM 2 : ${real.llm2 ?? "règles"} (réels)` : "LLM 1 traduit, LLM 2 vérifie (simulés dans le prototype)",
+      traduction: real ? `${TRANSLATE} : ${real.llm1 ?? "IA"} · ${CHECK} : ${real.llm2 ?? "règles"} (réels)` : `${TRANSLATE} traduit, ${CHECK} vérifie (simulés dans le prototype)`,
       verification: "Vérificateur de fidélité : chiffres et négations (règles)",
       validation_humaine: `${project.segments.filter((x) => x.validated).length} / ${project.segments.length} répliques approuvées par ${s.validator}`,
       synthese: `ElevenLabs eleven_multilingual_v2, après décision du moteur de règles${testAudio ? " · mode test : audio silencieux" : ""}`,

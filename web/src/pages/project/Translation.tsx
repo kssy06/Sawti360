@@ -1,12 +1,14 @@
 import { EMOTION_KEYS, EMOTIONS, type Emotion } from "../../core/emotion";
-import { ArrowRight, Check, RefreshCw, TriangleAlert, Undo2 } from "lucide-react";
+import { ArrowRight, Check, CircleCheck, Coins, RefreshCw, ScanSearch, TriangleAlert, Undo2 } from "lucide-react";
 import { useId, useState } from "react";
 import { Link } from "react-router-dom";
 import { FR_CHARS_PER_SECOND } from "../../core/catalog";
+import { costOf, fmt } from "../../core/credits";
+import { CHECK, TRANSLATE } from "../../core/engines";
 import { checkFidelity } from "../../core/fidelity";
 import type { Segment } from "../../core/types";
 import { useStore, type Project } from "../../state/store";
-import { Callout, Progress, Prov, Segmented, Status, timecode, toast, VoiceMark } from "../../ui/kit";
+import { Callout, Progress, Prov, Segmented, Status, timecode, toast } from "../../ui/kit";
 import { voiceInfo } from "./shared";
 import { StepFoot } from "./Workspace";
 
@@ -18,6 +20,20 @@ function trState(p: Project, s: Segment): TrState {
   if (p.proposals[s.id] !== undefined && p.proposals[s.id] !== s.translation) return "modifiee";
   if (p.reviews[s.id]) return "verifiee";
   return "generee";
+}
+
+/** The generation speeds a line up to ×1.15 on its own (C2): only past that is it really too long. */
+const MAX_SPEEDUP = 1.15;
+
+/** « Intervenant B » → « B », « Amel » → « A ». */
+const initialOf = (name: string) => (name.replace(/^Intervenante? /, "").trim()[0] ?? "?").toUpperCase();
+
+const VOICE_KIND = { licensed: "Voix licenciée", ai: "Voix IA", original: "Voix originale", none: "Pas encore de voix" } as const;
+
+/** Sawti Check's note once its correction is applied: « à approuver » only while it is not. */
+function reviewNote(note: string, validated: boolean): string {
+  if (!/^Correction d.* appliquée/.test(note)) return note;
+  return `Correction de ${CHECK} appliquée.${validated ? "" : " À approuver."}`;
 }
 
 function Row({ p, s }: { p: Project; s: Segment }) {
@@ -33,18 +49,26 @@ function Row({ p, s }: { p: Project; s: Segment }) {
   const info = voiceInfo(p, s.speaker);
   const spoken = [...s.translation.trim()].length / FR_CHARS_PER_SECOND;
   const onScreen = s.end - s.start;
-  const tooLong = spoken > onScreen + 0.2;
+  const tooLong = spoken > onScreen * MAX_SPEEDUP + 0.2;
+  const sped = !tooLong && spoken > onScreen + 0.2;
+  const jetons = p.characters[s.speaker]?.useOriginal ? 0 : costOf(s.translation);
+  const order = Object.keys(p.characters);
+  const tone = Math.max(0, order.indexOf(s.speaker)) % 4;
+  const speaker = p.characters[s.speaker]?.name ?? s.speaker;
   const f = (n: number) => n.toFixed(1).replace(".", ",");
 
   return (
     <div id={`tr-${s.id}`} className={`tr-row ${s.validated ? "approved" : ""}`}>
       <div className="tr-who">
-        <span className="mono muted">
-          {timecode(s.start)}–{timecode(s.end).slice(3)}
+        <span className={`spk spk-${tone}`} aria-hidden>
+          {initialOf(speaker)}
         </span>
-        <span className="row" style={{ gap: 6 }}>
-          <VoiceMark name={info.name} kind={info.kind} size={20} />
-          <b>{p.characters[s.speaker]?.name ?? s.speaker}</b>
+        <span className="tr-who-text">
+          <b>{speaker}</b>
+          <span className="mono muted">
+            {timecode(s.start)}–{timecode(s.end).slice(3)}
+          </span>
+          <span className={`tr-voice tr-voice-${info.kind}`}>{info.kind === "none" ? VOICE_KIND.none : `${VOICE_KIND[info.kind]} · ${info.name}`}</span>
         </span>
         {s.confidence < 0.8 && (
           <Status tone="warn" title="Score de confiance de la transcription">
@@ -60,11 +84,17 @@ function Row({ p, s }: { p: Project; s: Segment }) {
       </div>
       <div className="tr-col">
         <label className="label-sm tr-label-fr" htmlFor={fid}>
-          Français · LLM 1, modifiable
+          Français · {TRANSLATE}, modifiable
         </label>
         <textarea id={fid} className="textarea" rows={2} value={s.translation} onChange={(e) => edit(s.id, e.target.value)} lang="fr" />
-        <span className={`hint num ${tooLong ? "hint-warn" : ""}`}>
-          {tooLong ? <TriangleAlert size={12} aria-hidden style={{ verticalAlign: "-2px" }} /> : null} {f(onScreen)} s à l’écran · ≈ {f(spoken)} s en français
+        <span className="tr-meta">
+          <span className={`hint num ${tooLong ? "hint-warn" : ""}`}>
+            {tooLong ? <TriangleAlert size={14} aria-hidden style={{ verticalAlign: "-2px" }} /> : null} {f(onScreen)} s à l’écran · ≈ {f(spoken)} s en français
+            {tooLong ? " : trop longue, à raccourcir" : sped ? " : légèrement accélérée à la génération" : ""}
+          </span>
+          <span className="hint num tr-jetons" title="1 jeton par caractère doublé">
+            <Coins size={14} aria-hidden /> {fmt.format(jetons)} jetons
+          </span>
         </span>
         {alerts.map((a) => (
           <span key={a.type} className="hint hint-bad">
@@ -85,15 +115,18 @@ function Row({ p, s }: { p: Project; s: Segment }) {
         </span>
         {state === "modifiee" && (
           <button className="btn btn-link" style={{ justifySelf: "start", fontSize: 12 }} onClick={() => edit(s.id, p.proposals[s.id])}>
-            <Undo2 size={12} /> Revenir à la proposition du LLM 1
+            <Undo2 size={12} /> Revenir à la proposition de {TRANSLATE}
           </button>
         )}
       </div>
       <div className="tr-col">
-        <span className="label-sm tr-label">Vérification · LLM 2</span>
+        <span className="label-sm tr-label">Vérification · {CHECK}</span>
         {review ? (
           <div className={`review ${review.verdict === "ok" ? "review-ok" : ""}`}>
-            <span>{review.note}</span>
+            <span className="review-note">
+              {review.verdict === "ok" ? <CircleCheck size={16} aria-hidden className="review-icon ok" /> : <ScanSearch size={16} aria-hidden className="review-icon" />}
+              <span>{reviewNote(review.note, s.validated)}</span>
+            </span>
             {review.suggestion && (
               <>
                 <span className="sug">« {review.suggestion} »</span>
@@ -118,12 +151,11 @@ function Row({ p, s }: { p: Project; s: Segment }) {
   );
 }
 
-/** « LLM 1 et LLM 2 », or the models that really ran (back-end mode). */
-function modelsLabel(p: Project): string {
+/** The models that really ran behind Sawti Translate and Sawti Check (back-end mode), for the tooltip. */
+function modelsBehind(p: Project): string {
   const llm1 = p.pipeline?.simulated === false ? p.pipeline.providers?.llm1 : undefined;
   const llm2 = Object.values(p.reviews).find((r) => !r.simulated && r.provider)?.provider;
-  if (!llm1 && !llm2) return "LLM 1 et LLM 2";
-  return [llm1 ? `LLM 1 : ${llm1}` : "LLM 1", llm2 ? `LLM 2 : ${llm2}` : "LLM 2"].join(" · ");
+  return [`${TRANSLATE} : ${llm1 ?? "simulé"}`, `${CHECK} : ${llm2 ?? "règles de fidélité"}`].join(" · ");
 }
 
 export default function Translation({ p }: { p: Project }) {
@@ -139,7 +171,11 @@ export default function Translation({ p }: { p: Project }) {
       <div className="stack">
         <div className="row-between">
           <div className="row">
-            <Prov kind={p.example ? "example" : p.pipeline?.simulated === false ? "real" : "sim"}>{modelsLabel(p)}</Prov>
+            <span title={modelsBehind(p)}>
+              <Prov kind={p.example ? "example" : p.pipeline?.simulated === false ? "real" : "sim"}>
+                {TRANSLATE} et {CHECK}
+              </Prov>
+            </span>
             <Prov kind="real">vérificateur de fidélité, approbations au journal</Prov>
           </div>
           <div className="row">
@@ -161,7 +197,7 @@ export default function Translation({ p }: { p: Project }) {
           </div>
         </div>
         <Callout tone="plain">
-          Le LLM 1 traduit en gardant le sens, le contexte et les expressions. Le LLM 2 relit et propose des corrections. <b>Rien n’est généré sans votre approbation, réplique par réplique.</b> Modifier un texte retire son approbation.
+          <b>{TRANSLATE}</b> traduit en gardant le sens, le contexte, les expressions et le temps à l’écran. <b>{CHECK}</b> relit chaque réplique contre la derja et propose des corrections. <b>Rien n’est généré sans votre approbation, réplique par réplique.</b> Modifier un texte retire son approbation.
         </Callout>
       </div>
 
@@ -185,6 +221,9 @@ export default function Translation({ p }: { p: Project }) {
             {approved} / {p.segments.length} approuvées
           </span>
           <Progress value={p.segments.length ? approved / p.segments.length : 0} label="Répliques approuvées" tone={all ? "ok" : "info"} />
+          <span className="hint num tr-jetons" title="1 jeton par caractère doublé ; voix originales non comptées">
+            <Coins size={14} aria-hidden /> ≈ {fmt.format(p.segments.filter((x) => !p.characters[x.speaker]?.useOriginal).reduce((a, x) => a + costOf(x.translation), 0))} jetons pour tout doubler
+          </span>
           <span className="grow" />
           {all ? <Status tone="ok">Traduction approuvée</Status> : <span className="hint">Chaque approbation est signée dans le journal d’audit.</span>}
         </div>
