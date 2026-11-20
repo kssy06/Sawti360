@@ -119,3 +119,24 @@ export function installPressRipple() {
     if ((e as AnimationEvent).animationName === "press-ripple") (e.target as HTMLElement).classList?.remove("rippling");
   });
 }
+
+/**
+ * A number that counts up from 0 to `value` in whole steps (1, 2, 3, 4…), quickly.
+ * Each step lasts `duration / value` ms, capped so small counts still read as a count.
+ * Shows the final value at once under prefers-reduced-motion.
+ */
+export function CountUp({ value, duration = 700, delay = 0 }: { value: number; duration?: number; delay?: number }) {
+  const reduced = useReducedMotion();
+  const [n, setN] = useState(reduced ? value : 0);
+  useEffect(() => {
+    if (reduced || value <= 0) { setN(value); return; }
+    setN(0);
+    const step = Math.max(40, Math.min(160, duration / value));
+    let i = 0;
+    let timer: ReturnType<typeof setTimeout>;
+    const tick = () => { i += Math.max(1, Math.round(value / (duration / step))); setN(Math.min(value, i)); if (i < value) timer = setTimeout(tick, step); };
+    timer = setTimeout(tick, delay);
+    return () => clearTimeout(timer);
+  }, [value, duration, delay, reduced]);
+  return <span className="count-up" aria-label={String(value)}>{n}</span>;
+}

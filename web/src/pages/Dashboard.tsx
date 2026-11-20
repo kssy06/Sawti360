@@ -1,6 +1,7 @@
 import { ChevronRight, FileBadge2, FolderPlus, Inbox, Library, Mic, Plus } from "lucide-react";
 import { Link } from "react-router-dom";
 import { profileOf } from "../mock/registry";
+import { CountUp } from "../ui/motion";
 import { accountOf, statusOf, useStore, type Project } from "../state/store";
 import { DOSSIER_LABEL, hoursLeft, originalVoiceState, requestStatus, REQUEST_LABEL, type LicenseRequest } from "../state/workflow";
 import { Empty, PageHead, plural, Progress, relTime, Status } from "../ui/kit";
@@ -77,22 +78,22 @@ export default function Dashboard() {
       <div className="stats">
         <Link to="/projets" className="stat">
           <span className="stat-label">Projets</span>
-          <span className="stat-value">{projects.length}</span>
+          <span className="stat-value"><CountUp value={projects.length} delay={0} /></span>
           <span className="stat-sub">au total</span>
         </Link>
         <Link to="/projets?vue=en-cours" className="stat">
           <span className="stat-label">En cours</span>
-          <span className="stat-value">{projects.length - count("termine")}</span>
+          <span className="stat-value"><CountUp value={projects.length - count("termine")} delay={90} /></span>
           <span className="stat-sub">brouillon, analyse, génération</span>
         </Link>
         <Link to="/projets?vue=en-cours" className="stat">
           <span className="stat-label">En attente d’autorisation</span>
-          <span className="stat-value">{waiting}</span>
+          <span className="stat-value"><CountUp value={waiting} delay={180} /></span>
           <span className="stat-sub">voix originale ou licence</span>
         </Link>
         <Link to="/projets?vue=termines" className="stat">
           <span className="stat-label">Terminés</span>
-          <span className="stat-value">{count("termine")}</span>
+          <span className="stat-value"><CountUp value={count("termine")} delay={270} /></span>
           <span className="stat-sub">avec Passeport 360°</span>
         </Link>
       </div>
